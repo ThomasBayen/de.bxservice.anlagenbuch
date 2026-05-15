@@ -1,0 +1,6 @@
+AssetValue;Type;Name;Description;Priority;ItemStatus;ReportedDate;DueDate;CompletionDate;ScheduleTypeValue;MeterReading;Reporter
+MOWER-01;Defect;Mähwerk hebt nicht an;Hydraulik des Mähdecks reagiert nicht beim Anheben. Vermutlich Hydraulikleitung verstopft.;High;Open;2026-05-04;;;;;GardenAdmin
+PUMP-01;Defect;Pumpendruck zu niedrig;Druck im Bewässerungssystem fällt nach wenigen Minuten Betrieb ab. Filter prüfen.;Medium;Open;2026-05-06;;;;;GardenAdmin
+PICKUP-01;Schedule;TÜV-Hauptuntersuchung;Nächste fällige Hauptuntersuchung;;Open;2026-04-15;2026-08-15;;TUV;;GardenAdmin
+MOWER-02;Status;Erstaufnahme;Mäher in Bestand übernommen, Betriebsstunden notiert.;;Done;2026-04-01;;2026-04-01;;120;GardenAdmin
+SAW-01;Schedule;Jahresinspektion 2026;Reguläre Inspektion durch STIHL-Werkstatt;;Done;2026-04-10;2026-04-20;2026-04-20;ANNUAL_SERVICE;;GardenAdmin

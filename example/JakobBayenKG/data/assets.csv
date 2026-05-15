@@ -1,0 +1,16 @@
+Value;Name;KlassenValue;Hersteller;Modell;Baujahr;Inbetriebnahme;Standort;Anmerkung
+KR-JB 91;KR-JB 91;1010;MAN;;;;Hauptlager;10t/18t 15 StPl Kugel/Maul/Druckluft
+KR JB-160;KR JB 160;1010;;;;;Hauptlager;6,7t/11,9t 10 StPl Salek
+KR JB-19;KR JB 19;1010;MAN;;;;Hauptlager;5,6t/11,9t 12 StPl
+KR JB-567;KR JB 567;1010;;;;;Hauptlager;6,6t/12t 8 StPl Bühne Kugel/12V
+KR JB-1002;KR JB-1002;1010;;;;;Hauptlager;6,66t/12t 10 StPl 12V Kugel
+KR JB-1359;KR JB 1359;1010;;;;;Hauptlager;6,8t/12t 12V Kugel+Maul 8 StPl // Stromversorgung für Anhänger deaktiviert
+KR JB-1005;KR JB 1005;1020;Iveco;Daily Erdgas;;;Hauptlager;3,2t/7,2t 12V 6 StPl Kugel
+KR-J 98E;KR-J 98E;1030;Maxus;;;;Hauptlager;1,0t/3,5t Kugel 190km
+KR-JB 1016;KR JB 1016;1030;VW;Bus Elektro;;;Hauptlager;1,0t/2,8t 100km
+KR JB 103E;KR JB 103E;1030;VW;eCrafter;;;Hauptlager;1,1t/3,5t Schaap 140km
+KR-JB 397E;KR JB 397E;1030;Maxus;;;;Hauptlager;1,0t/3,5t 190km
+KR-JB 4444;KR-JB 4444;1050;;;;;Hauptlager;Kühlanhänger klein
+Stapler 1;Stapler 1;3010;;;;;Halle 1;Internes Gerät ohne Kennzeichen
+Stapler 2;Stapler 2;3010;;;;;Halle 2;Internes Gerät ohne Kennzeichen
+E-Hubwagen;E-Hubwagen;3020;;;;;Hauptlager;Internes Gerät ohne Kennzeichen

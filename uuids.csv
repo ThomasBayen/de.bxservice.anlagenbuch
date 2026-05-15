@@ -1,0 +1,567 @@
+ObjectType,Key,UUID
+# Zentrale Wahrheit aller fixen UUIDs des Anlagenbuch-2Packs.
+# Fehlt eine Zeile, ergänzt ein Script sie automatisch
+# beim ersten Lauf (uuid4) und schreibt diese Datei zurück.
+# Manuell editieren ist OK; nicht löschen, sonst dupliziert ein
+# erneuter Import beim Kunden.
+#
+# Key-Konvention:
+#   AD_Table:BXS_AssetClass
+#   AD_Column:BXS_AssetClass.Value
+#   AD_Element:BXS_AssetClass_ID
+#   AD_Reference:BXS_ItemType
+#   AD_Ref_List:BXS_ItemType.Defect
+#   AD_Window:BXS_Asset_Window
+#   AD_Tab:BXS_Asset_Window.Asset
+#   AD_Field:BXS_Asset_Window.Asset.Value
+#   AD_Process:BXS_WorkOrder_Complete
+#   AD_Rule:BXS_AssetItem_DocumentNo
+#   AD_Sequence:BXS_AssetItem_Defect
+#   AD_Menu:BXS_Asset_Window
+#   AD_Role:anlagenbuch
+#   Initial:BXS_AssetClass.1000
+AD_Reference,BXS_AssetStatus,0b020539-f50a-44dc-a3d1-42aeb8c1e0cc
+AD_Reference_Trl,BXS_AssetStatus:de_DE,87382507-3fe4-42a5-b855-c02903725fa2
+AD_Ref_List,BXS_AssetStatus.InService,0ff8db24-e1ac-4b12-bec7-c61a077c76e1
+AD_Ref_List_Trl,BXS_AssetStatus.InService:de_DE,e040ca3f-0aff-400b-9b63-e7bb86a70b40
+AD_Ref_List,BXS_AssetStatus.OutOfService,6b528b56-1c3d-46da-bd64-b1e478d41c4e
+AD_Ref_List_Trl,BXS_AssetStatus.OutOfService:de_DE,2c880cbf-ef88-4eb8-97f5-28f87faf6bb3
+AD_Ref_List,BXS_AssetStatus.Disposed,45964e62-823b-4ebb-ac7a-e7cc158dd911
+AD_Ref_List_Trl,BXS_AssetStatus.Disposed:de_DE,7ee18b76-9b4c-49d9-b2c5-da9de959fee4
+AD_Reference,BXS_ItemType,b2183f62-c790-4086-9be4-b3d15d383770
+AD_Reference_Trl,BXS_ItemType:de_DE,43daa67d-8ff1-48dc-926b-545756a55915
+AD_Ref_List,BXS_ItemType.Defect,0e1f50e0-12d5-4df4-8494-54f7c17c0733
+AD_Ref_List_Trl,BXS_ItemType.Defect:de_DE,07826f1c-af2e-4ce0-a3c6-360c0dbd2d7d
+AD_Ref_List,BXS_ItemType.Schedule,87d789b2-eec2-45b8-bbc1-493cac166dff
+AD_Ref_List_Trl,BXS_ItemType.Schedule:de_DE,2df99db9-b90c-4d16-8024-2e6ce7f75307
+AD_Ref_List,BXS_ItemType.Status,855bc9c1-e46b-41f0-9eef-b60e0fce471c
+AD_Ref_List_Trl,BXS_ItemType.Status:de_DE,45bb25fc-4fb4-4858-ab87-52880621a111
+AD_Reference,BXS_ItemStatus,e44204ce-a8d2-4d6b-90de-2c2dce36cd1c
+AD_Reference_Trl,BXS_ItemStatus:de_DE,bb8b222f-bee4-4189-a21a-1047dbb703f5
+AD_Ref_List,BXS_ItemStatus.Open,3e96bf28-eea6-4d5e-8102-d320703041ae
+AD_Ref_List_Trl,BXS_ItemStatus.Open:de_DE,02c01bcf-93b9-461c-997a-cf3f216f819c
+AD_Ref_List,BXS_ItemStatus.Done,96fc3c80-9b38-4df0-8330-2489be7dcc73
+AD_Ref_List_Trl,BXS_ItemStatus.Done:de_DE,45870c7a-68a4-4421-8404-28b50cff384d
+AD_Ref_List,BXS_ItemStatus.Cancelled,27229c38-31fa-4c7f-86a0-83bb955626b7
+AD_Ref_List_Trl,BXS_ItemStatus.Cancelled:de_DE,6cdcf8ba-992e-4603-a512-88948ab65d75
+AD_Ref_List,BXS_ItemStatus.Skipped,0e1cf810-7452-436c-a3b2-40814cbf0b78
+AD_Ref_List_Trl,BXS_ItemStatus.Skipped:de_DE,7d14f8ab-2cb5-40a7-ba24-49799b0a1684
+AD_Reference,BXS_WorkOrderStatus,fdbcbeb1-aeaf-405e-b776-c3c977292590
+AD_Reference_Trl,BXS_WorkOrderStatus:de_DE,6271b39e-9eb0-4f37-8ca8-10dacf35a80c
+AD_Ref_List,BXS_WorkOrderStatus.Draft,690cdf25-851a-4366-9cba-57ddf7be1ab8
+AD_Ref_List_Trl,BXS_WorkOrderStatus.Draft:de_DE,5708dd36-7070-4055-8c92-9e9fccbe0392
+AD_Ref_List,BXS_WorkOrderStatus.Released,91c2761c-e01c-4f09-ae52-692353be090e
+AD_Ref_List_Trl,BXS_WorkOrderStatus.Released:de_DE,edbccab1-86ee-4c91-8769-2b5d25166413
+AD_Ref_List,BXS_WorkOrderStatus.Completed,d3efc9cb-a4bd-4a35-854e-b20eaa0c1988
+AD_Ref_List_Trl,BXS_WorkOrderStatus.Completed:de_DE,f8e6e90e-94f4-41b6-9d14-33509290a8f1
+AD_Ref_List,BXS_WorkOrderStatus.Cancelled,c407d8db-e39a-4de3-aa67-cc38e303e2d6
+AD_Ref_List_Trl,BXS_WorkOrderStatus.Cancelled:de_DE,a12696d5-454e-421a-8d28-4239c59c047d
+AD_Reference,BXS_Priority,7ac8d1c9-07cf-462a-ab47-b941bbb6745a
+AD_Reference_Trl,BXS_Priority:de_DE,e7948e37-7275-4fd3-8598-7f2899aab39c
+AD_Ref_List,BXS_Priority.Low,81550df5-048a-421a-b8e8-aa4f1f3e277a
+AD_Ref_List_Trl,BXS_Priority.Low:de_DE,40a21e0e-bdfb-4bd4-a132-a30ef9f03553
+AD_Ref_List,BXS_Priority.Medium,bfde7e52-762a-4f4b-80dd-911f37b8c457
+AD_Ref_List_Trl,BXS_Priority.Medium:de_DE,84db2735-8c71-48cd-9c37-e2697db7cbba
+AD_Ref_List,BXS_Priority.High,6e4b0b48-e25a-4b2e-bf3e-3a53bbb0ef6d
+AD_Ref_List_Trl,BXS_Priority.High:de_DE,f07d1f38-0adf-4646-a5e1-26d32a717d8b
+AD_Table,BXS_AssetClass,5955ea90-3939-466f-8bdc-3afa7e110398
+AD_Element,BXS_AssetClass_ID,1e83a948-c2e6-4efc-b012-fd750d236af5
+AD_Element_Trl,BXS_AssetClass_ID:de_DE,7ee5b493-bd1b-4c05-9ffc-0ecd261efa4f
+AD_Element,BXS_AssetClass_UU,3aaee03d-d2c7-47fd-b920-89e0001952cc
+AD_Element,Value,1d4cd862-747e-4ca9-8d98-44ef1f9c453d
+AD_Element,Name,aaf814f5-3ce2-4852-9723-28ef96b2e167
+AD_Element,Description,22e2ee97-4651-4741-8d17-fa0e26aa2c05
+AD_Element,C_UOM_ID,97d5fb7b-50f4-4cf2-91cd-ef191894f896
+AD_Column,5955ea90.BXS_AssetClass_ID,97b9a4cd-343d-4dc1-8234-7d7c28c235a6
+AD_Column,5955ea90.BXS_AssetClass_UU,5f95ddbd-a562-43ed-972e-a7dcdff87185
+AD_Column,5955ea90.AD_Client_ID,8957754f-317a-44a2-af83-77372214d099
+AD_Column,5955ea90.AD_Org_ID,d0084ddc-0853-4674-a036-d366d902a9dd
+AD_Column,5955ea90.IsActive,ead04f70-a823-405b-b985-53fca7be44db
+AD_Column,5955ea90.Created,84771faf-befc-4e54-a4ff-83cc87317006
+AD_Column,5955ea90.CreatedBy,fa645b3c-124c-4ef5-9624-63a70acefe17
+AD_Column,5955ea90.Updated,a43ed74f-3dbf-4825-8d45-2e3fed254f05
+AD_Column,5955ea90.UpdatedBy,d05fec0f-506d-4dc3-93a8-ba699b634fd2
+AD_Column,5955ea90.Value,ddf85c06-782d-480a-a49d-868f3139eedc
+AD_Column,5955ea90.Name,dff69d9d-44c7-42c9-9f72-06815f892a2f
+AD_Column,5955ea90.Description,ced45614-1352-4303-9a10-772bcce21296
+AD_Column,5955ea90.C_UOM_ID,f59b890d-c01c-462f-b15b-79b11cb6da0d
+AD_Window,BXS_AssetClass_Window,b9b86f6b-c9df-4698-a669-548bef6a5c9f
+AD_Window_Trl,BXS_AssetClass_Window:de_DE,f184290f-fd3b-478a-881a-d1e0fa49dec3
+AD_Tab,BXS_AssetClass_Window.Asset Class,afe0cec3-e398-4b72-8239-9453cbfc83b4
+AD_Tab_Trl,BXS_AssetClass_Window.Asset Class:de_DE,f73d77cf-979b-4636-8d89-a7c0fadb9c87
+AD_Field,BXS_AssetClass_Window.Asset Class.Value,3e4408fb-523c-45eb-96da-d54e9c1b90d0
+AD_Field,BXS_AssetClass_Window.Asset Class.Name,71d71b6a-e5da-4641-9716-082f17be635f
+AD_Field,BXS_AssetClass_Window.Asset Class.Description,4fbbc1bf-8ac4-433e-b450-ef9485decfe9
+AD_Field,BXS_AssetClass_Window.Asset Class.C_UOM_ID,a4b8095a-54d4-4186-9733-b0c9ee918857
+AD_Menu,BXS_AssetClass_Window,87449cf4-0faa-4d2b-ac76-64e54f2bc15b
+AD_Menu_Trl,BXS_AssetClass_Window:de_DE,cbd1f95b-b93a-417a-b17c-dce4f256b41f
+Initial,BXS_AssetClass.1000,dd2c0fce-fcf8-4011-9e29-88f77ac93cb2
+Initial,BXS_AssetClass.2000,6011f9ac-a132-4c0a-9064-8e0553a4a7f6
+Initial,BXS_AssetClass.3000,1f11de1c-9f40-4d53-aaac-8c69221b95b6
+Initial,BXS_AssetClass.4000,3e90e378-a353-4392-8553-420cbb614a59
+Initial,BXS_AssetClass.5000,9100dd87-10f3-4882-8e2f-bea9a87454d5
+Initial,BXS_AssetClass.9000,a3e7c4d2-9000-4e51-9d8a-c70291e63b14
+AD_Tab,BXS_AssetClass_Window.BXS Asset Class,eef3326a-99bd-4935-9af0-fb4b96bea3be
+AD_Field,BXS_AssetClass_Window.BXS Asset Class.Value,8f2ceb06-66c9-467d-8628-fd36c8526a79
+AD_Field,BXS_AssetClass_Window.BXS Asset Class.Name,96a348de-85b2-4996-8475-83dae9f2924d
+AD_Field,BXS_AssetClass_Window.BXS Asset Class.Description,2e6346cb-50f1-4756-a97d-e4fa77bb06e8
+AD_Field,BXS_AssetClass_Window.BXS Asset Class.C_UOM_ID,7aae05ee-0e94-49a5-a5d7-d6b98653d569
+AD_Sequence,BXS_AssetClass,1df4d244-24ce-45ea-ba5a-9960ad157241
+AD_Table,BXS_ScheduleType,53596337-146d-49a5-86c1-27c43a9009fb
+AD_Element,BXS_ScheduleType_ID,cfa2f41b-342d-4f13-ab54-a436b980e9a8
+AD_Element,BXS_ScheduleType_UU,c3e2aa94-730d-4d6a-a934-69e40456ec64
+AD_Element,DefaultIntervalMonths,ba2edaae-dc12-45bd-98fe-4ec02e406333
+AD_Element,IsMandatoryDefault,a1e6c510-be9e-482d-9bc6-10d67e16fa2d
+AD_Column,53596337.BXS_ScheduleType_ID,43d11f30-c152-444d-a205-d74c09e70176
+AD_Column,53596337.BXS_ScheduleType_UU,875552bc-7f0d-4de4-ab4e-ca8eb397febe
+AD_Column,53596337.AD_Client_ID,949a022d-0c21-4181-af6e-416aaa8902b1
+AD_Column,53596337.AD_Org_ID,2a884b65-4587-4df5-aeb7-d6cec145c2a1
+AD_Column,53596337.IsActive,c57edd20-f773-4440-8439-c4f903687ae0
+AD_Column,53596337.Created,7f9855ec-1339-4e14-b70f-237f8650287e
+AD_Column,53596337.CreatedBy,5d4d8007-5d1c-4564-8c6f-570e82e6bf32
+AD_Column,53596337.Updated,28c6e5d9-27b4-4dec-91bf-fcc6e5afae26
+AD_Column,53596337.UpdatedBy,d9788046-590a-45aa-97ee-ba23da52f9b2
+AD_Column,53596337.Value,7a42fb71-b800-4d84-a047-f3ac56b12e0f
+AD_Column,53596337.Name,0d632466-c411-4efc-b936-536f116b0dcc
+AD_Column,53596337.Description,a93260f2-a4cd-4092-ab0b-2b735c5307af
+AD_Column,53596337.DefaultIntervalMonths,0b54e319-4120-44e7-aadc-4274f34c5559
+AD_Column,53596337.IsMandatoryDefault,362d5c83-0978-45b6-9b4c-e21ffefff4c9
+AD_Column,53596337.BXS_AssetClass_ID,7d8a78cf-e527-4bc9-8cc4-fd7018d73f08
+AD_Window,BXS_ScheduleType_Window,4fef9999-9dd7-4f58-b8e5-c1db85ff594e
+AD_Tab,BXS_ScheduleType_Window.BXS Schedule Type,8573ca3e-7db3-427d-84a0-f8638a6e5086
+AD_Field,BXS_ScheduleType_Window.BXS Schedule Type.Value,6d3d185f-a1e4-4cf3-a909-b9d54820b8b5
+AD_Field,BXS_ScheduleType_Window.BXS Schedule Type.Name,c23251c8-64d7-4a1d-9ede-8a4212623606
+AD_Field,BXS_ScheduleType_Window.BXS Schedule Type.Description,c8a3c551-8646-472a-ada2-cd9acc249a0f
+AD_Field,BXS_ScheduleType_Window.BXS Schedule Type.DefaultIntervalMonths,cc163f10-3e05-4003-ba8e-c426b5f70bb0
+AD_Field,BXS_ScheduleType_Window.BXS Schedule Type.IsMandatoryDefault,fb0cc8fa-914f-4632-91da-7962d7936868
+AD_Field,BXS_ScheduleType_Window.BXS Schedule Type.BXS_AssetClass_ID,859d831d-ef50-41c1-a240-88c80b61a26f
+AD_Menu,BXS_ScheduleType_Window,287b1004-7136-4c8d-84d5-0728849aa5aa
+Initial,BXS_ScheduleType.TUV,05e4c8b0-bf1a-40d2-b610-bf8bb574ff7f
+Initial,BXS_ScheduleType.SP,fcbaac76-1e4c-477c-8349-ea756cd89762
+Initial,BXS_ScheduleType.UVV,32f604f7-139e-4119-afb9-e4d356de77ac
+Initial,BXS_ScheduleType.WARRANTY,3672b7a4-cd8d-452b-b868-0b6765e53660
+Initial,BXS_ScheduleType.INSPECTION,30821a32-4843-441b-ae9e-e4e99db4179f
+AD_Table,BXS_Asset,d9a365ee-6913-44fc-b823-0ffbbd1f5110
+AD_Element,BXS_Asset_ID,7161b8fe-e147-4cf4-8641-40ef617fd2b2
+AD_Element,BXS_Asset_UU,fae335e1-8557-42dc-85f9-c4ce57f6e4fb
+AD_Element,AssetStatus,65ff2a7d-bff1-4a5c-9208-0f9dfe2ca096
+AD_Element,Manufacturer,677ad082-4b7e-43dd-b38e-efa5e28f4cda
+AD_Element,Model,0b5a0a32-8b7d-4028-866a-03e5d28e7553
+AD_Element,SerialNo,897570af-62d0-4e46-8b77-cf6f617c1eeb
+AD_Element,YearBuilt,9671704b-d267-4463-8e0d-ad4fc55aed5f
+AD_Element,CommissionDate,d782c108-4159-4d84-b0a6-9edadcdb5df3
+AD_Element,Location,fe6b3024-afd7-414c-983b-b6f8a9e62ea2
+AD_Column,d9a365ee.BXS_Asset_ID,76af6941-1b2f-4f21-ae4a-9316ad2c54bd
+AD_Column,d9a365ee.BXS_Asset_UU,aee259a0-b26d-4639-aebc-4feb2101d8ae
+AD_Column,d9a365ee.AD_Client_ID,05376c4f-4bef-4816-9a9e-62900aba85dd
+AD_Column,d9a365ee.AD_Org_ID,6e3cde90-1bf8-48f4-9133-3221fe25f54b
+AD_Column,d9a365ee.IsActive,d19bab4d-b4a2-43c7-98ee-816283440322
+AD_Column,d9a365ee.Created,794aee4c-3ff9-419a-9117-08036e082f1e
+AD_Column,d9a365ee.CreatedBy,0a011fb4-b61e-45e8-ac6e-519e4e406c7e
+AD_Column,d9a365ee.Updated,b176c4e7-e285-4dc8-a6fa-5e8da0d63736
+AD_Column,d9a365ee.UpdatedBy,adafc1e6-5f45-4ca9-af78-7455df191b8b
+AD_Column,d9a365ee.Value,232681cd-300d-4c4a-86c2-7ed6c76be4f6
+AD_Column,d9a365ee.Name,e7aa4d62-e193-42ef-ab03-350e69063fa5
+AD_Column,d9a365ee.Description,80b84089-6066-4f0a-ade1-ee54e72f7f6e
+AD_Column,d9a365ee.BXS_AssetClass_ID,6edc6332-1b44-4565-a973-8cc6ece905eb
+AD_Column,d9a365ee.AssetStatus,b3d98fd4-e67f-4e02-b585-8f173c39b6f8
+AD_Column,d9a365ee.Manufacturer,c2d8507a-a967-4798-9ffe-46b1961d60e3
+AD_Column,d9a365ee.Model,f82720d4-8a2c-48f8-84ad-50caa0d492f7
+AD_Column,d9a365ee.SerialNo,7703c61e-db26-4100-b109-22db8b92b2e7
+AD_Column,d9a365ee.YearBuilt,04d5bd76-721b-4b26-8a7f-55c396dfdd71
+AD_Column,d9a365ee.CommissionDate,7808bf8c-99ce-4dda-a0ec-15444835b782
+AD_Column,d9a365ee.M_Resource_ID,76115a0d-4e41-4f7d-9524-fce4f941fc18
+AD_Column,d9a365ee.AD_User_ID,56de142c-17cd-4f93-82bc-5327e0c359ca
+AD_Column,d9a365ee.Location,28bbfede-d932-424e-863b-9b022e347427
+AD_Column,d9a365ee.Note,e5981389-b884-4c6f-992b-7cc161486a7c
+AD_Table,BXS_AssetItem,fe0717c4-3a53-408a-bc4f-4a25fbe9d7a2
+AD_Element,BXS_AssetItem_ID,7ffd5749-a040-42be-aa71-ec1e490c3e00
+AD_Element,BXS_AssetItem_UU,71bc919f-6039-40ce-a640-6fef75346d29
+AD_Element,Type,8b59e486-d321-49a2-bde4-f63a20c0a3f1
+AD_Element,ReportedDate,76433cba-3f73-4359-b128-9824dbe94f72
+AD_Element,DueDate,bd623516-43be-4b80-a021-100dd673ee74
+AD_Element,Priority,0d857dd1-4cc4-4d01-b111-ab2e1a6acf5a
+AD_Element,MeterReading,c97d2e3e-0c4a-4c48-bdbe-5cbe33196726
+AD_Element,EstimatedCost,b1bb9b72-8220-47e3-b6eb-295c0b2aba67
+AD_Element,ItemStatus,803f770d-843e-41fe-b0b2-a2a46dd2c645
+AD_Element,CompletionDate,7222dc85-a52b-4441-bc11-4085badbbaa4
+AD_Column,fe0717c4.BXS_AssetItem_ID,0979c212-1a87-4966-8941-e96b35f168d0
+AD_Column,fe0717c4.BXS_AssetItem_UU,acf8bb75-53b0-4dd1-90cf-7c01904f54d8
+AD_Column,fe0717c4.AD_Client_ID,4a8fbbf8-50a1-41a0-a871-7a9f14910abb
+AD_Column,fe0717c4.AD_Org_ID,92c46e97-952b-436d-951d-32b27498995d
+AD_Column,fe0717c4.IsActive,addbfd5b-12a3-4e77-8f7a-86544c80e764
+AD_Column,fe0717c4.Created,9d72cb9d-0018-4cd9-bd88-da927d65e46a
+AD_Column,fe0717c4.CreatedBy,706e1eec-5259-4d8a-b5c9-63f63d0f7e8a
+AD_Column,fe0717c4.Updated,208fa13a-b966-420f-8e44-fc187c1535b0
+AD_Column,fe0717c4.UpdatedBy,1551faf3-5988-48da-93b4-5506c672cbcc
+AD_Column,fe0717c4.DocumentNo,28a80b98-d6b5-4043-8e92-35ef72e45ee0
+AD_Column,fe0717c4.BXS_Asset_ID,a557b649-90e3-44f6-909e-a380f84ff0ee
+AD_Column,fe0717c4.Type,24cc1d96-1e19-47d7-a4f7-aa9dc3dcdae2
+AD_Column,fe0717c4.Name,37883a6e-f77f-417c-85bf-8f5384d3ee50
+AD_Column,fe0717c4.Description,32f09a19-d7c7-4d01-add5-bb1de85b58ec
+AD_Column,fe0717c4.ReportedDate,c4991bf9-8a1e-4748-a37c-6ada3b3826b4
+AD_Column,fe0717c4.DueDate,73e36b2b-663c-486d-85d7-6f29c06b49c1
+AD_Column,fe0717c4.AD_User_ID,2d35e9a6-52c6-4bf8-95d9-1e9465851a2f
+AD_Column,fe0717c4.Priority,b4f50d2f-8a79-40e8-934b-fa83ec96e9a3
+AD_Column,fe0717c4.BXS_ScheduleType_ID,73c7f9b0-ae79-456d-88ac-4d6c508855b0
+AD_Column,fe0717c4.MeterReading,ccbcdbd0-885d-469b-9d6a-711ceac16430
+AD_Column,fe0717c4.EstimatedCost,ae783669-5fe9-43fd-baa7-6aa4d116d217
+AD_Column,fe0717c4.ItemStatus,c0c7f527-ea54-4fd6-b787-8a6ad181f15a
+AD_Column,fe0717c4.CompletionDate,7e00a9d8-4be8-491a-9101-58b9e4f06bb6
+AD_Column,fe0717c4.Note,3c50816c-37d7-4ed3-81b8-2f333793b9e8
+AD_Sequence,BXS_AssetItem_Defect,847cb6de-20d9-4171-bf8d-b9c77dc72e81
+AD_Sequence,BXS_AssetItem_Schedule,3fa4ee4d-e4ee-47f8-a4da-135256065cec
+AD_Sequence,BXS_AssetItem_Status,4c10929b-ea56-471c-b349-31ff69bcfbb8
+AD_Window,BXS_Asset_Window,6cbb1f81-f6ee-45c3-b582-44339ec46528
+AD_Tab,BXS_Asset_Window.Asset,12a5b96b-f990-410a-b4ab-5864ff8c8564
+AD_Field,BXS_Asset_Window.Asset.Value,2eaf5b33-2148-4a8a-8b1b-235bd017276d
+AD_Field,BXS_Asset_Window.Asset.Name,5cd886c6-01af-4f24-b219-4c02f7e77ea2
+AD_Field,BXS_Asset_Window.Asset.Description,9a1cc4ea-2c8d-47ef-9bef-ba612bc00006
+AD_Field,BXS_Asset_Window.Asset.BXS_AssetClass_ID,57a0d3c8-f425-409e-bbd9-cd15b0199ba5
+AD_Field,BXS_Asset_Window.Asset.AssetStatus,a12a277c-5c5c-45a1-84c8-e49070e12225
+AD_Field,BXS_Asset_Window.Asset.Manufacturer,e08f932e-c78f-4aef-aabc-a8a96d3016d3
+AD_Field,BXS_Asset_Window.Asset.Model,919c009b-c300-4b1a-91c4-5e90ead45451
+AD_Field,BXS_Asset_Window.Asset.SerialNo,49424f5a-ac9a-410d-8465-b0db41d9ca9f
+AD_Field,BXS_Asset_Window.Asset.YearBuilt,0f9b8983-1f93-40ce-bda1-d25b4e337643
+AD_Field,BXS_Asset_Window.Asset.CommissionDate,bf3d325f-09b1-4bec-bce3-b4f37fa683be
+AD_Field,BXS_Asset_Window.Asset.M_Resource_ID,66a15d76-9df9-423d-a450-b5c71a00a99c
+AD_Field,BXS_Asset_Window.Asset.AD_User_ID,62942cde-7efd-4201-818d-d9513b412729
+AD_Field,BXS_Asset_Window.Asset.Location,94042e90-72bf-4002-af17-486af467c2d7
+AD_Field,BXS_Asset_Window.Asset.Note,be2ca4a8-137e-4323-97ae-2d352a5aecae
+AD_Tab,BXS_Asset_Window.Defect,d4f468ee-7520-4839-b49b-5b3d5c3925b2
+AD_Field,BXS_Asset_Window.Defect.DocumentNo,cabdb8a9-e022-4d98-9606-87ffa2b33b86
+AD_Field,BXS_Asset_Window.Defect.BXS_Asset_ID,e57f4b3a-af0b-4273-82ad-af926543c61a
+AD_Field,BXS_Asset_Window.Defect.Type,513a96f1-b4eb-456c-85b5-26ffd958f4e9
+AD_Field,BXS_Asset_Window.Defect.Name,9372f50e-531a-460a-8a19-f69a3c6ecfde
+AD_Field,BXS_Asset_Window.Defect.Description,0031d726-1d41-42ae-9d37-fc7c0a698d90
+AD_Field,BXS_Asset_Window.Defect.ReportedDate,884056bf-f447-40d4-b1f1-00891552dffa
+AD_Field,BXS_Asset_Window.Defect.DueDate,827a8f0f-ff04-4896-9a84-c229d542b141
+AD_Field,BXS_Asset_Window.Defect.AD_User_ID,6b16b948-6247-485d-bef9-5bb0ba07f13b
+AD_Field,BXS_Asset_Window.Defect.Priority,4d7a85dc-bba7-4b13-8743-900d6010003d
+AD_Field,BXS_Asset_Window.Defect.BXS_ScheduleType_ID,189295fa-b187-4f97-8b6b-810765afd2c6
+AD_Field,BXS_Asset_Window.Defect.MeterReading,1cade3b3-fd61-4f59-a9c0-2a2ea3a57ea6
+AD_Field,BXS_Asset_Window.Defect.EstimatedCost,b582fffc-d4e7-4bf1-ac68-cc2adfb924dc
+AD_Field,BXS_Asset_Window.Defect.ItemStatus,28e19812-ad1e-4a8d-a618-6d1994e29a94
+AD_Field,BXS_Asset_Window.Defect.CompletionDate,3957d643-d6b6-4608-98dd-8547bb53d320
+AD_Field,BXS_Asset_Window.Defect.Note,a72ba8e8-033b-4c0d-8a27-e29320ff8851
+AD_Tab,BXS_Asset_Window.Schedule,b324130a-7ba5-426e-b841-102d5412a403
+AD_Field,BXS_Asset_Window.Schedule.DocumentNo,966a5d04-39b1-479a-a211-3e4f82961a5c
+AD_Field,BXS_Asset_Window.Schedule.BXS_Asset_ID,fd5a385d-30f8-4f46-914c-df7260fb2384
+AD_Field,BXS_Asset_Window.Schedule.Type,e2feb06c-2cc4-4211-86ca-9ca928b4e883
+AD_Field,BXS_Asset_Window.Schedule.Name,df14bd10-79e9-47be-922a-228488ec98b9
+AD_Field,BXS_Asset_Window.Schedule.Description,0375692c-b649-40be-a6aa-b73f69d227d3
+AD_Field,BXS_Asset_Window.Schedule.ReportedDate,f7e76e9d-1738-40e7-bd0f-e1da405d4d0c
+AD_Field,BXS_Asset_Window.Schedule.DueDate,0266b533-cec3-45ce-8c5b-d5dc6e2761f6
+AD_Field,BXS_Asset_Window.Schedule.AD_User_ID,16a1d25f-d683-477e-b69f-ba7a1fd7768d
+AD_Field,BXS_Asset_Window.Schedule.Priority,2c66bcd4-c46a-44c8-b321-24b29cb49d17
+AD_Field,BXS_Asset_Window.Schedule.BXS_ScheduleType_ID,816ab65b-7c1d-4a21-9b19-8976264e0302
+AD_Field,BXS_Asset_Window.Schedule.MeterReading,c9dbac69-e784-4591-bb0b-d197d1c40d5d
+AD_Field,BXS_Asset_Window.Schedule.EstimatedCost,3b98a6d6-c5ca-4699-8350-4c709c2773af
+AD_Field,BXS_Asset_Window.Schedule.ItemStatus,37e72a68-6178-43e1-9b82-f905e6e4f9ad
+AD_Field,BXS_Asset_Window.Schedule.CompletionDate,d9848d66-eda4-41f9-8a42-1f35be168102
+AD_Field,BXS_Asset_Window.Schedule.Note,f3b6827b-82a7-4c5e-9394-2124802512b2
+AD_Tab,BXS_Asset_Window.Status,719e47a7-f705-45d3-b56e-ce10ad34c579
+AD_Field,BXS_Asset_Window.Status.DocumentNo,4706829e-634d-4eab-a176-d47f80175508
+AD_Field,BXS_Asset_Window.Status.BXS_Asset_ID,f5720cce-f82a-448d-a634-1b7984e54ea1
+AD_Field,BXS_Asset_Window.Status.Type,59b3ea2f-2bed-4404-b76b-56801536725c
+AD_Field,BXS_Asset_Window.Status.Name,4a084ad9-d9a6-4d07-bd2b-60fe161db26a
+AD_Field,BXS_Asset_Window.Status.Description,acbd75be-96f1-4d6a-96ab-65b2e2f35199
+AD_Field,BXS_Asset_Window.Status.ReportedDate,e7357ea1-e7a0-496f-b422-c4b660446790
+AD_Field,BXS_Asset_Window.Status.DueDate,7721d9d7-d0ec-4b2d-9f1a-c875a87548ae
+AD_Field,BXS_Asset_Window.Status.AD_User_ID,72b3c9ae-dec9-4bf4-948c-1cfdf03c8298
+AD_Field,BXS_Asset_Window.Status.Priority,7ca63671-750a-49fb-9f66-54687e6e00c0
+AD_Field,BXS_Asset_Window.Status.BXS_ScheduleType_ID,68452d22-897c-449c-a651-ba14d90cc413
+AD_Field,BXS_Asset_Window.Status.MeterReading,0567a4e8-7582-4834-8975-1931f82fa2c2
+AD_Field,BXS_Asset_Window.Status.EstimatedCost,99877012-fb09-4621-be76-fb25a7d2f365
+AD_Field,BXS_Asset_Window.Status.ItemStatus,c9d65d51-bb8d-4106-9ad9-4a8534f8102f
+AD_Field,BXS_Asset_Window.Status.CompletionDate,bf5d7d51-32e9-434a-b153-fa54d433d124
+AD_Field,BXS_Asset_Window.Status.Note,1287e926-b252-4350-8360-9959e27f72f1
+AD_Menu,BXS_Asset_Window,6a512432-431f-42be-bd19-bbea110fa895
+AD_Table,BXS_WorkOrder,f80c6dbd-7712-4180-95a6-20c9ed91ea58
+AD_Element,BXS_WorkOrder_ID,9212307c-4cf7-4c68-bd25-10a3dfb271de
+AD_Element,BXS_WorkOrder_UU,25f3ce0c-a582-41b7-be71-1b529a39fdff
+AD_Element,Workshop_ID,57b21d8e-1bcc-416b-8f43-e1e23119e554
+AD_Element,Driver_ID,934de91d-0fa0-41dd-997b-29e970191a0b
+AD_Element,InternalContact_ID,d03284e6-a623-418b-be6b-a8bcef977ec3
+AD_Element,ScheduledDate,840885da-20ab-47f5-9b2e-08ac03852e16
+AD_Element,ActualDate,04098d00-0a6f-4226-9c4d-a3c288cdf9f7
+AD_Element,ActualCost,b331a0b8-7e9e-442c-a618-a8a3ced64f53
+AD_Element,ExternalDocumentNo,125e7bfa-ed1c-4271-a599-d20b693dd473
+AD_Element,WorkOrderStatus,b8c426ac-8bc5-4934-8b9c-ff299dfe267c
+AD_Column,f80c6dbd.BXS_WorkOrder_ID,d885909e-41e4-447b-840f-b3cd1c5e681b
+AD_Column,f80c6dbd.BXS_WorkOrder_UU,1a02f6f0-d7cb-4659-9c0b-8022befdc051
+AD_Column,f80c6dbd.AD_Client_ID,1b015512-3dae-4ec9-8a5d-985ffe56e7b1
+AD_Column,f80c6dbd.AD_Org_ID,03c26bb2-243b-4af8-bde8-284bdf2dac2b
+AD_Column,f80c6dbd.IsActive,6dd44699-1ebd-4a69-9e9e-eb284a8137c8
+AD_Column,f80c6dbd.Created,db766d41-46e5-458d-9885-7827b4d71b29
+AD_Column,f80c6dbd.CreatedBy,d35f06e8-a453-473b-a7d9-e287b72ee393
+AD_Column,f80c6dbd.Updated,db05c473-447e-45b4-9e32-0ef86f964918
+AD_Column,f80c6dbd.UpdatedBy,e9673ccd-af0c-4653-b37e-b847cc9e3d22
+AD_Column,f80c6dbd.DocumentNo,7c697dc8-7df8-4573-bd84-2c43a0d566c7
+AD_Column,f80c6dbd.Name,a459b90d-7e3f-455e-8d36-eee9dbb1fcb1
+AD_Column,f80c6dbd.BXS_Asset_ID,1dc379b4-da52-4797-9622-c49aac7a1a63
+AD_Column,f80c6dbd.Workshop_ID,3ee18708-dd9c-48b3-8f5c-8ba6ed6d25cb
+AD_Column,f80c6dbd.Driver_ID,7b031561-0e3a-4a05-aaa2-90a4eec0dcc9
+AD_Column,f80c6dbd.InternalContact_ID,97dd2c8d-136b-4de2-a827-ab25aa611d1f
+AD_Column,f80c6dbd.ScheduledDate,66bcced0-1ef1-4c3f-b8d3-4b6cee400b2b
+AD_Column,f80c6dbd.ActualDate,1c4c4c95-7cd8-40c3-883b-8db85f61fc9f
+AD_Column,f80c6dbd.CompletionDate,aca7c7a1-d520-4cba-9308-07c917fb3185
+AD_Column,f80c6dbd.EstimatedCost,3f8ff99b-0666-457a-8660-32ea5f023112
+AD_Column,f80c6dbd.ActualCost,507b58a3-d4f3-426c-b089-87976739ca5b
+AD_Column,f80c6dbd.ExternalDocumentNo,b152338f-02e1-461a-a4f4-a4885f1f74f8
+AD_Column,f80c6dbd.C_Invoice_ID,53d140f2-d806-4618-8369-4266b282d0e9
+AD_Column,f80c6dbd.WorkOrderStatus,d20cc8be-c6ec-4c1f-b4eb-c04032ffcb9d
+AD_Column,f80c6dbd.Description,91689f04-ae03-4f54-904f-bde6567a0718
+AD_Column,f80c6dbd.Note,fe45eb5b-6f14-4254-8341-a535bf18b4a7
+AD_Table,BXS_WorkOrder_Item,5e5d356b-5346-4e8b-9d83-5df97b5cdfe2
+AD_Element,BXS_WorkOrder_Item_ID,eabcd9be-1c6d-4886-a3fc-2ba318ffb537
+AD_Element,BXS_WorkOrder_Item_UU,94bee009-017a-4d70-ae7e-1b56e63c65de
+AD_Element,IsResolved,2abdd9ff-8a4d-475f-9d85-654325b0d6db
+AD_Element,LineNo,32f44b2b-0272-4d62-a2c6-ca9cb5dea92d
+AD_Column,5e5d356b.BXS_WorkOrder_Item_ID,48ac8fe7-e79d-47f1-977f-a188ae7ce48c
+AD_Column,5e5d356b.BXS_WorkOrder_Item_UU,9d9d250a-728d-4d0c-8987-c8cd4c4e0c72
+AD_Column,5e5d356b.AD_Client_ID,fd318894-18e5-4f6e-953e-7869353e9bb2
+AD_Column,5e5d356b.AD_Org_ID,c8b8db7c-767b-4453-9fe5-b33d91f6edc0
+AD_Column,5e5d356b.IsActive,d0518e7c-5644-48c9-8477-8c77c922afe3
+AD_Column,5e5d356b.Created,ea9df259-3b5c-46f8-9184-ad1dc0706e15
+AD_Column,5e5d356b.CreatedBy,0aaeaa9d-2f99-4947-bfc1-52ec38d0a1a0
+AD_Column,5e5d356b.Updated,5240bd85-cc44-4028-878a-6100af1905f4
+AD_Column,5e5d356b.UpdatedBy,f1998144-449e-4b0d-a3cd-ce5413be53b6
+AD_Column,5e5d356b.BXS_WorkOrder_ID,1bd46b65-81c6-4a9a-a1af-cf4c1d5a1462
+AD_Column,5e5d356b.BXS_AssetItem_ID,39e7f0e2-cc73-4889-9aae-954010b3dd32
+AD_Column,5e5d356b.IsResolved,d110604f-7276-47cd-b1f0-a7f16e4346e6
+AD_Column,5e5d356b.LineNo,de3e9f49-7782-4f34-acbb-bffe5b507b97
+AD_Column,5e5d356b.Note,e9df42a1-bd0c-4ba0-8834-4de74b2b7b4c
+AD_Column,fe0717c4.BXS_WorkOrder_ID,bbce6ed4-7ea8-42a9-a69f-6c0a35a3d177
+AD_Sequence,BXS_WorkOrder_DocumentNo,f9d17267-7b6a-4041-8db7-9294cd1e777b
+AD_Window,BXS_WorkOrder_Window,18a8f2cd-9b31-433a-9f87-8ce6333e4455
+AD_Tab,BXS_WorkOrder_Window.WorkOrder,a36be18b-2000-4d62-8480-8932e2948c65
+AD_Field,BXS_WorkOrder_Window.WorkOrder.DocumentNo,ea548b3b-cc9b-4c5a-9f45-9da4c4dfe5ce
+AD_Field,BXS_WorkOrder_Window.WorkOrder.Name,411feafb-a6aa-4ba3-80f6-9636b134988a
+AD_Field,BXS_WorkOrder_Window.WorkOrder.BXS_Asset_ID,27a2685d-8c2f-46f7-95a5-5af10c952fa9
+AD_Field,BXS_WorkOrder_Window.WorkOrder.Workshop_ID,03ce6cba-e2c1-4530-bc5e-2d5a2726dfbb
+AD_Field,BXS_WorkOrder_Window.WorkOrder.Driver_ID,ed29ecee-39ff-411e-880a-e49fc1e46853
+AD_Field,BXS_WorkOrder_Window.WorkOrder.InternalContact_ID,890ee1c3-fc85-4849-b479-2e2b4f3ba8f3
+AD_Field,BXS_WorkOrder_Window.WorkOrder.ScheduledDate,d0ec70b0-8719-4ee1-ac29-c5ba300e81fe
+AD_Field,BXS_WorkOrder_Window.WorkOrder.ActualDate,d4fb7407-4c1b-48cc-bb97-fcbdf1292840
+AD_Field,BXS_WorkOrder_Window.WorkOrder.CompletionDate,8c31f153-3ade-4e51-9b02-e6e6c226c11e
+AD_Field,BXS_WorkOrder_Window.WorkOrder.EstimatedCost,d1e89373-f2b9-4201-be22-442844cf94b1
+AD_Field,BXS_WorkOrder_Window.WorkOrder.ActualCost,337ff74f-8f9c-4f62-9cb7-7d2d1c573ed7
+AD_Field,BXS_WorkOrder_Window.WorkOrder.ExternalDocumentNo,b627c869-e3cc-4341-9fb6-5f4963b747cd
+AD_Field,BXS_WorkOrder_Window.WorkOrder.C_Invoice_ID,8575d715-dfb8-4352-8150-23fa4793e31c
+AD_Field,BXS_WorkOrder_Window.WorkOrder.WorkOrderStatus,a80b0d3d-90d9-4ae8-87ff-f491f27beb81
+AD_Field,BXS_WorkOrder_Window.WorkOrder.Description,332d363d-dc63-4ba4-a5fb-ccd4313e6fe8
+AD_Field,BXS_WorkOrder_Window.WorkOrder.Note,2cbab132-59f9-401b-8ff0-504bfa39b78e
+AD_Tab,BXS_WorkOrder_Window.WorkOrder Item,1e3d4580-60a9-4a68-864d-badbf13280fb
+AD_Field,BXS_WorkOrder_Window.WorkOrder Item.BXS_WorkOrder_ID,4c8e407c-cd6b-4840-9ced-4be3cdc57fa7
+AD_Field,BXS_WorkOrder_Window.WorkOrder Item.BXS_AssetItem_ID,fd982415-7d11-4386-84f8-4b0d7ef171f1
+AD_Field,BXS_WorkOrder_Window.WorkOrder Item.IsResolved,ebc1a39c-9001-4564-ab31-ea34b0071710
+AD_Field,BXS_WorkOrder_Window.WorkOrder Item.LineNo,c1feb7cd-4988-49fc-982e-29676d1054e5
+AD_Field,BXS_WorkOrder_Window.WorkOrder Item.Note,54280c73-fc2a-4712-90d1-5ad55d40a1c2
+AD_Tab,BXS_WorkOrder_Window.Open Items,5fa768d2-5bd3-445e-8b26-2da9f33592f3
+AD_Field,BXS_WorkOrder_Window.Open Items.DocumentNo,a59fc037-ffaa-4dae-ab06-08a323dc5500
+AD_Field,BXS_WorkOrder_Window.Open Items.BXS_Asset_ID,90715f7c-0ae6-4934-b3f1-90d54f47babe
+AD_Field,BXS_WorkOrder_Window.Open Items.Type,c57f6c80-0f74-4f4f-a260-5c331aede99a
+AD_Field,BXS_WorkOrder_Window.Open Items.Name,e9a6b883-8e92-4cd4-9fc7-cc097be9c640
+AD_Field,BXS_WorkOrder_Window.Open Items.Description,fed3bc52-432a-42fb-8145-25272639b5e8
+AD_Field,BXS_WorkOrder_Window.Open Items.ReportedDate,55138462-93b4-436d-aaf1-9ee6b93a902f
+AD_Field,BXS_WorkOrder_Window.Open Items.DueDate,9e9fc5a4-ea10-4eee-8acb-be9706c4865f
+AD_Field,BXS_WorkOrder_Window.Open Items.AD_User_ID,68f48f85-c3de-41c0-bc13-6eab9b3a2f14
+AD_Field,BXS_WorkOrder_Window.Open Items.Priority,13dadfd8-1e83-45db-b2f0-a9b3a2d8a808
+AD_Field,BXS_WorkOrder_Window.Open Items.BXS_ScheduleType_ID,47c57fb3-fe15-4339-acad-c934bc6aa002
+AD_Field,BXS_WorkOrder_Window.Open Items.MeterReading,c094d7bb-7460-421b-8d52-4a47b216d39f
+AD_Field,BXS_WorkOrder_Window.Open Items.EstimatedCost,f5477626-5d48-47f2-958f-295e2f6f681c
+AD_Field,BXS_WorkOrder_Window.Open Items.ItemStatus,652f66c7-412a-4b0c-b972-4485bb128c4a
+AD_Field,BXS_WorkOrder_Window.Open Items.CompletionDate,a80ee45d-9086-40b5-bc41-16ae56666a43
+AD_Field,BXS_WorkOrder_Window.Open Items.Note,43022744-7d99-4b65-91b7-cf00af9057cc
+AD_Menu,BXS_WorkOrder_Window,5db8c0e2-3728-4da1-a988-a37acea0762d
+AD_Element,M_Resource_ID,39d63f2c-10b1-4069-96d1-c209e91d09f5
+AD_Reference,BXS_AssetCategory,26a73e6e-21cb-41c8-80b0-d6795296932f
+AD_Ref_List,BXS_AssetCategory.Vehicle,a988231c-f5fc-42d3-86d3-6119027cf3b8
+AD_Ref_List,BXS_AssetCategory.Equipment,c0877533-ac84-429a-b5a9-dc341ace4238
+AD_Ref_List,BXS_AssetCategory.Stationary,21eaf3dc-f394-492c-88ab-a3efa6a21b4e
+AD_Ref_List,BXS_AssetCategory.Building,497ea8c6-2904-4959-8fdd-6fcf42b0726a
+AD_Ref_List,BXS_AssetCategory.IT,f9884093-7fe4-4778-aad3-02ed00a5421b
+AD_Ref_List,BXS_AssetCategory.Other,c1195833-d507-475f-856d-d440681e0682
+AD_Element,Category,f7f14f5e-f856-4725-bb1d-6e3b5a9b706c
+AD_Column,5955ea90.Category,18cefb88-49f7-4e09-986f-aa5b6f9fa0af
+AD_Field,BXS_AssetClass_Window.BXS Asset Class.Category,9a546d96-1580-4f5c-8f73-0b2c1f84ecfb
+AD_Field,BXS_AssetClass_Window.BXS Asset Class.IsActive,7278fd89-9d51-4630-95f1-740634b357b4
+AD_Field,BXS_ScheduleType_Window.BXS Schedule Type.IsActive,b6fa7de2-930c-4fd6-b790-b45fb549ae13
+AD_Field,BXS_Asset_Window.Asset.IsActive,84cdb267-ee4c-4a60-84b4-86518ab2bc73
+AD_Field,BXS_Asset_Window.Defect.IsActive,440d93c2-f532-4b0d-920c-e15c2e22b2be
+AD_Field,BXS_Asset_Window.Schedule.IsActive,b0a7afc7-9c5e-4443-a988-da262384a705
+AD_Field,BXS_Asset_Window.Status.IsActive,f6945a02-b446-4bca-a15a-b9a1b878018d
+AD_Field,BXS_WorkOrder_Window.WorkOrder.IsActive,8f243f5c-821d-425e-8b3d-7655589598bb
+AD_Field,BXS_WorkOrder_Window.WorkOrder Item.IsActive,d9ffea35-0736-4ab7-a5eb-441e40cca045
+AD_Field,BXS_WorkOrder_Window.Open Items.IsActive,07e4d025-3cf4-4831-913a-48b3f0fe0cc5
+AD_Field,BXS_AssetClass_Window.BXS Asset Class.BXS_AssetClass_ID,1a564780-a2d2-4467-9e6a-2c6476070657
+AD_Field,BXS_AssetClass_Window.BXS Asset Class.BXS_AssetClass_UU,a88d5637-2e82-43f1-9365-eecac0f68c39
+AD_Field,BXS_AssetClass_Window.BXS Asset Class.AD_Client_ID,8ab5cbd6-e42e-472a-a0fa-41cb64c4ba79
+AD_Field,BXS_AssetClass_Window.BXS Asset Class.AD_Org_ID,202880c7-7eee-4ff3-8d5e-8aa41fa936c1
+AD_Field,BXS_AssetClass_Window.BXS Asset Class.Created,0b7de4e0-ec1c-4fd7-b547-e301b5c5110d
+AD_Field,BXS_AssetClass_Window.BXS Asset Class.CreatedBy,eeca0fab-32a7-4cae-b23f-2b4269ac68f5
+AD_Field,BXS_AssetClass_Window.BXS Asset Class.Updated,11fb91d1-dd65-4895-833a-7479ae349e9c
+AD_Field,BXS_AssetClass_Window.BXS Asset Class.UpdatedBy,9783d3de-e2ae-4da6-96a4-7b191e4ef7cc
+AD_Field,BXS_ScheduleType_Window.BXS Schedule Type.BXS_ScheduleType_ID,927e23a4-3cd1-4ee4-912c-e6ef53ddc048
+AD_Field,BXS_ScheduleType_Window.BXS Schedule Type.BXS_ScheduleType_UU,b7f83e4d-1bc7-4ac0-b952-c5ea19696765
+AD_Field,BXS_ScheduleType_Window.BXS Schedule Type.AD_Client_ID,ccb5a68e-0119-4e7e-bc8f-98f316f37c85
+AD_Field,BXS_ScheduleType_Window.BXS Schedule Type.AD_Org_ID,30a55b12-7a3a-4b26-ab9b-2fd7ded4fad3
+AD_Field,BXS_ScheduleType_Window.BXS Schedule Type.Created,976aabf0-c8ae-432e-8783-10484d3dfbe4
+AD_Field,BXS_ScheduleType_Window.BXS Schedule Type.CreatedBy,487c5c9d-b215-4975-9953-d679f5542fec
+AD_Field,BXS_ScheduleType_Window.BXS Schedule Type.Updated,0a6f42d9-1b17-4ee8-986b-50597a5076fa
+AD_Field,BXS_ScheduleType_Window.BXS Schedule Type.UpdatedBy,cdf8feeb-7309-4078-8276-8c000153fbf9
+AD_Field,BXS_Asset_Window.Asset.BXS_Asset_ID,0c18b2a3-de6f-4c57-b157-58530eef9810
+AD_Field,BXS_Asset_Window.Asset.BXS_Asset_UU,adad0da4-79a5-47b5-9534-ce2e013416d8
+AD_Field,BXS_Asset_Window.Asset.AD_Client_ID,31e714d9-b042-4c3b-b698-9224e76f59e2
+AD_Field,BXS_Asset_Window.Asset.AD_Org_ID,d8f49c87-0b3a-4f05-8370-b9b675a9e278
+AD_Field,BXS_Asset_Window.Asset.Created,6ee53610-c38f-43f1-aef7-1003c8b68010
+AD_Field,BXS_Asset_Window.Asset.CreatedBy,9d51a3c6-9956-4049-ac91-d00bcc5b29dc
+AD_Field,BXS_Asset_Window.Asset.Updated,d71890ec-34cf-4ceb-ae5d-e4af9c39ef7b
+AD_Field,BXS_Asset_Window.Asset.UpdatedBy,6328ff71-e9c5-4cb8-84c2-dabda85badbe
+AD_Field,BXS_Asset_Window.Defect.BXS_AssetItem_ID,b8b21a98-3dd5-45ce-8e88-0fca99486c1e
+AD_Field,BXS_Asset_Window.Defect.BXS_AssetItem_UU,7f106f41-dcee-4b79-8a5e-3047060a7bbb
+AD_Field,BXS_Asset_Window.Defect.AD_Client_ID,1d973503-a564-4840-b6b1-f5991462e400
+AD_Field,BXS_Asset_Window.Defect.AD_Org_ID,e35b917f-bfca-4abd-bccd-5a2b7d64b6d0
+AD_Field,BXS_Asset_Window.Defect.Created,8e59f319-0486-4e00-a250-477903df8204
+AD_Field,BXS_Asset_Window.Defect.CreatedBy,64e52ea2-fed3-48d5-aa1e-e1d6533fcda0
+AD_Field,BXS_Asset_Window.Defect.Updated,331b7d13-54a3-4949-a38b-f069a192d68a
+AD_Field,BXS_Asset_Window.Defect.UpdatedBy,77332bda-c4dc-4221-9e46-4d7f11f4218d
+AD_Field,BXS_Asset_Window.Schedule.BXS_AssetItem_ID,4abecff4-2ae5-4515-a04e-23ab6de75945
+AD_Field,BXS_Asset_Window.Schedule.BXS_AssetItem_UU,0c85ec53-45a4-4aa4-9a97-d5061b05a4e8
+AD_Field,BXS_Asset_Window.Schedule.AD_Client_ID,14e7ce05-fcb1-4e64-a555-ce68d4c13cc2
+AD_Field,BXS_Asset_Window.Schedule.AD_Org_ID,f3e5296d-76bf-423e-98de-6c6fad07c09b
+AD_Field,BXS_Asset_Window.Schedule.Created,f3439411-a8b3-462a-9dfe-cf9f8e8bf5c9
+AD_Field,BXS_Asset_Window.Schedule.CreatedBy,ed59d164-c421-470c-a4d1-0b2c38e1fda6
+AD_Field,BXS_Asset_Window.Schedule.Updated,0f55b3ce-d6f4-41d2-862a-2102b65afb52
+AD_Field,BXS_Asset_Window.Schedule.UpdatedBy,3eb03ce7-3c8a-49bf-8830-f4c93f374dc6
+AD_Field,BXS_Asset_Window.Status.BXS_AssetItem_ID,b73057cd-011a-459d-8cf5-091a9e43e8f3
+AD_Field,BXS_Asset_Window.Status.BXS_AssetItem_UU,a90ad210-edd6-4c56-af9d-17f027fabacf
+AD_Field,BXS_Asset_Window.Status.AD_Client_ID,1e9b5ef3-9666-40c7-a88f-c23d895533d8
+AD_Field,BXS_Asset_Window.Status.AD_Org_ID,2f46aa36-d0b7-4f45-a28f-3bf05e581df8
+AD_Field,BXS_Asset_Window.Status.Created,c6aa5a59-1015-4f4d-b04e-87eadc0e65aa
+AD_Field,BXS_Asset_Window.Status.CreatedBy,d2b7b2b5-a5ee-4c36-8acc-b7cd3ac5941c
+AD_Field,BXS_Asset_Window.Status.Updated,a8f94435-7c9b-4f71-a50c-014fc01e3050
+AD_Field,BXS_Asset_Window.Status.UpdatedBy,6aeff487-643a-4814-90d3-91624604c580
+AD_Field,BXS_WorkOrder_Window.WorkOrder.BXS_WorkOrder_ID,6630685b-5030-47ab-b09d-25cd07da467d
+AD_Field,BXS_WorkOrder_Window.WorkOrder.BXS_WorkOrder_UU,3d1ac80a-9895-4dc1-b91d-0f07fe2ac47a
+AD_Field,BXS_WorkOrder_Window.WorkOrder.AD_Client_ID,1e915522-96b3-41ce-9bad-2bfec85df171
+AD_Field,BXS_WorkOrder_Window.WorkOrder.AD_Org_ID,adfd849a-a825-4edf-a45b-5d49bd046217
+AD_Field,BXS_WorkOrder_Window.WorkOrder.Created,a9118170-42f2-4707-ac25-fc6c848f0af8
+AD_Field,BXS_WorkOrder_Window.WorkOrder.CreatedBy,f4f4a733-213b-46f5-8ba3-bd1d2e92587e
+AD_Field,BXS_WorkOrder_Window.WorkOrder.Updated,f1986efb-842b-4b17-b7cc-cb443007fb4d
+AD_Field,BXS_WorkOrder_Window.WorkOrder.UpdatedBy,68768d3f-cf39-4db2-a9a7-ce51fb1435f0
+AD_Field,BXS_WorkOrder_Window.WorkOrder Item.BXS_WorkOrder_Item_ID,9f735681-a640-4a1c-be8e-24cae3855829
+AD_Field,BXS_WorkOrder_Window.WorkOrder Item.BXS_WorkOrder_Item_UU,7bafa3ee-e629-455e-9fa0-5a0dc6877828
+AD_Field,BXS_WorkOrder_Window.WorkOrder Item.AD_Client_ID,85e3fde0-e549-47a3-bed4-59cf05a83768
+AD_Field,BXS_WorkOrder_Window.WorkOrder Item.AD_Org_ID,ae467566-5544-4512-a0ff-69e08405ce9b
+AD_Field,BXS_WorkOrder_Window.WorkOrder Item.Created,323b4f51-ae8a-4dd7-af59-4ddd1a392e53
+AD_Field,BXS_WorkOrder_Window.WorkOrder Item.CreatedBy,04ce6ac5-84b8-4f95-845a-715ebc91900e
+AD_Field,BXS_WorkOrder_Window.WorkOrder Item.Updated,f4ce8410-df9e-414b-a306-1e8d8f8c341a
+AD_Field,BXS_WorkOrder_Window.WorkOrder Item.UpdatedBy,ece60d83-769a-4420-8321-36b266bdead6
+AD_Field,BXS_WorkOrder_Window.Open Items.BXS_AssetItem_ID,376e97a1-ace4-4eeb-bcf8-41c21d54a09b
+AD_Field,BXS_WorkOrder_Window.Open Items.BXS_AssetItem_UU,a5c9add7-8cc6-4f62-93ec-b2604d084d69
+AD_Field,BXS_WorkOrder_Window.Open Items.AD_Client_ID,2556e25f-04d1-4f3c-a87b-8b1b24ed6a3d
+AD_Field,BXS_WorkOrder_Window.Open Items.AD_Org_ID,ae736903-340d-43a1-8722-eb214175457f
+AD_Field,BXS_WorkOrder_Window.Open Items.Created,0be355d4-97ef-4fce-a955-b367adf04cac
+AD_Field,BXS_WorkOrder_Window.Open Items.CreatedBy,c8849953-38f3-46a7-882b-194cdb7d80e0
+AD_Field,BXS_WorkOrder_Window.Open Items.Updated,336caf87-0a99-43bf-a498-56bae64ce8d8
+AD_Field,BXS_WorkOrder_Window.Open Items.UpdatedBy,da146675-baff-4848-a163-016379aefc10
+Initial,C_UOM.5000000,b64fc517-5f49-4dc7-8d3e-5c7a5e5ea0e5
+AD_Rule,BXS_AssetItem_DocumentNo,95b92f4f-fce6-414c-a8e7-3f3c4fe5247b
+AD_Table_ScriptValidator,BXS_AssetItem_DocumentNo.BXS_AssetItem.TBN,95ddd70e-4eea-4327-a8d5-325f72ebde06
+AD_Rule,BXS_WorkOrder_DocumentNo,05bc2d1a-71d1-438e-9738-7a91ba8856b0
+AD_Table_ScriptValidator,BXS_WorkOrder_DocumentNo.BXS_WorkOrder.TBN,846b1382-ac48-4da2-85cf-506316121e38
+AD_Element,LastMeterReading,3fab953f-f963-49f5-b39b-5e58ea96b221
+AD_Element,LastMeterDate,8dee2f14-b1b2-41cb-898c-34e03f25f0c9
+AD_Column,d9a365ee.LastMeterReading,e2420497-c795-4742-ae82-8aef6d546fa2
+AD_Column,d9a365ee.LastMeterDate,2e1fe942-97ad-4e4c-98c5-d5690c42ecec
+AD_Element,NextItem_ID,4a5602cd-0f98-4af6-9f79-a233999bd7dd
+AD_Column,fe0717c4.NextItem_ID,1c081f42-7007-4c85-bb68-722db1167e74
+AD_Field,BXS_Asset_Window.Asset.LastMeterReading,abf3aa94-9d49-4591-a56f-4c56a8a744c5
+AD_Field,BXS_Asset_Window.Asset.LastMeterDate,3447a7d8-cd5a-4bf8-9a50-e45b7b02ca5b
+AD_Field,BXS_Asset_Window.Defect.BXS_WorkOrder_ID,218f41d9-9dcb-407d-9bba-23a41f6479e3
+AD_Field,BXS_Asset_Window.Defect.NextItem_ID,d9de5503-c0be-4a19-ade7-e9787c578f04
+AD_Field,BXS_Asset_Window.Schedule.BXS_WorkOrder_ID,91fef127-92b7-47ac-bf2c-c94ffc57cfc1
+AD_Field,BXS_Asset_Window.Schedule.NextItem_ID,491d923f-ccc9-4fd0-a7d5-93060cb9ab3e
+AD_Field,BXS_Asset_Window.Status.BXS_WorkOrder_ID,aa0d4fb6-44a8-44a8-a5cb-a5a02ce83a76
+AD_Field,BXS_Asset_Window.Status.NextItem_ID,a78b26f4-d48c-49d1-97e3-d79be41cf04a
+AD_Field,BXS_WorkOrder_Window.Open Items.BXS_WorkOrder_ID,9399b271-9b9a-4c19-b539-19c44e6073e2
+AD_Field,BXS_WorkOrder_Window.Open Items.NextItem_ID,eefbc17b-53dc-4fd7-916b-3b7c16c25e7b
+AD_Rule,beanshell:BXS_AssetItem_DocumentNo,67c19d67-d12c-4319-84ec-3bb469ce43b2
+AD_Table_ScriptValidator,beanshell:BXS_AssetItem_DocumentNo.BXS_AssetItem.TBN,f1f5c566-8e7a-4d25-b7db-e9dfa8fbf006
+AD_Rule,beanshell:BXS_WorkOrder_DocumentNo,021d792e-b949-4258-9b68-cd552fcaa1f0
+AD_Table_ScriptValidator,beanshell:BXS_WorkOrder_DocumentNo.BXS_WorkOrder.TBN,013087c3-33e8-4f01-b97c-2a523c489f4b
+AD_Element,DoCloseItem,e9046cd5-b404-4edc-983e-ccbc6dae2a9e
+AD_Column,fe0717c4.DoCloseItem,4f9ee803-4534-4202-a0be-f252c5090a3a
+AD_Process,BXS_AssetItem_CloseItem,e3a6ed04-5291-49b1-9a2f-0cb9d3b3c427
+AD_Element,DoCompleteOrder,06c72a81-357c-463a-a466-b5ffd7913d70
+AD_Element,DoPullOpenItems,ed5f45ee-7d5e-46ec-b764-ce73d42677b5
+AD_Column,f80c6dbd.DoCompleteOrder,4a31564d-5d98-4641-9aaf-4eb2fade52d6
+AD_Process,BXS_WorkOrder_CompleteOrder,0da53e3a-9f25-4f3d-bee7-b69152cad6d1
+AD_Column,f80c6dbd.DoPullOpenItems,22727094-61bc-4892-9c60-1945fe1ad405
+AD_Process,BXS_WorkOrder_PullOpenItems,a6a278bf-0586-4516-a88a-04142aed7066
+AD_Field,BXS_Asset_Window.Defect.DoCloseItem,c6babfe0-5b70-4910-80e1-a1bb4e2d9207
+AD_Field,BXS_Asset_Window.Schedule.DoCloseItem,bd5ed535-0693-4827-a973-40469cf6aef7
+AD_Field,BXS_Asset_Window.Status.DoCloseItem,315a0138-285e-4c7c-82cf-79adffe9220a
+AD_Field,BXS_WorkOrder_Window.WorkOrder.DoCompleteOrder,4866f70e-6096-4261-8e21-471fc31aaa55
+AD_Field,BXS_WorkOrder_Window.WorkOrder.DoPullOpenItems,840fe496-33f6-495f-8f8b-06ee012a2f79
+AD_Field,BXS_WorkOrder_Window.Open Items.DoCloseItem,8901e424-6467-42b2-a3f4-4ddabd6f2699
+AD_Rule,beanshell:BXS_AssetItem_CloseItem,1d63d4ee-af2f-4c79-be60-e64c12a2c2d4
+AD_Rule,beanshell:BXS_WorkOrder_CompleteOrder,d2c2f377-645d-4ae5-80ec-a94e5fded8af
+AD_Rule,beanshell:BXS_WorkOrder_PullOpenItems,a2697bcb-2cd2-44dd-850b-38bfc22a4bbc
+AD_Element,S_Resource_ID,c531b351-12a7-4a3a-8601-89d45c1c8817
+AD_Element,DoCreateWorkOrder,1ab3d023-5d55-4e50-9066-00f4b7f8c508
+AD_Column,d9a365ee.S_Resource_ID,2b9f0095-b1f9-4584-a336-a1c4c9fe76d4
+AD_Column,d9a365ee.DoCreateWorkOrder,35b56b7c-7a68-4740-95c8-4cc0d6ba94d5
+AD_Process,BXS_Asset_CreateWorkOrder,74b7bdea-718b-48b9-a1e6-79ab75297871
+AD_Field,BXS_Asset_Window.Asset.S_Resource_ID,fbcd9735-31f7-4e33-b9a2-f8016593f3e1
+AD_Field,BXS_Asset_Window.Asset.DoCreateWorkOrder,29f4e144-91ea-4752-8825-40dfdf5dfdad
+AD_Rule,beanshell:BXS_Asset_CreateWorkOrder,f6e4eb2d-8a87-43bd-8ece-3f7ce41c2677
+AD_Process,BXS_Print_WorkshopDossier,6a34e699-f381-4c3c-88b2-444d1cde90c1
+AD_Process,BXS_Print_AssetDossier,3869836b-d7ec-4cd8-9cb7-61f77f75bf6b
+AD_PrintFormat,BXS WorkshopDossier,7f684c59-cec7-41e9-950f-3cee43b7321c
+AD_PrintFormat,BXS AssetDossier,650346b6-db83-444c-b2c5-5c1f3e2d07bc
+AD_Tab,BXS_Asset_Window.WorkOrders,16ce7994-cf73-449e-80db-0e50576c6963
+AD_Field,BXS_Asset_Window.WorkOrders.DocumentNo,a487ddb0-617b-44ac-a7e5-b94ca6072790
+AD_Field,BXS_Asset_Window.WorkOrders.Name,9462b484-1f18-4c85-a579-a602dc1184a4
+AD_Field,BXS_Asset_Window.WorkOrders.BXS_Asset_ID,1bd8c576-0414-4304-a151-933e69274824
+AD_Field,BXS_Asset_Window.WorkOrders.Workshop_ID,1494035a-ed47-4738-994b-e2e7fdb8d356
+AD_Field,BXS_Asset_Window.WorkOrders.Driver_ID,ff1605e9-9627-40d5-908f-555546fef367
+AD_Field,BXS_Asset_Window.WorkOrders.InternalContact_ID,eff89bf2-5539-48c1-a36f-2bf7a6972311
+AD_Field,BXS_Asset_Window.WorkOrders.ScheduledDate,bdf95170-c99b-4332-86a5-8c79068641a6
+AD_Field,BXS_Asset_Window.WorkOrders.ActualDate,9fce70b5-500c-4f07-a234-54d3acf0a356
+AD_Field,BXS_Asset_Window.WorkOrders.CompletionDate,23b25f97-b1b8-4597-9ec3-c9afe215bdf2
+AD_Field,BXS_Asset_Window.WorkOrders.EstimatedCost,6a238d8f-263a-4508-a85f-e04f0df0d6b7
+AD_Field,BXS_Asset_Window.WorkOrders.ActualCost,aeb91b62-9fd7-4893-a9a7-2303fed6bc28
+AD_Field,BXS_Asset_Window.WorkOrders.ExternalDocumentNo,c511520d-0487-464f-8598-e8cb5240f199
+AD_Field,BXS_Asset_Window.WorkOrders.C_Invoice_ID,a36c78c7-f781-46ad-b0c5-928f4551a1bc
+AD_Field,BXS_Asset_Window.WorkOrders.WorkOrderStatus,a1e16dbf-5658-4218-96ff-f33fd7cbe852
+AD_Field,BXS_Asset_Window.WorkOrders.Description,fd51a08f-b7e2-4907-8b75-520df6d6c677
+AD_Field,BXS_Asset_Window.WorkOrders.Note,9474a98a-8e07-4f44-9ac2-040e06f89c37
+AD_Field,BXS_Asset_Window.WorkOrders.DoCompleteOrder,5aaadf1b-af2b-42c6-aad5-744034fe7322
+AD_Field,BXS_Asset_Window.WorkOrders.DoPullOpenItems,c5131e57-de62-42d4-8aaf-1c8239a7bd7b
+AD_Field,BXS_Asset_Window.WorkOrders.IsActive,5ab4c5ca-2b04-4383-9a7c-5b78b75277c2
+AD_Field,BXS_Asset_Window.WorkOrders.BXS_WorkOrder_ID,aad5fe01-3087-4622-b696-1a7ff549b56b
+AD_Field,BXS_Asset_Window.WorkOrders.BXS_WorkOrder_UU,d17630f4-3d08-4054-a32a-19b3bdbd7968
+AD_Field,BXS_Asset_Window.WorkOrders.AD_Client_ID,d7973aa1-3c76-44ef-972e-ac56506bcf75
+AD_Field,BXS_Asset_Window.WorkOrders.AD_Org_ID,ac877b97-a617-433c-ba08-57ad6cc1dc48
+AD_Field,BXS_Asset_Window.WorkOrders.Created,b489174d-a8fb-46ec-a454-058e97457d51
+AD_Field,BXS_Asset_Window.WorkOrders.CreatedBy,10278d7b-2b4b-4171-9755-8a24daeec10e
+AD_Field,BXS_Asset_Window.WorkOrders.Updated,c86311fd-5a1f-4e5d-963b-88b3a364f242
+AD_Field,BXS_Asset_Window.WorkOrders.UpdatedBy,ed4d875a-e3eb-4363-a7ff-62b9b62dcda9
+AD_Sequence,DocumentNo_BXS_AssetItem,e088beef-03ca-45f0-8058-61881500484d
+AD_Sequence,DocumentNo_BXS_WorkOrder,384f488f-462c-42ba-a656-c099ea5b0cbc
+AD_Menu,BXS_Menu_Anlagenbuch,7740d705-6caa-45ff-938a-27fa09f6eab8
+AD_Menu,Process.BXS_Print_WorkshopDossier,097d0ede-cd3a-4bd9-a9c8-6884cb7ffcf7
+AD_Menu,Process.BXS_Print_AssetDossier,dadccc21-c034-4306-98d8-bde5192f2ab1
+AD_Process,BXS_Print_AssetStatusOverview,1f583cc8-fe38-457e-b35d-8c10a3fe21f0
+AD_Menu,Process.BXS_Print_AssetStatusOverview,7b41dfbe-7e41-41ff-a2a5-43624a2665d3
+AD_Reference,BXS_AssetClass_Ref,8e919aac-1827-4c49-8623-9de98cd20253
+AD_Ref_Table,BXS_AssetClass_Ref,fc781d84-9663-444d-ae04-4f2db5f60a3b
+AD_Process_Para,BXS_Print_AssetStatusOverview.AssetClassIDs,76fb860f-77ab-447f-bf5f-ec8f57e1060d
+AD_Process_Para,BXS_Print_AssetStatusOverview.OnlyWithOpenItems,8884aba8-afc1-4b11-b578-8e0d3b57cdf8
+AD_Process,BXS_Print_Anlagenakte_DE,597d1314-fde0-456d-b7c8-d4768dd0ea9f
+AD_Process,BXS_Print_Werkstattmappe_DE,891f1681-6da1-4276-8d8d-7e92de6db6e9
+Initial,C_UOM.1000000,acd70dcc-b059-4eb6-9516-5acb73b49321
+Initial,C_UOM.KME,ad55c7f9-aa9a-418e-a4dc-f88e183e8f18

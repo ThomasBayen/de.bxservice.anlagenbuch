@@ -1,0 +1,184 @@
+# Tabellen BXS_WorkOrder + BXS_WorkOrder_Item (Datenmodell §2.5/§2.6)
+# und BXS_WorkOrder-Fenster (§4.4) mit 3 Tabs.
+
+tables:
+
+  - name: BXS_WorkOrder
+    label: BXS Work Order
+    label_de: Werkstattauftrag
+    description: "Werkstattauftrag — bündelt Fehlerberichte und Wartungstermine zu einem Werkstatt-Besuch"
+    access_level: "3"
+    primary_window: BXS_WorkOrder_Window
+    columns:
+      - { name: DocumentNo,         type: String,   length: 30,  mandatory: true,
+          help: "Belegnummer Format WAU-{Jahr}-{lfd.Nr.}" }
+      - { name: Name,               type: String,   length: 60,  mandatory: true,
+          label_de: "Kurzbezeichnung",
+          help: "z.B. „TÜV + Klappe + Reifen", erscheint in Listen.",
+          identifier_seq: 1 }
+      - { name: BXS_Asset_ID,       type: TableDir, ref: BXS_Asset, mandatory: true,
+          label_de: Anlage }
+      - { name: Workshop_ID,        type: Table, length: 22, mandatory: false,
+          ref_value_id: 192,    # Core: "C_BPartner Vendors"
+          label: Workshop, label_de: Werkstatt,
+          help: "Geschäftspartner-Lieferant der Werkstatt. Beim Anlegen
+                 per Knopf „Werkstattauftrag erzeugen“ zunächst leer —
+                 wird im Draft-Status vom Disponenten ergänzt, bevor der
+                 Auftrag auf „Open“ gestellt wird." }
+      - { name: Driver_ID,          type: Table, length: 22,
+          ref_value_id: 286,    # Core: "AD_User - Internal" (Mitarbeiter/SalesRep)
+          label: Driver, label_de: Bringer,
+          help: "Wer das Fahrzeug zur Werkstatt bringt. Auswahl auf interne Personen beschränkt." }
+      - { name: InternalContact_ID, type: Table, length: 22,
+          ref_value_id: 286,    # Core: "AD_User - Internal" (Mitarbeiter/SalesRep)
+          label: Internal Contact, label_de: "Interner Ansprechpartner",
+          help: "Ansprechpartner intern; Telefon kommt aus AD_User.Phone. Auswahl auf interne Personen beschränkt." }
+      - { name: ScheduledDate,      type: Date,
+          label: Scheduled Date, label_de: "Geplanter Termin" }
+      - { name: ActualDate,         type: Date,
+          label: Actual Date, label_de: "Tatsächlicher Beginn" }
+      - { name: CompletionDate,     type: Date,
+          label_de: "Rückgabe-Datum" }
+      - { name: EstimatedCost,      type: Amount, length: 14,
+          label_de: Kostenschätzung }
+      - { name: ActualCost,         type: Amount, length: 14,
+          label_de: "Finale Kosten" }
+      - { name: ExternalDocumentNo, type: String, length: 30,
+          label_de: "Werkstatt-Belegnummer",
+          help: "Frei zu erfassen — Auftragsbestätigung oder Rechnungsnummer der Werkstatt." }
+      - { name: C_Invoice_ID,       type: TableDir, ref: C_Invoice,
+          label_de: Rechnung,
+          help: "Rechnungsverknüpfung in iDempiere (sobald Rechnung erfasst ist)." }
+      - { name: WorkOrderStatus,    type: List, length: 12, mandatory: true,
+          ref_value: BXS_WorkOrderStatus, default: Draft,
+          label_de: "Auftragsstatus" }
+      - { name: Description,        type: Text }
+      - { name: Note,               type: Text }
+
+  - name: BXS_WorkOrder_Item
+    label: BXS Work Order Item
+    label_de: Werkstattposition
+    description: "Verknüpfung zwischen Werkstattauftrag und einem AssetItem (Fehlerbericht oder Wartungstermin)"
+    primary_window: BXS_WorkOrder_Window
+    access_level: "3"
+    columns:
+      - { name: BXS_WorkOrder_ID,   type: TableDir, ref: BXS_WorkOrder, mandatory: true,
+          is_parent: true,
+          label_de: Werkstattauftrag }
+      - { name: BXS_AssetItem_ID,   type: TableDir, ref: BXS_AssetItem, mandatory: true,
+          label_de: Eintrag }
+      - { name: IsResolved,         type: YesNo, mandatory: true, default: "Y",
+          label: Resolved, label_de: "Wird erledigt",
+          help: "N = Position bleibt offen, geht nicht mit zur Werkstatt." }
+      - { name: LineNo,             type: Integer, length: 4,
+          label: Line No, label_de: "Zeilen-Nr." }
+      - { name: Note,               type: Text,
+          label_de: "Werkstatt-Anmerkung",
+          help: 'Anmerkung pro Position (z.B. „Werkstatt: erst beim nächsten Mal").' }
+
+# WorkOrder-Sequence
+sequences:
+  - { name: BXS_WorkOrder_DocumentNo, prefix: "WAU-", decimal_pattern: "0000",
+      description: "Belegnummer-Sequenz für Werkstattaufträge" }
+  # Default-Tabellen-Sequenz, die MTable.afterSave automatisch anlegt —
+  # explizit deaktiviert, sonst greift sie in PO.saveNew() vor unserer
+  # TBN-Rule. Siehe Erläuterung in 50-assetitem.yaml.
+  - { name: DocumentNo_BXS_WorkOrder, isactive: false,
+      description: "Default vom Core; deaktiviert zugunsten BXS_WorkOrder_DocumentNo (WAU-)." }
+
+# BXS_AssetItem nachträglich um BXS_WorkOrder_ID erweitern. Anders als in
+# der ursprünglichen Tabellen-Spec emittiert der Generator die Spalte als
+# eigenständigen <AD_Column>-Record, der via Table-UUID auf die bestehende
+# Tabelle verweist (PackIn macht ALTER TABLE).
+
+additional_columns:
+  - table: BXS_AssetItem
+    columns:
+      - { name: BXS_WorkOrder_ID,   type: TableDir, ref: BXS_WorkOrder,
+          label_de: Werkstattauftrag,
+          help: "Auftrag, der diesen Eintrag erledigt hat (gefüllt durch Werkstattauftrag-Abschluss)." }
+      # Selbstreferenz für Folge-Termin-Verkettung. Wird vom „Auftrag
+      # abschließen"-Button im Werkstattauftrag-Fenster gesetzt: beim
+      # Schließen eines Schedule-Items legt die Rule den nächsten Termin
+      # an (DueDate = ersterTagDesMonats(CompletionDate) + IntervalMonths)
+      # und schreibt dessen ID hier rein, sodass die Akte „TÜV 12/2024 →
+      # TÜV 12/2025 → …" lückenlos verkettet ist.
+      #
+      # Typ Integer (nicht TableDir), weil iDempiere bei TableDir die
+      # Ziel-Tabelle aus dem Spaltennamen-Präfix ableitet (NextItem_ID →
+      # Tabelle "Next_Item" existiert nicht → NPE in MLookupFactory).
+      # Selbst-FKs mit abweichendem Namen sind in iDempiere nicht
+      # automatisch lookup-fähig. FK-Konsistenz stellt die Close-Rule sicher.
+      - { name: NextItem_ID,        type: Integer, length: 22, updateable: true,
+          label_de: Folge-Termin,
+          help: "Verkettet abgeschlossene Wartungstermine auf den jeweils erzeugten Folgetermin (BXS_AssetItem.BXS_AssetItem_ID des Folge-Eintrags)." }
+
+  # Virtuelle Spalten auf der Anlage: jüngster Zählerstand-Wert + zugehöriges
+  # Datum. WICHTIG: Das `order by` im Subselect MUSS klein geschrieben sein.
+  # Hintergrund: MRole.addAccessSQL schneidet jedes SQL bei
+  # `lastIndexOf(" ORDER BY ")` ab — case-sensitive und ohne Paren-Awareness.
+  # Bei großgeschriebenem ORDER BY in der Subquery ergäbe das einen
+  # unbalancierten String, AccessSqlParser crashed mit
+  # StringIndexOutOfBoundsException, der Tab lädt nicht. Siehe
+  # idempiere-core/bugreports/TBB007-mrole-addaccesssql-lastindexof-orderby/.
+  # Plus: optionaler FK auf S_Resource (LKWs sind oft schon als Resource
+  # angelegt, dann Verknüpfung statt Doppel-Pflege).
+  - table: BXS_Asset
+    columns:
+      - { name: S_Resource_ID,      type: TableDir, ref: S_Resource,
+          label_de: "Ressource",
+          help: "Optional: Verknüpfung auf bestehende Ressource (z.B. ein als Resource gepflegter LKW)." }
+      - { name: LastMeterReading,   type: Number, length: 14, updateable: false,
+          label_de: "Letzter Zählerstand",
+          column_sql: "(SELECT i.MeterReading FROM BXS_AssetItem i WHERE i.BXS_Asset_ID=BXS_Asset.BXS_Asset_ID AND i.MeterReading IS NOT NULL order by COALESCE(i.CompletionDate, i.ReportedDate) DESC, i.BXS_AssetItem_ID DESC LIMIT 1)",
+          display_logic: "@SQL=SELECT 1 FROM BXS_AssetClass WHERE BXS_AssetClass_ID=@BXS_AssetClass_ID@ AND C_UOM_ID IS NOT NULL",
+          help: "Jüngster bei einem Eintrag erfasster Zählerstand — nicht editierbar." }
+      - { name: LastMeterDate,      type: Date, updateable: false,
+          label_de: "Stand vom",
+          column_sql: "(SELECT COALESCE(i.CompletionDate, i.ReportedDate) FROM BXS_AssetItem i WHERE i.BXS_Asset_ID=BXS_Asset.BXS_Asset_ID AND i.MeterReading IS NOT NULL order by COALESCE(i.CompletionDate, i.ReportedDate) DESC, i.BXS_AssetItem_ID DESC LIMIT 1)",
+          display_logic: "@SQL=SELECT 1 FROM BXS_AssetClass WHERE BXS_AssetClass_ID=@BXS_AssetClass_ID@ AND C_UOM_ID IS NOT NULL",
+          help: "Datum des jüngsten Zählerstand-Eintrags." }
+
+# Werkstattauftrag-Fenster mit 3 Tabs (§4.4).
+windows:
+
+  - name: BXS_WorkOrder_Window
+    label: BXS Work Order
+    label_de: Werkstattauftrag
+    description: "Workshop visit — bundles defects and maintenance schedules of one asset."
+    description_de: "Werkstattauftrag — bündelt Fehlerberichte und Wartungstermine einer Anlage zu einem Werkstatt-Besuch."
+    tabs:
+      # Window-Help liegt am ersten Tab, weil iDempiere die Fenster-Hilfe
+      # in der UI nicht anzeigt, wohl aber Description + Help des Tabs.
+      - name: WorkOrder
+        name_de: Werkstattauftrag
+        table: BXS_WorkOrder
+        seq: 10
+        tab_level: 0
+        print_process: BXS_Print_WorkshopDossier
+        description: "Header of the workshop visit — one of two main windows in 'Anlagenbuch', alongside 'BXS Asset'."
+        description_de: 'Kopfdaten des Werkstattauftrags — eines von zwei Hauptfenstern im Anlagenbuch, das andere ist „Anlage". Werkstatt, Bringer und Termin oben, Rückgabe-Datum + Kosten unten.'
+        help: |
+          <p>Use this window to plan and complete a workshop visit.</p>
+          <p><b>Two-phase flow:</b></p>
+          <ol>
+            <li><b>Before bringing the asset:</b> fill upper field group <i>Auftragserstellung</i> (workshop, driver, internal contact, scheduled date). Save. Then press <i>Pull open items</i> to import all open defects and overdue schedules of the asset; uncheck or delete what should not go this time. Print the workshop dossier via the toolbar.</li>
+            <li><b>After return:</b> fill lower field group <i>Nach Rückkehr</i> (return date, actual cost, invoice/document no). In the items tab, uncheck what was not actually done. Set status to <i>Completed</i> — this closes resolved items and proposes follow-up dates for every completed maintenance schedule.</li>
+          </ol>
+          <p>See <code>docs/QuickReference.md</code> in the project repository for the full workflow overview.</p>
+        help_de: |
+          <p>Hier planen und schließen Sie einen Werkstattbesuch ab.</p>
+          <p><b>Zwei-Phasen-Ablauf:</b></p>
+          <ol>
+            <li><b>Vor dem Hinbringen:</b> oberer Bereich <i>Auftragserstellung</i> ausfüllen (Werkstatt, Bringer, interner Ansprechpartner, geplantes Datum). Speichern. Dann Knopf <i>Offene Einträge übernehmen</i> — er trägt alle offenen Fehlerberichte und überfälligen Wartungstermine der Anlage als Positionen ein. Was nicht mit soll, löschen oder Häkchen entfernen. Über das Druck-Symbol in der Toolbar die Werkstattmappe ausdrucken.</li>
+            <li><b>Bei Rückkehr:</b> unteren Bereich <i>Nach Rückkehr</i> ausfüllen (Rückgabedatum, tatsächliche Kosten, Belegnummer). In den Positionen Häkchen bei nicht-erledigten Punkten entfernen. Status auf <i>Completed</i> setzen — abgehakte Punkte werden geschlossen, für jeden erledigten Wartungstermin schlägt das System einen Folgetermin vor.</li>
+          </ol>
+          <p>Vollständiger Ablauf-Überblick siehe <code>docs/QuickReference_de.md</code> im Projekt-Repository.</p>
+      - { name: WorkOrder Item, name_de: Position, table: BXS_WorkOrder_Item, seq: 20, tab_level: 1,
+          description_de: "Positionen des Auftrags — gemischte Liste aus Fehlerberichten und Wartungsterminen, sortiert nach Zeilen-Nr." }
+      - { name: Open Items, name_de: "Offene Einträge", table: BXS_AssetItem, seq: 30, tab_level: 1,
+          where_clause: "BXS_AssetItem.BXS_Asset_ID=@BXS_Asset_ID@ AND BXS_AssetItem.ItemStatus='Open' AND BXS_AssetItem.Type IN ('Defect','Schedule')",
+          read_only: true,
+          description_de: 'Read-only-Übersicht: was ist an der Anlage gerade offen? Vor dem Anlegen der Positionen den Knopf „Offene Einträge übernehmen" benutzen.' }
+    # Menü-Position: direkt unter dem Hauptfenster „Anlage".
+    menu: { seq: 20 }

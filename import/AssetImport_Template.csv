@@ -1,0 +1,9 @@
+Value,Name,BXS_AssetClass.Value,Manufacturer,Model,SerialNo,YearBuilt,CommissionDate,Location,M_Resource.Value,AD_User.Name
+LKW-MB-2078,KR-JB 2078 Mercedes Atego,100,Mercedes-Benz,Atego,WDB97003110123456,2020,2020-03-15,Hauptlager,LKW-78,
+LKW-MAN-2079,KR-JB 2079 MAN TGM,100,MAN,TGM,WMAN1234567890,2018,2018-06-01,Hauptlager,LKW-79,
+PKW-VW-1250,KR-JB 1250 VW Caddy,100,Volkswagen,Caddy,WVWZZZ2KZJX012345,2021,2021-09-10,Verwaltung,,
+STAPLER-LIN-101,Stapler Linde 101,200,Linde,H35D,LIN-101-2019,2019,2019-04-20,Halle 1,,
+ROLLTOR-N1,Rolltor Hauptlager Nord,300,Hörmann,Industrial,RLT-2020-N1,2020,2020-08-15,Hauptlager,,
+FLG-EXT-101,Feuerlöscher 6kg ABC #101,300,Gloria,P6G,GLO-2023-101,2023,2023-01-10,Halle 1 Eingang,,
+KEHR-1,Kehrmaschine Hako,300,Hako,Citymaster 1600,HAK-2022-1,2022,,Halle 2,,
+SACK-12,Sackkarre Stahl 12,300,Anonym,Stahl 250 kg,,,,Halle 1,,

@@ -1,0 +1,8 @@
+Value;Name;Kategorie;Description;Anmerkung
+1010;LKW;Vehicle;Lastkraftwagen ab 7,5t zulässiges Gesamtgewicht;Schwere LKW — TÜV/SP-pflichtig
+1020;LKW unter 7,5t;Vehicle;Leichte LKW unter 7,5t — Führerschein Klasse B/C1;
+1030;Transporter;Vehicle;Kastenwagen / Sprinter / E-Transporter;
+1040;PKW;Vehicle;Personenkraftwagen;Platzhalter — aktuell keine Anlagen erfasst
+1050;Anhänger;Vehicle;Kühlanhänger und sonstige gezogene Fahrzeuge mit Zulassung;TÜV-pflichtig, daher Vehicle nicht Equipment
+3010;Stapler;Equipment;Gabelstapler, betrieblich;UVV-pflichtig
+3020;Hubwagen;Equipment;Hubwagen, Ameise, E-Hubwagen;Keine UVV

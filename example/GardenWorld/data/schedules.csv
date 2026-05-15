@@ -1,0 +1,4 @@
+Value;Name;NameEN;KlassenValue;IntervallMonate;PflichtDefault;Description
+TUV;TÜV;TÜV;;24;Y;Hauptuntersuchung gem. §29 StVZO (Pickup, Anhänger) — Klasse leer, manuell zuordnen
+ANNUAL_SERVICE;Jahresinspektion;Annual Service;;12;N;Reguläre Hersteller-Wartung (Mäher, Pumpe, Motorgerät)
+SAFETY;UVV-Prüfung;Annual Safety Check;GW-TOOL;12;Y;Unfallverhütungsvorschrift-Prüfung für motorbetriebene Werkzeuge

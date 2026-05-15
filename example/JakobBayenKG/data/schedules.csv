@@ -1,0 +1,6 @@
+Value;Name;KlassenValue;IntervallMonate;PflichtDefault;Description
+TUV;TÜV;;12;Y;Hauptuntersuchung gem. §29 StVZO. Klasse NULL = gilt für alle (Fahrzeug-Anlagen wählen es manuell aus).
+SP;Sicherheitsprüfung;;12;Y;Sicherheitsprüfung gem. §29 StVZO Anlage VIII (LKW ab 7,5t Pflicht). Klasse NULL = alle.
+UVV;UVV-Prüfung;3010;12;Y;Unfallverhütungsvorschrift-Prüfung für Stapler
+INSPECTION;Inspektion;;12;N;Reguläre Werkstatt-Inspektion (freiwillig, Hersteller-Empfehlung)
+WARRANTY;Garantie-Ablauf;;0;N;Garantie-Ablauf-Termin (einmalig, kein Folgetermin)

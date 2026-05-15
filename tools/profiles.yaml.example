@@ -1,0 +1,51 @@
+# Vorlage für eigene/echte Profile (Test-User, Prod, andere Server).
+#
+# Diese Datei nach `profiles.local.yaml` kopieren und ausfüllen. Die Kopie
+# ist gitignored — bitte unter keinen Umständen mit echten Credentials
+# committen.
+#
+# Werte werden per Deep-Merge über profiles.yaml gelegt: Felder, die hier
+# fehlen, werden aus profiles.yaml übernommen. `default` lässt sich auch
+# überschreiben.
+
+# Beispiel: lokal eingerichteter Test-User auf dem Testserver-Klon.
+# default: test
+#
+# profiles:
+#   test:
+#     base_url: https://localhost:8443
+#     username: tbayen
+#     password: ...
+#     client_id: 11
+#     role_id: 102
+#     org_id: 11
+#     warehouse_id: 103
+#     server_staging_dir: /tmp/idempiere-csv-import
+#     verify_tls: false
+#
+#   prod:
+#     base_url: https://erp.example.com
+#     username: ...
+#     password: ...
+#     client_id: ...
+#     role_id: ...
+#     org_id: ...
+#     warehouse_id: ...
+#     server_staging_dir: /tmp/idempiere-csv-import   # auf dem Prod-Server
+#     verify_tls: true
+
+# Beispiel-Profil für example/JakobBayenKG/build.sh (Bayen-Test-Instanz auf
+# Port 8444, Mandant 1000000, Datalotte als Skript-Login). Eigentliche
+# Credentials gehören in profiles.local.yaml.
+#
+# profiles:
+#   bayen:
+#     base_url: https://localhost:8444
+#     username: Datalotte Bayen
+#     password: ...
+#     client_id: 1000000
+#     role_id: 1000072
+#     org_id: 1000000
+#     warehouse_id: ...
+#     server_staging_dir: /tmp/idempiere-csv-import
+#     verify_tls: false

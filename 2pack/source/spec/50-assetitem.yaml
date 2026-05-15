@@ -1,0 +1,168 @@
+# Tabelle BXS_AssetItem — vereinigte Tabelle für Fehlerbericht,
+# Wartungstermin und Statusbericht. Datenmodell §2.3 / §4.3.
+#
+# Diese Spec definiert auch das **vollständige** BXS_Asset_Window mit
+# 4 Tabs (Asset + 3 Detail-Tabs auf BXS_AssetItem mit Type-Filter), weil
+# die 3 Detail-Tabs erst hier verfügbar sind (BXS_AssetItem entsteht erst
+# in dieser Spec).
+
+tables:
+
+  - name: BXS_AssetItem
+    label: BXS Asset Item
+    label_de: Eintrag (Fehlerbericht/Wartungstermin/Statusbericht)
+    description: "Detail-Datensatz einer Anlage: Fehlerbericht, Wartungstermin oder Statusbericht (Diskriminator Type)"
+    primary_window: BXS_Asset_Window
+    access_level: "3"
+    columns:
+      - { name: DocumentNo,           type: String,   length: 30, mandatory: true,
+          help: "Belegnummer; Format FEH-/TER-/STA-{Jahr}-{lfd.Nr.}, vom ModelValidator gesetzt." }
+      - { name: BXS_Asset_ID,         type: TableDir, ref: BXS_Asset, mandatory: true,
+          is_parent: true,
+          label_de: Anlage }
+      - { name: Type,                 type: List,     length: 12, mandatory: true,
+          ref_value: BXS_ItemType, default: Defect,
+          label: Item Type, label_de: Eintrags-Typ,
+          help: "Defect/Schedule/Status — Diskriminator. Bei Anlage über Tab gesetzt, danach read-only." }
+      - { name: Name,                 type: String,   length: 60,  mandatory: true,
+          label_de: Kurzbeschreibung, identifier_seq: 1 }
+      - { name: Description,          type: Text,
+          label_de: Langbeschreibung }
+      - { name: ReportedDate,         type: Date,     mandatory: true, default: "@#Date@",
+          label_de: Festgestellt }
+      - { name: DueDate,              type: Date,
+          label_de: Fälligkeit,
+          display_logic: "@Type@=Schedule",
+          help: "Nur für Type=Schedule." }
+      - { name: AD_User_ID,           type: Table,    length: 22,
+          ref_value_id: 286,    # Core: "AD_User - Internal" (Mitarbeiter/SalesRep)
+          label_de: Melder,
+          help: "Mitarbeiter, der den Eintrag gemeldet hat. Auswahl auf interne Personen beschränkt (AD_User mit IsEmployee/IsSalesRep)." }
+      - { name: Priority,             type: List,     length: 6,
+          ref_value: BXS_Priority,
+          label_de: Priorität,
+          display_logic: "@Type@=Defect",
+          help: "Nur für Type=Defect." }
+      - { name: BXS_ScheduleType_ID,  type: TableDir, ref: BXS_ScheduleType,
+          label_de: Termin-Typ,
+          display_logic: "@Type@=Schedule",
+          help: "Nur für Type=Schedule." }
+      - { name: MeterReading,         type: Number,   length: 14,
+          label_de: Zählerstand,
+          display_logic: "@SQL=SELECT 1 FROM BXS_Asset a JOIN BXS_AssetClass cl ON cl.BXS_AssetClass_ID=a.BXS_AssetClass_ID WHERE a.BXS_Asset_ID=@BXS_Asset_ID@ AND cl.C_UOM_ID IS NOT NULL",
+          help: "Zählerstand bei Eintrag (km, Std). Nur sichtbar, wenn die Anlagenklasse eine Einheit (UOM) hinterlegt hat — bei Anlagen ohne Zähler (Immobilie, Sackkarre) bleibt das Feld ausgeblendet." }
+      - { name: EstimatedCost,        type: Amount,   length: 14,
+          label_de: Kostenschätzung }
+      - { name: ItemStatus,           type: List,     length: 12,  mandatory: true,
+          ref_value: BXS_ItemStatus,  default: Open,
+          label_de: Eintrags-Status }
+      - { name: CompletionDate,       type: Date,
+          label_de: Erledigt-Datum }
+      # BXS_WorkOrder_ID und NextItem_ID werden in Schnitt 5 (BXS_WorkOrder)
+      # bzw. einer Folge-Spec ergänzt — vermeidet Forward-Refs auf noch
+      # nicht existierende Tabelle und Sonderbehandlung selbst-referenzierender
+      # FKs (NextItem_ID → BXS_AssetItem).
+      - { name: Note,                 type: Text }
+
+# Drei DocumentNo-Sequenzen (FEH-/TER-/STA-{Jahr}-{lfd.Nr}). ModelValidator
+# zieht die richtige je nach Type. Anders als die TableID-Sequence sind das
+# DocumentNo-Sequenzen mit Format-Pattern.
+sequences:
+  - { name: BXS_AssetItem_Defect,   prefix: "FEH-",  decimal_pattern: "0000",
+      description: "Belegnummer-Sequenz für Fehlerberichte" }
+  - { name: BXS_AssetItem_Schedule, prefix: "TER-",  decimal_pattern: "0000",
+      description: "Belegnummer-Sequenz für Wartungstermine" }
+  - { name: BXS_AssetItem_Status,   prefix: "STA-",  decimal_pattern: "0000",
+      description: "Belegnummer-Sequenz für Statusberichte" }
+  # MTable.afterSave erzeugt für jede Tabelle mit DocumentNo-Spalte
+  # automatisch eine Default-Sequenz `DocumentNo_<Tabelle>`. Solange die
+  # aktiv ist, schreibt iDempiere in saveNew() blind aus ihr und unsere
+  # TBN-Rule hat keine Chance, das passende FEH-/TER-/STA-Format zu setzen.
+  # Hier explizit deaktivieren — der Re-2Pack-Install setzt sie via 2pack-
+  # Merge auf IsActive='N' (Match auf Name).
+  - { name: DocumentNo_BXS_AssetItem, isactive: false,
+      description: "Default vom Core; deaktiviert zugunsten der typgesteuerten Sequenzen (FEH-/TER-/STA-)." }
+
+windows:
+
+  # Hauptfenster Anlage mit 4 Tabs. Datenmodell §4.3.
+  - name: BXS_Asset_Window
+    label: BXS Asset
+    label_de: Anlagenbuch
+    description: "Asset master data with three detail tabs (Defect, Schedule, Status)."
+    description_de: "Anlagen-Stammdaten mit drei Detail-Tabs (Fehlerbericht, Wartungstermin, Statusbericht)."
+    tabs:
+      # Window-Help liegt am ersten Tab, weil iDempiere die Fenster-Hilfe
+      # in der UI nicht anzeigt, wohl aber Description + Help des Tabs.
+      - name: Asset
+        name_de: Anlage
+        table: BXS_Asset
+        seq: 10
+        tab_level: 0
+        print_process: BXS_Print_AssetDossier
+        description: "Central window for daily work — one of two main windows in 'Anlagenbuch', alongside 'BXS Work Order'. This tab holds master data; the three detail tabs filter BXS_AssetItem by Type."
+        description_de: 'Das zentrale Fenster für die tägliche Arbeit — eines von zwei Hauptfenstern im Anlagenbuch, das andere ist „Werkstattauftrag". Im Tab „Anlage" pflegen Sie die Stammdaten; die drei Detail-Tabs zeigen die Einträge gefiltert nach Typ.'
+        help: |
+          <p>Master data of the asset. Maintain class, manufacturer, location here. Counter-reading fields appear depending on the category. Every new asset should get an initial <i>Status</i> entry when received.</p>
+          <p><b>Typical flows:</b></p>
+          <ul>
+            <li><b>New defect reported</b> → tab <i>Defect</i>, new record, priority + short description are mandatory.</li>
+            <li><b>Upcoming maintenance</b> → tab <i>Schedule</i>, enter due date. When closed, the system proposes a follow-up.</li>
+            <li><b>Sighting without defect</b> → tab <i>Status</i>, stored as done immediately.</li>
+          </ul>
+          <p>To bundle several items into a workshop visit, switch to window <b>BXS Work Order</b> and use button <i>Pull open items</i>.</p>
+          <p>See <code>docs/QuickReference.md</code> in the project repository for the full workflow overview.</p>
+        help_de: |
+          <p>Stammdaten der Anlage. Pflegen Sie hier <b>Klasse</b>, <b>Hersteller</b> und <b>Standort</b>. Zählerstand-Felder erscheinen je nach Kategorie. Bei der Erstaufnahme einer neuen Anlage einen Status-Eintrag im Tab <i>Statusbericht</i> erfassen.</p>
+          <p><b>Typische Abläufe:</b></p>
+          <ul>
+            <li><b>Neuer Mangel gemeldet</b> → Tab <i>Fehlerbericht</i>, neuer Datensatz; Pflichtfelder: Priorität und Kurzbeschreibung.</li>
+            <li><b>Anstehende Wartung</b> → Tab <i>Wartungstermin</i>, Fälligkeitsdatum eintragen. Beim Schließen schlägt das System den Folgetermin vor.</li>
+            <li><b>Sichtung ohne Mangel</b> → Tab <i>Statusbericht</i>, wird direkt als erledigt gespeichert.</li>
+          </ul>
+          <p>Wenn mehrere Einträge gemeinsam in eine Werkstatt gehen, im Fenster <b>Werkstattauftrag</b> einen Auftrag anlegen und den Knopf <i>Offene Einträge übernehmen</i> benutzen.</p>
+          <p>Vollständiger Ablauf-Überblick siehe <code>docs/QuickReference_de.md</code> im Projekt-Repository.</p>
+      - { name: Defect, name_de: Fehlerbericht, table: BXS_AssetItem, seq: 20, tab_level: 1,
+          parent_column: BXS_Asset_ID,
+          where_clause: "BXS_AssetItem.Type = 'Defect'",
+          tab_default_type: Defect,
+          description_de: "Mängel an dieser Anlage. Erfassen Sie offene Fehlerberichte mit Priorität — sie werden beim nächsten Werkstattauftrag automatisch vorgeschlagen." }
+      - { name: Schedule, name_de: Wartungstermin, table: BXS_AssetItem, seq: 30, tab_level: 1,
+          parent_column: BXS_Asset_ID,
+          where_clause: "BXS_AssetItem.Type = 'Schedule'",
+          tab_default_type: Schedule,
+          description_de: "Anstehende und erledigte Wartungstermine (TÜV, SP, UVV, Garantie). Beim Schließen wird automatisch der Folgetermin angelegt." }
+      - { name: Status, name_de: Statusbericht, table: BXS_AssetItem, seq: 40, tab_level: 1,
+          parent_column: BXS_Asset_ID,
+          where_clause: "BXS_AssetItem.Type = 'Status'",
+          tab_default_type: Status,
+          description_de: "Zustands-Momentaufnahmen ohne Mangel — typischerweise bei der Erstaufnahme oder einer regelmäßigen Sichtung. Liefert eine lückenlose Historie inklusive Zählerständen." }
+      # Übersicht aller Werkstattaufträge dieser Anlage. Read-only mit
+      # Whitelist auf die wichtigsten Kennspalten — Doppelklick auf einen
+      # Datensatz bzw. Zoom-Icon springt ins Werkstattauftrag-Fenster
+      # (default via BXS_WorkOrder.primary_window).
+      - name: WorkOrders
+        name_de: Werkstattaufträge
+        table: BXS_WorkOrder
+        seq: 50
+        tab_level: 1
+        parent_column: BXS_Asset_ID
+        read_only: true
+        single_row: false
+        order_by: "BXS_WorkOrder.ScheduledDate DESC NULLS LAST, BXS_WorkOrder.DocumentNo DESC"
+        displayed_columns:
+          # PK explizit drin: das ID-Feld zeigt im Read-only-Grid das Zoom-
+          # Icon und führt mit einem Klick ins Werkstattauftrag-Fenster.
+          # Doppelklick auf die Zeile zoomt auch ohne das Feld, das ID-Feld
+          # ist der schnellere Anker.
+          - BXS_WorkOrder_ID
+          - DocumentNo
+          - Name
+          - WorkOrderStatus
+          - ScheduledDate
+          - CompletionDate
+          - Workshop_ID
+          - ActualCost
+        description_de: 'Übersicht der Werkstattaufträge dieser Anlage. Read-only — zum Bearbeiten oder Anlegen ins Fenster „Werkstattauftrag" zoomen (Doppelklick auf eine Zeile).'
+    # Menü-Position: Hauptfenster, ganz oben im Anlagenbuch-Knoten.
+    menu: { seq: 10 }

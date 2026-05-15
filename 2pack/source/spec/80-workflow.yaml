@@ -1,0 +1,285 @@
+# Workflow-Buttons. Process-Buttons mit BSH-Skripten plus je eine
+# Button-Spalte auf der jeweiligen Tabelle. Button erscheint automatisch
+# im Tab-Form (kein extra Tab-Wiring nötig).
+#
+# Skript-Bindings (siehe ProcessUtil.startScriptProcess):
+#   A_Ctx, A_Trx, A_TrxName, A_Record_ID, A_AD_Client_ID, A_AD_User_ID,
+#   A_Table_ID, A_Parameter[]
+# Rückgabewert: String → ProcessInfo.Summary (zeigt iDempiere im Dialog).
+
+processes:
+
+  # 1) Eintrag schließen (Button in Fehlerbericht/Wartungstermin/Statusbericht)
+  - value: BXS_AssetItem_CloseItem
+    name: "Eintrag schließen"
+    name_de: "Eintrag schließen"
+    description_de: "Setzt ItemStatus=Done und CompletionDate=heute."
+    rule: "beanshell:BXS_AssetItem_CloseItem"
+
+  # 2) Werkstattauftrag schließen (Button im WorkOrder)
+  - value: BXS_WorkOrder_CompleteOrder
+    name: "Auftrag abschließen"
+    name_de: "Auftrag abschließen"
+    description_de: "Setzt WorkOrderStatus=Completed, schließt verknüpfte Items, erzeugt Folgetermine."
+    rule: "beanshell:BXS_WorkOrder_CompleteOrder"
+
+  # 3) Offene Einträge übernehmen (Button im WorkOrder)
+  - value: BXS_WorkOrder_PullOpenItems
+    name: "Offene Einträge übernehmen"
+    name_de: "Offene Einträge übernehmen"
+    description_de: "Erzeugt im Items-Tab eine Position pro offenem Eintrag (Defect/Schedule) der zugeordneten Anlage."
+    rule: "beanshell:BXS_WorkOrder_PullOpenItems"
+
+  # 4) Werkstattauftrag aus Anlage erzeugen (Button im Asset-Window)
+  - value: BXS_Asset_CreateWorkOrder
+    name: "Werkstattauftrag erzeugen"
+    name_de: "Werkstattauftrag erzeugen"
+    description_de: "Legt einen neuen Werkstattauftrag für diese Anlage an und übernimmt offene Fehlerberichte und Wartungstermine als Positionen."
+    rule: "beanshell:BXS_Asset_CreateWorkOrder"
+    show_help: "S"   # Run silently — keine Parameter, kein Vor-Dialog
+
+rules:
+
+  - value: "beanshell:BXS_AssetItem_CloseItem"
+    name: BXS_AssetItem CloseItem
+    description: "Schließt einen Eintrag (Defect/Schedule/Status)."
+    event_type: P
+    rule_type: S
+    script: |
+      import org.compiere.model.*;
+      import org.compiere.util.*;
+      import java.sql.Timestamp;
+      int recordId = A_Record_ID.intValue();
+      if (recordId <= 0) return "Kein Eintrag gewählt.";
+      MTable t = MTable.get(A_Ctx, "BXS_AssetItem");
+      PO po = t.getPO(recordId, A_TrxName);
+      if (po == null) return "Eintrag " + recordId + " nicht gefunden.";
+      String status = po.get_ValueAsString("ItemStatus");
+      if ("Done".equals(status)) return "Eintrag ist bereits geschlossen.";
+      po.set_ValueOfColumn("ItemStatus", "Done");
+      if (po.get_Value("CompletionDate") == null) {
+          po.set_ValueOfColumn("CompletionDate", new Timestamp(System.currentTimeMillis()));
+      }
+      if (!po.save()) return "Fehler beim Speichern: " + CLogger.retrieveErrorString("");
+      return "Eintrag " + po.get_ValueAsString("DocumentNo") + " geschlossen.";
+
+  - value: "beanshell:BXS_WorkOrder_CompleteOrder"
+    name: BXS_WorkOrder CompleteOrder
+    description: "Schließt Werkstattauftrag, erzeugt Folge-Termine."
+    event_type: P
+    rule_type: S
+    script: |
+      import org.compiere.model.*;
+      import org.compiere.util.*;
+      import java.sql.*;
+      int recordId = A_Record_ID.intValue();
+      if (recordId <= 0) return "Kein Auftrag gewählt.";
+      MTable woT = MTable.get(A_Ctx, "BXS_WorkOrder");
+      PO wo = woT.getPO(recordId, A_TrxName);
+      if (wo == null) return "Auftrag nicht gefunden.";
+      if ("Completed".equals(wo.get_ValueAsString("WorkOrderStatus")))
+          return "Auftrag ist bereits abgeschlossen.";
+      Timestamp today = new Timestamp(System.currentTimeMillis());
+      // 1) Werkstattauftrag selbst schließen
+      wo.set_ValueOfColumn("WorkOrderStatus", "Completed");
+      if (wo.get_Value("CompletionDate") == null)
+          wo.set_ValueOfColumn("CompletionDate", today);
+      if (!wo.save()) return "Auftrag-Save fehlgeschlagen.";
+      int woId = wo.get_ID();
+      int closed = 0, follow = 0;
+      // 2) verknüpfte BXS_AssetItems schließen
+      String sqlSel = "SELECT BXS_AssetItem_ID FROM BXS_AssetItem WHERE BXS_WorkOrder_ID=? AND ItemStatus<>'Done'";
+      java.util.List itemIds = new java.util.ArrayList();
+      PreparedStatement ps = DB.prepareStatement(sqlSel, A_TrxName);
+      ps.setInt(1, woId);
+      ResultSet rs = ps.executeQuery();
+      while (rs.next()) itemIds.add(new Integer(rs.getInt(1)));
+      DB.close(rs, ps);
+      MTable itemT = MTable.get(A_Ctx, "BXS_AssetItem");
+      for (int i = 0; i < itemIds.size(); i++) {
+          int iid = ((Integer) itemIds.get(i)).intValue();
+          PO it = itemT.getPO(iid, A_TrxName);
+          it.set_ValueOfColumn("ItemStatus", "Done");
+          if (it.get_Value("CompletionDate") == null) it.set_ValueOfColumn("CompletionDate", today);
+          it.save();
+          closed++;
+          // 3) Folge-Termin für Schedule-Items
+          if ("Schedule".equals(it.get_ValueAsString("Type"))) {
+              int stId = ((Number) it.get_Value("BXS_ScheduleType_ID")).intValue();
+              PO st = MTable.get(A_Ctx, "BXS_ScheduleType").getPO(stId, A_TrxName);
+              int interval = st != null && st.get_Value("DefaultIntervalMonths") != null
+                  ? ((Number) st.get_Value("DefaultIntervalMonths")).intValue() : 12;
+              java.util.Calendar cal = java.util.Calendar.getInstance();
+              cal.setTime(today);
+              cal.set(java.util.Calendar.DAY_OF_MONTH, 1);
+              cal.add(java.util.Calendar.MONTH, interval);
+              Timestamp due = new Timestamp(cal.getTimeInMillis());
+              PO next = itemT.getPO(0, A_TrxName);
+              next.set_ValueOfColumn("AD_Client_ID", new Integer(A_AD_Client_ID.intValue()));
+              next.set_ValueOfColumn("AD_Org_ID", it.get_Value("AD_Org_ID"));
+              next.set_ValueOfColumn("BXS_Asset_ID", it.get_Value("BXS_Asset_ID"));
+              next.set_ValueOfColumn("BXS_ScheduleType_ID", new Integer(stId));
+              next.set_ValueOfColumn("Type", "Schedule");
+              next.set_ValueOfColumn("Name", it.get_ValueAsString("Name"));
+              next.set_ValueOfColumn("DueDate", due);
+              next.set_ValueOfColumn("ItemStatus", "Open");
+              next.set_ValueOfColumn("ReportedDate", today);
+              if (next.save()) {
+                  it.set_ValueOfColumn("NextItem_ID", new Integer(next.get_ID()));
+                  it.save();
+                  follow++;
+              }
+          }
+      }
+      return "Auftrag geschlossen. " + closed + " Eintrag/Einträge erledigt, " + follow + " Folge-Termin(e).";
+
+  - value: "beanshell:BXS_WorkOrder_PullOpenItems"
+    name: BXS_WorkOrder PullOpenItems
+    description: "Zieht offene Defects/Schedules der Anlage als Items in den Auftrag."
+    event_type: P
+    rule_type: S
+    script: |
+      import org.compiere.model.*;
+      import org.compiere.util.*;
+      import java.sql.*;
+      int recordId = A_Record_ID.intValue();
+      if (recordId <= 0) return "Kein Auftrag gewählt.";
+      MTable woT = MTable.get(A_Ctx, "BXS_WorkOrder");
+      PO wo = woT.getPO(recordId, A_TrxName);
+      if (wo == null) return "Auftrag nicht gefunden.";
+      int assetId = ((Number) wo.get_Value("BXS_Asset_ID")).intValue();
+      // Bereits hinzugefügte Items überspringen
+      String sqlOpen =
+          "SELECT i.BXS_AssetItem_ID FROM BXS_AssetItem i " +
+          "WHERE i.BXS_Asset_ID=? AND i.ItemStatus='Open' AND i.Type IN ('Defect','Schedule') " +
+          "AND (i.BXS_WorkOrder_ID IS NULL OR i.BXS_WorkOrder_ID<>?) " +
+          "AND NOT EXISTS (SELECT 1 FROM BXS_WorkOrder_Item woi WHERE woi.BXS_WorkOrder_ID=? AND woi.BXS_AssetItem_ID=i.BXS_AssetItem_ID)";
+      PreparedStatement ps = DB.prepareStatement(sqlOpen, A_TrxName);
+      ps.setInt(1, assetId);
+      ps.setInt(2, recordId);
+      ps.setInt(3, recordId);
+      ResultSet rs = ps.executeQuery();
+      java.util.List ids = new java.util.ArrayList();
+      while (rs.next()) ids.add(new Integer(rs.getInt(1)));
+      DB.close(rs, ps);
+      MTable woiT = MTable.get(A_Ctx, "BXS_WorkOrder_Item");
+      int line = DB.getSQLValueEx(A_TrxName, "SELECT COALESCE(MAX(LineNo), 0) FROM BXS_WorkOrder_Item WHERE BXS_WorkOrder_ID=?", recordId);
+      int added = 0;
+      for (int i = 0; i < ids.size(); i++) {
+          int aid = ((Integer) ids.get(i)).intValue();
+          line += 10;
+          PO woi = woiT.getPO(0, A_TrxName);
+          woi.set_ValueOfColumn("AD_Client_ID", new Integer(A_AD_Client_ID.intValue()));
+          woi.set_ValueOfColumn("AD_Org_ID", wo.get_Value("AD_Org_ID"));
+          woi.set_ValueOfColumn("BXS_WorkOrder_ID", new Integer(recordId));
+          woi.set_ValueOfColumn("BXS_AssetItem_ID", new Integer(aid));
+          woi.set_ValueOfColumn("LineNo", new Integer(line));
+          if (woi.save()) {
+              // Markiere AssetItem als zu diesem Auftrag gehörend
+              PO it = MTable.get(A_Ctx, "BXS_AssetItem").getPO(aid, A_TrxName);
+              if (it.get_Value("BXS_WorkOrder_ID") == null) {
+                  it.set_ValueOfColumn("BXS_WorkOrder_ID", new Integer(recordId));
+                  it.save();
+              }
+              added++;
+          }
+      }
+      return added + " offene(r) Eintrag/Einträge übernommen.";
+
+  - value: "beanshell:BXS_Asset_CreateWorkOrder"
+    name: BXS_Asset CreateWorkOrder
+    description: "Erzeugt einen Werkstattauftrag für die Anlage und zieht offene Items."
+    event_type: P
+    rule_type: S
+    script: |
+      import org.compiere.model.*;
+      import org.compiere.util.*;
+      import java.sql.*;
+      int assetId = A_Record_ID.intValue();
+      if (assetId <= 0) return "Keine Anlage gewählt.";
+      MTable assetT = MTable.get(A_Ctx, "BXS_Asset");
+      PO asset = assetT.getPO(assetId, A_TrxName);
+      if (asset == null) return "Anlage nicht gefunden.";
+      // 1) Neuen WorkOrder anlegen
+      MTable woT = MTable.get(A_Ctx, "BXS_WorkOrder");
+      PO wo = woT.getPO(0, A_TrxName);
+      Timestamp today = new Timestamp(System.currentTimeMillis());
+      wo.set_ValueOfColumn("AD_Client_ID", new Integer(A_AD_Client_ID.intValue()));
+      wo.set_ValueOfColumn("AD_Org_ID", asset.get_Value("AD_Org_ID"));
+      wo.set_ValueOfColumn("BXS_Asset_ID", new Integer(assetId));
+      wo.set_ValueOfColumn("Name", "Auftrag " + asset.get_ValueAsString("Value"));
+      wo.set_ValueOfColumn("ScheduledDate", today);
+      wo.set_ValueOfColumn("WorkOrderStatus", "Draft");
+      if (!wo.save()) return "WorkOrder-Save fehlgeschlagen: " + CLogger.retrieveErrorString("");
+      int woId = wo.get_ID();
+      // Zoom-Hinweis im Result-Dialog: ProcessInfo trägt Tabelle+RecordID
+      // mit, damit iDempiere im Ergebnis-Dialog einen „Zoom"-Knopf zur
+      // neuen Werkstattauftrag-Zeile anbietet.
+      A_ProcessInfo.setRecord_ID(woId);
+      A_ProcessInfo.setTable_ID(woT.getAD_Table_ID());
+      // 2) Offene Items übernehmen (gleiche Logik wie PullOpenItems)
+      String sqlOpen =
+          "SELECT BXS_AssetItem_ID FROM BXS_AssetItem " +
+          "WHERE BXS_Asset_ID=? AND ItemStatus='Open' AND Type IN ('Defect','Schedule') " +
+          "AND BXS_WorkOrder_ID IS NULL";
+      PreparedStatement ps = DB.prepareStatement(sqlOpen, A_TrxName);
+      ps.setInt(1, assetId);
+      ResultSet rs = ps.executeQuery();
+      java.util.List ids = new java.util.ArrayList();
+      while (rs.next()) ids.add(new Integer(rs.getInt(1)));
+      DB.close(rs, ps);
+      MTable woiT = MTable.get(A_Ctx, "BXS_WorkOrder_Item");
+      MTable itemT = MTable.get(A_Ctx, "BXS_AssetItem");
+      int line = 0, added = 0;
+      for (int i = 0; i < ids.size(); i++) {
+          int aid = ((Integer) ids.get(i)).intValue();
+          line += 10;
+          PO woi = woiT.getPO(0, A_TrxName);
+          woi.set_ValueOfColumn("AD_Client_ID", new Integer(A_AD_Client_ID.intValue()));
+          woi.set_ValueOfColumn("AD_Org_ID", wo.get_Value("AD_Org_ID"));
+          woi.set_ValueOfColumn("BXS_WorkOrder_ID", new Integer(woId));
+          woi.set_ValueOfColumn("BXS_AssetItem_ID", new Integer(aid));
+          woi.set_ValueOfColumn("LineNo", new Integer(line));
+          if (woi.save()) {
+              PO it = itemT.getPO(aid, A_TrxName);
+              it.set_ValueOfColumn("BXS_WorkOrder_ID", new Integer(woId));
+              it.save();
+              added++;
+          }
+      }
+      String msg = "Werkstattauftrag " + wo.get_ValueAsString("DocumentNo")
+                 + " angelegt — " + added + " offene(r) Fehlerbericht(e) / Termin(e) uebernommen.";
+      // Log-Eintrag mit (Tabelle, RecordID) → klickbarer Zoom-Link im
+      // Ergebnis-Dialog. `setRecord_ID/setTable_ID` allein reicht im
+      // ZK-Process-Dialog nicht; nur Log-Einträge mit Tabellen-/Record-
+      // Referenz werden als `DocumentLink` gerendert.
+      A_ProcessInfo.addLog(0, null, null, msg, woT.getAD_Table_ID(), woId);
+      return msg;
+
+# Button-Spalten auf den Tabellen — erzeugen die sichtbaren Knöpfe in der UI.
+additional_columns:
+
+  - table: BXS_AssetItem
+    columns:
+      - { name: DoCloseItem, type: Button, length: 1, updateable: true,
+          ad_process: BXS_AssetItem_CloseItem,
+          label_de: "Eintrag schließen",
+          help: "Setzt Status auf Done und CompletionDate auf heute." }
+
+  - table: BXS_WorkOrder
+    columns:
+      - { name: DoCompleteOrder, type: Button, length: 1, updateable: true,
+          ad_process: BXS_WorkOrder_CompleteOrder,
+          label_de: "Auftrag abschließen",
+          help: "Schließt Werkstattauftrag und erzeugt Folge-Termine für Wartungstermine." }
+      - { name: DoPullOpenItems, type: Button, length: 1, updateable: true,
+          ad_process: BXS_WorkOrder_PullOpenItems,
+          label_de: "Offene Einträge übernehmen",
+          help: "Holt offene Fehlerberichte und Wartungstermine der Anlage als Auftragspositionen." }
+
+  - table: BXS_Asset
+    columns:
+      - { name: DoCreateWorkOrder, type: Button, length: 1, updateable: true,
+          ad_process: BXS_Asset_CreateWorkOrder,
+          label_de: "Werkstattauftrag erzeugen",
+          help: "Legt einen neuen Werkstattauftrag für diese Anlage an und übernimmt offene Fehlerberichte und Wartungstermine als Positionen." }

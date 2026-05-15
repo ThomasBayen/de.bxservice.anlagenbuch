@@ -1,0 +1,40 @@
+\usepackage{etoolbox}
+\pretocmd{\section}{\clearpage}{}{}
+\setcounter{secnumdepth}{0}
+\usepackage{graphicx}
+\graphicspath{{../docs/}{assets/}}
+\usepackage{tikz}
+\usetikzlibrary{shadows}
+\pgfdeclarelayer{background}
+\pgfsetlayers{background,main}
+\newcommand{\cornerimage}[2][3cm]{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=south east, xshift=-1.2em, yshift=1.2em]
+      at (current page.south east) {\includegraphics[width=#1]{#2}};
+  \end{tikzpicture}%
+}
+\newcommand{\rightimage}[2][2.5cm]{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=east, xshift=-1em, yshift=1cm]
+      at (current page.east) {\includegraphics[width=#1]{#2}};
+  \end{tikzpicture}%
+}
+\newcommand{\topimage}[2][3cm]{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=north east, xshift=-1em, yshift=-2cm]
+      at (current page.north east) {\includegraphics[width=#1]{#2}};
+  \end{tikzpicture}%
+}
+\newcommand{\backimage}[2][4cm]{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \begin{pgfonlayer}{background}
+      \node[anchor=east, xshift=-1em, yshift=1cm]
+        at (current page.east) {\includegraphics[width=#1]{#2}};
+    \end{pgfonlayer}
+  \end{tikzpicture}%
+}
+\newcommand{\shadowimage}[2][page=1]{%
+  \tikz\node[draw=black, fill=white, line width=0.3pt, inner sep=0pt,
+            drop shadow={shadow xshift=2pt, shadow yshift=-2pt, opacity=0.5}]
+    {\includegraphics[#1]{#2}};%
+}

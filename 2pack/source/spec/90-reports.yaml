@@ -1,0 +1,202 @@
+# JRXML-Reports am Report-Toolbar-Knopf der Tabs verankern.
+#
+# Mechanik in iDempiere:
+#   1. AD_Process (IsReport=Y, JasperReport=<pfad>, AD_Table_ID=<tab-tabelle>)
+#   2. AD_PrintFormat (IsForm=Y, AD_Table_ID=<wie process>, JasperProcess_ID=<process>)
+# Wenn der Anwender im Tab-Toolbar auf das Report-Symbol klickt, listet
+# iDempiere alle PrintFormats für die Tabelle auf — bei Auswahl ruft die
+# Engine den im JasperProcess_ID hinterlegten Process auf.
+#
+# WICHTIG zur JasperReport-Pfadangabe:
+#   Konvention auf dem iDempiere mit `de.bxservice.report`-Plugin: nur der Dateiname, kein Pfad.
+#   Der `de.bxservice.report`-Resolver findet Dateien unter
+#   `$IDEMPIERE_HOME/reports/` (= `REPORT_HOME`). Alle hier mitgelieferten Reports liegen
+#   genau dort.
+#   `file:///`-Pfade funktionieren NICHT: der bxservice ReportStarter
+#   zerstückelt den String am ersten `:` und reicht den Rest als URI weiter
+#   — Ergebnis: `IllegalArgumentException: URI is not absolute`.
+#   Bei Auslieferung an einen neuen Server muss die jrxml/jasper-Datei
+#   einmalig nach `$IDEMPIERE_HOME/reports/` kopiert werden (2Pack-Install
+#   macht das nicht automatisch — 2pack befüllt nur AD_Process).
+#
+# Ein-Prozess-pro-Report-Konvention (ab Mai 2026):
+#   Pro Report gibt es genau EINEN AD_Process mit sprachneutralem Value
+#   (z.B. `BXS_Print_WorkshopDossier`). `JasperReport` zeigt auf die
+#   englische Default-Datei (`WorkshopDossier.jrxml`). Die deutsche
+#   Lokalisierung wird pro Installation aktiviert, indem das Suffix `_de`
+#   vor `.jrxml` eingefügt wird (siehe `setup/install_de_reports.sql` für
+#   unsere Dev-/Testinstallation, bzw. manuelle UI-Anpassung im System-
+#   Mandanten für die Produktiv-Installation).
+
+# Validation-Table-Referenz für die AssetClass-Multi-Select-Filter im
+# Anlagenübersichts-Report. Hängt UUID-stabil an `BXS_AssetClass` (Key) /
+# `Name` (Display) und wird über `reference_value: BXS_AssetClass_Ref` von
+# AD_Process_Para angefordert. Kein Direkt-Eintrag in AD_Reference per
+# Hand mehr nötig.
+validation_tables:
+  - name: BXS_AssetClass_Ref
+    label: "BXS Asset Class"
+    label_de: "BXS Anlagenklasse"
+    description: "Validation-Table-Reference auf BXS_AssetClass für Process-Parameter."
+    ad_table: BXS_AssetClass
+    key_column: BXS_AssetClass_ID
+    display_column: Name
+    order_by: "Name"
+
+processes:
+
+  # Hinweis zu `menu:`-Flag: alle BXS_Print_*-Reports werden im Menü
+  # unter dem Knoten „Anlagenbuch" angeboten (Konvention: eine zentrale
+  # Anlaufstelle für alle Anlagenbuch-Funktionen). Der Tab-Toolbar-Aufruf
+  # via print_formats funktioniert davon unabhängig weiter.
+
+  - value: BXS_Print_WorkshopDossier
+    name: "Workshop Dossier"
+    name_de: "Werkstattmappe"
+    is_report: true
+    jasper_report: "WorkshopDossier.jrxml"
+    ad_table: BXS_WorkOrder
+    description: "Workshop dossier with order data and line items."
+    description_de: "Druckmappe mit Auftragsdaten und Positionen."
+    help: |
+      Printout that goes physically to the workshop together with the
+      asset. Lists workshop, driver, scheduled date, and every item
+      (defect or maintenance schedule) attached to the work order. Back
+      side carries a return-confirmation block: workshop ticks off what
+      was actually done.
+
+      Called from the toolbar of window 'BXS Work Order'.
+
+      Switching the report to another language: this AD_Process points
+      at the language-neutral jrxml file 'WorkshopDossier.jrxml'
+      (English). Localised variants ship as 'WorkshopDossier_de.jrxml',
+      'WorkshopDossier_fr.jrxml' etc. To activate a localisation, change
+      the 'JasperReport' field of this AD_Process record to the
+      language-suffixed filename. The convention is one AD_Process per
+      report, switched per installation — see the project's
+      docs/Installation.md ('Reports — switching language').
+    help_de: |
+      Ausdruck, der physisch mit der Anlage zur Werkstatt geht.
+      Listet Werkstatt, Bringer, geplantes Datum und jede Position
+      (Fehlerbericht oder Wartungstermin) des Auftrags auf. Die
+      Rückseite enthält einen Bestätigungs-Block für die Rückgabe — die
+      Werkstatt hakt dort ab, was tatsächlich erledigt wurde.
+
+      Aufruf über das Druck-Symbol in der Toolbar des Fensters
+      „Werkstattauftrag".
+
+  - value: BXS_Print_AssetDossier
+    name: "Asset Dossier"
+    name_de: "Anlagenakte"
+    is_report: true
+    jasper_report: "AssetDossier.jrxml"
+    ad_table: BXS_Asset
+    description: "Asset dossier with master data, upcoming schedules, open defect reports, history."
+    description_de: "Asset-Akte mit Stammdaten, anstehenden Terminen, offenen Fehlerberichten, Historie."
+    help: |
+      One-page snapshot per asset: master data, upcoming maintenance
+      schedules, open defects, last sighting, last workshop visits.
+      Useful as briefing for a status meeting or to take into the cab.
+
+      Called from the toolbar of window 'BXS Asset'.
+
+      Switching the report to another language: this AD_Process points
+      at the language-neutral jrxml file 'AssetDossier.jrxml' (English).
+      Localised variants ship as 'AssetDossier_de.jrxml',
+      'AssetDossier_fr.jrxml' etc. To activate a localisation, change
+      the 'JasperReport' field of this AD_Process record to the
+      language-suffixed filename. The convention is one AD_Process per
+      report, switched per installation — see the project's
+      docs/Installation.md ('Reports — switching language').
+    help_de: |
+      Ein-Seiten-Überblick je Anlage: Stammdaten, anstehende
+      Wartungstermine, offene Fehlerberichte, letzte Sichtung, letzte
+      Werkstattbesuche. Nützlich als Briefing für die Lagebesprechung
+      oder zum Mitnehmen ins Fahrzeug.
+
+      Aufruf über das Druck-Symbol in der Toolbar des Fensters
+      „Anlage".
+
+  # Flottenweiter Übersichts-Report — menügesteuert, NICHT an einen Tab
+  # angehängt: deshalb kein ad_table und keine print_format-Anker. Aufruf
+  # erfolgt über Menü-Eintrag. Beide Parameter (AssetClassIDs als
+  # Multi-Selection-Table-Filter, OnlyWithOpenItems als Yes/No) werden
+  # über `process_params:` mitgepackt — Konvention siehe
+  # ~/iDempiere-development/docs/jasperreports-knowhow.md
+  # (Abschnitt „Multi-Selection-Parameter").
+  - value: BXS_Print_AssetStatusOverview
+    name: "Asset Status Overview"
+    name_de: "Anlagenübersicht — Status"
+    is_report: true
+    jasper_report: "AssetStatusOverview.jrxml"
+    menu: { seq: 100 }
+    description: "Fleet-wide status list of all assets, grouped by class, with open defect reports and overdue maintenance."
+    description_de: "Flottenweite Statusliste aller Anlagen, gruppiert nach Klasse, mit offenen Fehlerberichten und überfälligen Wartungen."
+    help: |
+      Fleet-wide overview across all assets, grouped by asset class.
+      Typical use: weekly disposition meeting — what is open across the
+      fleet, what is overdue. Parameters allow narrowing to selected
+      classes or to assets with at least one open item.
+
+      Daily work on individual assets happens in the two main windows
+      'BXS Asset' (master data, defects, schedules, sightings) and
+      'BXS Work Order' (workshop visits) — use this overview report to
+      decide where to dig in.
+
+      Switching the report to another language: this AD_Process points
+      at the language-neutral jrxml file 'AssetStatusOverview.jrxml'
+      (English). Localised variants ship as
+      'AssetStatusOverview_de.jrxml',
+      'AssetStatusOverview_fr.jrxml' etc. To activate a
+      localisation, change the 'JasperReport' field of this AD_Process
+      record to the language-suffixed filename. The convention is one
+      AD_Process per report, switched per installation — see the
+      project's docs/Installation.md ('Reports — switching language').
+    help_de: |
+      Flottenweiter Überblick über alle Anlagen, gruppiert nach
+      Anlagenklasse. Typischer Einsatz: wöchentliche Disposition — was
+      ist offen, was ist überfällig. Die beiden Parameter grenzen ein
+      auf ausgewählte Klassen bzw. auf Anlagen mit mindestens einem
+      offenen Eintrag.
+
+      Die tägliche Arbeit an einzelnen Anlagen passiert in den zwei
+      Hauptfenstern „Anlage" (Stammdaten, Fehlerberichte,
+      Wartungstermine, Sichtungen) und „Werkstattauftrag"
+      (Werkstattbesuche) — dieser Übersichts-Report hilft zu
+      entscheiden, wo angepackt werden muss.
+    process_params:
+      - column_name: AssetClassIDs
+        name: "Filter asset classes"
+        name_de: "Anlagenklassen filtern"
+        description: "Empty = all classes."
+        description_de: "Leer = alle Klassen anzeigen."
+        reference: Table
+        reference_value: BXS_AssetClass_Ref
+        is_multiselect: Y
+        is_mandatory: N
+        seq_no: 10
+      - column_name: OnlyWithOpenItems
+        name: "Only assets with open items"
+        name_de: "Nur Anlagen mit offenen Einträgen"
+        description: "Y: only assets with at least one open defect report or overdue maintenance schedule."
+        description_de: "Y: nur Anlagen mit mindestens einem offenen Fehlerbericht oder überfälligen Wartung."
+        reference: Yes-No
+        default_value: "Y"
+        is_mandatory: N
+        seq_no: 20
+
+print_formats:
+
+  - name: "BXS WorkshopDossier"
+    name_de: "Werkstattmappe"
+    description: "Anchor für Toolbar-Print-Knopf, ruft JasperProcess BXS_Print_WorkshopDossier auf."
+    ad_table: BXS_WorkOrder
+    jasper_process: BXS_Print_WorkshopDossier
+    is_default: true
+
+  - name: "BXS AssetDossier"
+    name_de: "Anlagenakte"
+    description: "Anchor für Toolbar-Print-Knopf, ruft JasperProcess BXS_Print_AssetDossier auf."
+    ad_table: BXS_Asset
+    jasper_process: BXS_Print_AssetDossier
+    is_default: true

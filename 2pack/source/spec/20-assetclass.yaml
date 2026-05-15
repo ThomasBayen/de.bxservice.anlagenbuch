@@ -1,0 +1,87 @@
+# Tabelle BXS_AssetClass — Anlagen-Grobklasse. Stammdaten-Fenster mit einem Tab.
+# Datenmodell §2.2 / §4.1.
+
+tables:
+
+  - name: BXS_AssetClass
+    label: BXS Asset Class
+    label_de: Anlagenklasse
+    description: Grobklasse einer Anlage (Fahrzeug, Stapler, Anlage, IT, Immobilie)
+    primary_window: BXS_AssetClass_Window
+    access_level: "6"   # System+Client (Stamm-/Master-Daten, mandantenübergreifend nutzbar)
+    columns:
+      # PK + UU + Standardspalten werden automatisch ergänzt.
+      # Value ist nummerisches Sortier-/Klassifikations-Schema (1xx KfZ, 2xx
+      # andere Fahrzeuge, 3xx Equipment/Stationary, 4xx IT, 5xx Building);
+      # bewusst KEIN Identifier mehr, damit FK-Anzeigen (z.B. im Anlage-
+      # Fenster) nur den Klartext-Name zeigen, nicht "100_Fahrzeug".
+      - { name: Value,        type: String, length: 40,  mandatory: true }
+      - { name: Name,         type: String, length: 60,  mandatory: true, identifier_seq: 1 }
+      - { name: Description,  type: Text }
+      - { name: Category,     type: List, length: 12, mandatory: true,
+          ref_value: BXS_AssetCategory, default: Equipment,
+          label: Category, label_de: Kategorie,
+          help: "Meta-Kategorie der Klasse. Bestimmt Verhalten und Anzeigelogik: Vehicle blendet Zählerstand-Felder ein und verlangt Bringer im Werkstattauftrag, Stationary nicht. Klassen einer Kategorie sind die fachliche Untergliederung (z.B. mehrere LKW-Klassen für unterschiedliche TÜV-Intervalle)." }
+      - { name: C_UOM_ID,     type: TableDir, ref: C_UOM,
+          help: "Einheit für Zählerstand (km, Stunden, …). Leer ⇒ Anlagen dieser Klasse haben keinen Zählerstand. Sinnvoll vor allem bei Kategorie 'Vehicle'." }
+
+windows:
+
+  - name: BXS_AssetClass_Window
+    label: BXS Asset Class
+    label_de: Anlagenklasse
+    description: "Master data of asset classes — fachliche Untergliederung der Anlagen."
+    tabs:
+      # Window-Help liegt am ersten Tab, weil iDempiere die Fenster-Hilfe
+      # in der UI nicht anzeigt, wohl aber Description + Help des Tabs.
+      - name: BXS Asset Class
+        name_de: Anlagenklasse
+        table: BXS_AssetClass
+        seq: 10
+        description: "Master data of asset classes — fachliche Untergliederung der Anlagen."
+        description_de: "Stammdaten-Fenster — wird selten benutzt, nur wenn eine neue Klasse von Anlagen aufgenommen wird."
+        help: |
+          <p><b>Master data window</b> — used rarely, once a new class of asset comes into play.</p>
+          <p>Maintain the classes you use to group your assets. Each class belongs to a category (<i>Vehicle, Equipment, Stationary, Building, IT, Other</i>); the category drives behaviour and display in the asset window.</p>
+          <p>Daily work happens in the two main windows <b>BXS Asset</b> and <b>BXS Work Order</b>.</p>
+        help_de: |
+          <p>Hier pflegen Sie die Klassen, mit denen Sie Ihre Anlagen gruppieren. Jede Klasse gehört zu einer Kategorie (<i>Fahrzeug, Gerät, Anlage, Immobilie, IT, Sonstiges</i>); die Kategorie bestimmt Verhalten und Anzeige in der Anlagen-Maske.</p>
+          <p>Termin-Typen je Klasse legen Sie im Fenster <b>Wartungstermin-Typ</b> an.</p>
+          <p>Die tägliche Arbeit passiert in den zwei Hauptfenstern <b>Anlage</b> und <b>Werkstattauftrag</b>.</p>
+    # Menü-Position: Stammdaten weiter unten im Anlagenbuch-Knoten.
+    menu: { seq: 30 }
+
+initial_data:
+
+  # Kilometer-UOM gibt's in iDempiere-Standard nicht (Standard-UOMs sind
+  # Hour/Day/Each/…). Wir liefern sie als System-UOM mit aus, damit
+  # Fahrzeug-Klassen direkt eine sinnvolle Default-Einheit haben.
+  - table: C_UOM
+    rows:
+      - { X12DE355: KME, Name: Kilometer, UOMSymbol: km,
+          StdPrecision: 0, CostingPrecision: 2,
+          Description: "Kilometer — Distanz, typisch für Fahrzeug-Zähler." }
+
+  - table: BXS_AssetClass
+    rows:
+      # Sechs sprachneutrale Community-Standardklassen, eine pro Kategorie.
+      # Values im 1000er-Block, damit Implementoren ihre eigenen, feineren
+      # Klassen dazwischen einreihen können (z.B. Bayen: 1010 LKW, 1020
+      # LKW <7,5t, 3010 Stapler …). 9000 für 'Other' lässt Platz für
+      # späteres Einschieben zusätzlicher Kategorien.
+      # Namen + Description in Englisch — wer ein deutsches UI braucht,
+      # legt eigene Klassen im Tenant an oder ergänzt via AD_*_Trl-Records.
+      - { Value: "1000",    Name: Vehicle,            Category: Vehicle,
+          "C_UOM_ID[X12DE355]": KME,
+          Description: "Motorised vehicle with a meter (km or hours) — generic catch-all. Implementors should add finer subclasses (truck, car, forklift, …) per tenant." }
+      - { Value: "2000",    Name: Equipment,          Category: Equipment,
+          Description: "Mobile light equipment without meter (pallet trucks, hand carts, tool sets)." }
+      - { Value: "3000",    Name: Stationary,         Category: Stationary,
+          Description: "Fixed installation (gates, fire extinguishers, heating)." }
+      - { Value: "4000",    Name: IT,                 Category: IT,
+          "C_UOM_ID[X12DE355]": HR,
+          Description: "IT hardware with inventory character (servers, switches, printers)." }
+      - { Value: "5000",    Name: Building,           Category: Building,
+          Description: "Building part or trade (roof, heating trade, electrical)." }
+      - { Value: "9000",    Name: Other,              Category: Other,
+          Description: "Catch-all. If used frequently, consider whether an own category is appropriate." }

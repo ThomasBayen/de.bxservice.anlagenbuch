@@ -1,0 +1,75 @@
+# AD_Reference (List) + AD_Ref_List + Trl(de_DE) für die fünf Wertelisten
+# aus Datenmodell §3.
+
+references:
+
+  - name: BXS_AssetStatus
+    label: BXS Asset Status
+    label_de: BXS Anlagenstatus
+    description: Lebenszyklus-Status einer Anlage
+    values:
+      - { value: InService,    name: In Service,     name_de: In Betrieb }
+      - { value: OutOfService, name: Out of Service, name_de: Außer Betrieb }
+      - { value: Disposed,     name: Disposed,       name_de: Stillgelegt }
+
+  - name: BXS_ItemType
+    label: BXS Item Type
+    label_de: BXS Eintrags-Typ
+    description: Diskriminator für BXS_AssetItem (Fehlerbericht/Wartungstermin/Statusbericht)
+    values:
+      - { value: Defect,   name: Defect,   name_de: Fehlerbericht }
+      - { value: Schedule, name: Schedule, name_de: Wartungstermin }
+      - { value: Status,   name: Status,   name_de: Statusbericht }
+
+  - name: BXS_ItemStatus
+    label: BXS Item Status
+    label_de: BXS Eintrags-Status
+    description: Status eines BXS_AssetItem
+    values:
+      - { value: Open,      name: Open,      name_de: Offen }
+      - { value: Done,      name: Done,      name_de: Erledigt }
+      - { value: Cancelled, name: Cancelled, name_de: Storniert }
+      - { value: Skipped,   name: Skipped,   name_de: Entfallen }
+
+  - name: BXS_WorkOrderStatus
+    label: BXS Work Order Status
+    label_de: BXS Werkstattauftrags-Status
+    description: Status eines Werkstattauftrags
+    values:
+      - { value: Draft,     name: Draft,     name_de: Entwurf }
+      - { value: Released,  name: Released,  name_de: Freigegeben }
+      - { value: Completed, name: Completed, name_de: Abgeschlossen }
+      - { value: Cancelled, name: Cancelled, name_de: Storniert }
+
+  - name: BXS_Priority
+    label: BXS Priority
+    label_de: BXS Priorität
+    description: Priorität eines Fehlerberichts
+    values:
+      - { value: Low,    name: Low,    name_de: Niedrig }
+      - { value: Medium, name: Medium, name_de: Mittel }
+      - { value: High,   name: High,   name_de: Hoch }
+
+  - name: BXS_AssetCategory
+    label: BXS Asset Category
+    label_de: BXS Anlagen-Kategorie
+    description: "Meta-Kategorie über Anlagenklassen — bestimmt Verhalten/Anzeigelogik (Zählerstand, Werkstatt-Bringer, Standort-Semantik). Klassen sind die fachliche Untergliederung."
+    values:
+      - { value: Vehicle,    name: Vehicle,    name_de: Fahrzeug,
+          description: "Mobile Anlage mit Zählerstand (km oder Betriebsstunden) — Fahrzeuge und große Maschinen wie Stapler, Kehrmaschinen.",
+          description_de: "Mobile Anlage mit Zählerstand (km oder Betriebsstunden) — Fahrzeuge und größere Maschinen wie Stapler oder Kehrmaschinen. Werkstattauftrag verlangt Bringer." }
+      - { value: Equipment,  name: Equipment,  name_de: Gerät,
+          description: "Mobile Kleingeräte ohne Zählerstand (Sackkarre, Hubwagen, Werkzeug-Sätze).",
+          description_de: "Mobile Kleingeräte ohne Zählerstand (Sackkarre, Hubwagen, Werkzeug-Sätze). Standort wechselt." }
+      - { value: Stationary, name: Stationary, name_de: Anlage,
+          description: "Fest installierte Betriebstechnik (Rolltore, Feuerlöscher, Heizung).",
+          description_de: "Fest installierte Betriebstechnik (Rolltore, Feuerlöscher, Heizung). Standort fest, kein Bringer." }
+      - { value: Building,   name: Building,   name_de: Immobilie,
+          description: "Gebäudeteil oder Gewerk an einer Immobilie.",
+          description_de: "Gebäudeteil oder Gewerk an einer Immobilie (Dach, Heizung als Gewerk-Position, Elektro)." }
+      - { value: IT,         name: IT,         name_de: IT-Gerät,
+          description: "IT-Hardware mit Inventarcharakter (Server, Switch, Drucker).",
+          description_de: "IT-Hardware mit Inventarcharakter (Server, Switch, Drucker). Eigene Inventur-Logik bei Bedarf später ergänzbar." }
+      - { value: Other,      name: Other,      name_de: Sonstiges,
+          description: "Auffangkategorie — alles, was nicht in die anderen passt.",
+          description_de: "Auffangkategorie. Wenn häufig verwendet, prüfen ob eine eigene Kategorie sinnvoll wäre." }

@@ -1,0 +1,58 @@
+# Tabelle BXS_ScheduleType — Wartungstermin-Typ-Stammdaten.
+# Datenmodell §2.4 / §4.2.
+
+tables:
+
+  - name: BXS_ScheduleType
+    label: BXS Schedule Type
+    label_de: Wartungstermin-Typ
+    description: Stamm der Wartungstermin-Typen (TÜV, SP, UVV, Garantie, …)
+    access_level: "6"   # System+Client
+    primary_window: BXS_ScheduleType_Window
+    columns:
+      - { name: Value,                  type: String,   length: 40, mandatory: true, identifier_seq: 1 }
+      - { name: Name,                   type: String,   length: 60, mandatory: true, identifier_seq: 2 }
+      - { name: Description,            type: Text }
+      - { name: DefaultIntervalMonths,  type: Integer,  length: 4,
+          label: Default Interval (Months), label_de: "Standard-Intervall (Monate)",
+          help: "Vorschlag für das Datum des Folgetermins (z.B. 12, 24)." }
+      - { name: IsMandatoryDefault,     type: YesNo,    mandatory: true,  default: "Y",
+          label: Mandatory by default,  label_de: "Pflicht-Default",
+          help: "Default für Pflicht-Flag bei neuen Terminen dieses Typs (TÜV/SP/UVV: ja, Garantie/INSPECTION: nein)." }
+      - { name: BXS_AssetClass_ID,      type: TableDir, ref: BXS_AssetClass,
+          label_de: "Anlagenklasse",
+          help: "Wenn gesetzt: Termin-Typ ist nur für diese Klasse relevant (TÜV/SP nur für Fahrzeug, UVV nur für Stapler)." }
+
+windows:
+
+  - name: BXS_ScheduleType_Window
+    label: BXS Schedule Type
+    label_de: Wartungstermin-Typ
+    description: "Master data of schedule (maintenance) types like TÜV, SP, UVV, warranty."
+    description_de: "Stamm der Wartungstermin-Typen — TÜV, SP, UVV, Garantie und freie Inspektionen."
+    tabs:
+      # Window-Help liegt am ersten Tab, weil iDempiere die Fenster-Hilfe
+      # in der UI nicht anzeigt, wohl aber Description + Help des Tabs.
+      - name: BXS Schedule Type
+        name_de: Wartungstermin-Typ
+        table: BXS_ScheduleType
+        seq: 10
+        description: "Master data of schedule (maintenance) types like TÜV, SP, UVV, warranty."
+        description_de: "Stamm der Wartungstermin-Typen — TÜV, SP, UVV, Garantie und freie Inspektionen."
+        help: |
+          <p><b>Master data window</b> — maintain the catalogue of schedule types (<i>TÜV, SP, UVV, warranty, free inspections</i>).</p>
+          <p>Use field <b>Asset Class</b> to bind a type to a class — TÜV only for vehicle classes, UVV only for forklifts. The default interval and the mandatory/optional flag are set here; when a schedule is closed, the system proposes the follow-up date based on these defaults.</p>
+          <p>Daily work happens in the two main windows <b>BXS Asset</b> (tab <i>Schedule</i> for concrete maintenance dates) and <b>BXS Work Order</b>.</p>
+        help_de: |
+          <p>Pflegen Sie hier den Katalog der Termin-Typen (<i>TÜV, SP, UVV, Garantie, freie Inspektionen</i>).</p>
+          <p>Über das Feld <b>Anlagenklasse</b> binden Sie einen Typ an eine Klasse — TÜV gilt z.B. nur für Fahrzeug-Klassen, UVV nur für Stapler. Standard-Intervall und Pflicht/Kür-Kennzeichen werden hier eingestellt; das System schlägt beim Erledigen eines Termins anhand davon den Folgetermin vor.</p>
+          <p>Die tägliche Arbeit passiert in den zwei Hauptfenstern <b>Anlage</b> (Tab <i>Wartungstermin</i> für konkrete Termine an einer Anlage) und <b>Werkstattauftrag</b>.</p>
+    # Menü-Position: Stammdaten am Ende des Anlagenbuch-Knotens.
+    menu: { seq: 40 }
+
+# Keine initial_data: Wartungstermin-Typen (TÜV/SP/UVV/INSPECTION/WARRANTY)
+# sind nicht Teil des Community-Packs, weil sie nur in Tenants Sinn ergeben,
+# die mit feineren, eigenen Klassen arbeiten (z.B. Bayen mit LKW/Transporter/
+# Stapler). Die Typen kommen per ODS-Import aus
+# example/JakobBayenKG/data/schedules.csv in den Bayen-Mandanten — siehe
+# example/JakobBayenKG/data/README.md.

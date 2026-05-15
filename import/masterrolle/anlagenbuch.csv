@@ -1,0 +1,20 @@
+Section,Key,Value
+Meta,RoleName,anlagenbuch
+Meta,Description,Master-Rolle für das Anlagenbuch-Plugin. Wird per AD_Role_Included in die Login-Rollen der Anwender eingehängt. Trägt Window-Access auf die vier BXS-Hauptfenster plus Process-Access für die Workflow- und Print-Prozesse.
+Meta,UserLevel,CO
+Meta,IsAccessAllOrgs,N
+Meta,IsCanReport,Y
+Meta,IsCanExport,Y
+Meta,IsAccessAdvanced,N
+WindowAccess,BXS Asset,
+WindowAccess,BXS Asset Class,
+WindowAccess,BXS Schedule Type,
+WindowAccess,BXS Work Order,
+ProcessAccess,BXS_Asset_CreateWorkOrder,
+ProcessAccess,BXS_AssetItem_CloseItem,
+ProcessAccess,BXS_WorkOrder_CompleteOrder,
+ProcessAccess,BXS_WorkOrder_PullOpenItems,
+ProcessAccess,BXS_Print_Werkstattmappe_DE,
+ProcessAccess,BXS_Print_Werkstattmappe_EN,
+ProcessAccess,BXS_Print_Anlagenakte_DE,
+ProcessAccess,BXS_Print_Anlagenakte_EN,

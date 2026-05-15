@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Asset Status Overview (EN) — fleet-wide list of all assets with
+     aggregated status counters. Audience: workshop manager / dispatcher.
+     Grouped by asset class, one counter row per asset plus inline top-3
+     open defects.
+
+     Process parameters (AD_Process_Para):
+       AssetClassIDs       — Multi-Selection (Table MultiSelect → BXS_AssetClass),
+                             optional. Empty = all classes.
+       OnlyWithOpenItems   — Yes/No, default 'Y'. If 'Y', only assets with
+                             open defects OR overdue schedules.
+
+     Multi-Select convention: see ~/iDempiere-development/docs/jasperreports-knowhow.md
+-->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="Anlagenuebersicht_Status_en"
+              pageWidth="842" pageHeight="595"
+              orientation="Landscape"
+              columnWidth="782" leftMargin="30" rightMargin="30"
+              topMargin="30" bottomMargin="30"
+              uuid="d1e1c001-0003-0001-0002-000000000001">
+
+  <property name="ireport.zoom" value="1.0"/>
+  <property name="com.jaspersoft.studio.unit." value="pixel"/>
+
+  <style name="Brand"      forecolor="#1F2F50" isBold="true" fontName="SansSerif" fontSize="16"/>
+  <style name="Heading"    forecolor="#1F2F50" isBold="true" fontName="SansSerif" fontSize="9"/>
+  <style name="HeadingTab" forecolor="#FFFFFF" isBold="true" fontName="SansSerif" fontSize="9"/>
+  <style name="GroupBar"   forecolor="#FFFFFF" isBold="true" fontName="SansSerif" fontSize="11"/>
+  <style name="Label"      forecolor="#666666"               fontName="SansSerif" fontSize="7"/>
+  <style name="Value"      forecolor="#000000" isBold="true" fontName="SansSerif" fontSize="10"/>
+  <style name="Cell"       forecolor="#000000"               fontName="SansSerif" fontSize="9"/>
+  <style name="CellBold"   forecolor="#000000" isBold="true" fontName="SansSerif" fontSize="9"/>
+  <style name="CellNum"    forecolor="#000000" isBold="true" fontName="SansSerif" fontSize="11"/>
+  <style name="CellWarn"   forecolor="#B00020" isBold="true" fontName="SansSerif" fontSize="11"/>
+  <style name="CellDim"    forecolor="#AAAAAA"               fontName="SansSerif" fontSize="11"/>
+  <style name="Footer"     forecolor="#888888"               fontName="SansSerif" fontSize="8"/>
+
+  <subDataset name="TopOpenItems" uuid="d1e1c001-0003-0002-0002-000000000001">
+    <parameter name="BXS_Asset_ID" class="java.lang.Integer"/>
+    <parameter name="DateFmt" class="java.text.SimpleDateFormat"/>
+    <queryString>
+      <![CDATA[
+        SELECT * FROM (
+          SELECT 'Defect'   AS ItemType, i.Priority,
+                 i.ReportedDate AS RefDate, i.Name AS ItemName, i.Description AS ItemDescription,
+                 1 AS sort_kind,
+                 CASE i.Priority WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 ELSE 3 END AS sort_prio
+          FROM   BXS_AssetItem i
+          WHERE  i.BXS_Asset_ID = $P{BXS_Asset_ID}
+            AND  i.Type = 'Defect' AND i.ItemStatus = 'Open'
+          UNION ALL
+          SELECT 'Schedule', NULL,
+                 i.DueDate, i.Name, i.Description,
+                 2, 9
+          FROM   BXS_AssetItem i
+          WHERE  i.BXS_Asset_ID = $P{BXS_Asset_ID}
+            AND  i.Type = 'Schedule' AND i.ItemStatus = 'Open'
+            AND  i.DueDate < CURRENT_DATE
+        ) t
+        ORDER BY sort_kind, sort_prio, RefDate
+        LIMIT 5
+      ]]>
+    </queryString>
+    <field name="ItemType"        class="java.lang.String"/>
+    <field name="Priority"        class="java.lang.String"/>
+    <field name="RefDate"         class="java.sql.Timestamp"/>
+    <field name="ItemName"        class="java.lang.String"/>
+    <field name="ItemDescription" class="java.lang.String"/>
+  </subDataset>
+
+  <parameter name="AD_CLIENT_ID" class="java.lang.Integer" isForPrompting="false">
+    <defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+  </parameter>
+  <parameter name="AssetClassIDs" class="java.lang.String" isForPrompting="false">
+    <defaultValueExpression><![CDATA[null]]></defaultValueExpression>
+  </parameter>
+  <parameter name="OnlyWithOpenItems" class="java.lang.String" isForPrompting="false">
+    <defaultValueExpression><![CDATA["Y"]]></defaultValueExpression>
+  </parameter>
+  <parameter name="DateFmt" class="java.text.SimpleDateFormat" isForPrompting="false">
+    <defaultValueExpression><![CDATA[new java.text.SimpleDateFormat("yyyy-MM-dd")]]></defaultValueExpression>
+  </parameter>
+  <parameter name="DateLong" class="java.text.SimpleDateFormat" isForPrompting="false">
+    <defaultValueExpression><![CDATA[new java.text.SimpleDateFormat("MMMM d, yyyy", java.util.Locale.ENGLISH)]]></defaultValueExpression>
+  </parameter>
+
+  <queryString>
+    <![CDATA[
+      SELECT cl.BXS_AssetClass_ID, COALESCE(cl.Name,'(no class)') AS ClassName,
+             a.BXS_Asset_ID, a.Value, a.Name AS AssetName,
+             a.AssetStatus, a.Location,
+             (SELECT COUNT(*) FROM BXS_AssetItem i
+                WHERE i.BXS_Asset_ID = a.BXS_Asset_ID
+                  AND i.Type = 'Defect' AND i.ItemStatus = 'Open') AS OpenDefects,
+             (SELECT COUNT(*) FROM BXS_AssetItem i
+                WHERE i.BXS_Asset_ID = a.BXS_Asset_ID
+                  AND i.Type = 'Defect' AND i.ItemStatus = 'Open'
+                  AND i.Priority = 'High') AS HighDefects,
+             (SELECT COUNT(*) FROM BXS_AssetItem i
+                WHERE i.BXS_Asset_ID = a.BXS_Asset_ID
+                  AND i.Type = 'Schedule' AND i.ItemStatus = 'Open'
+                  AND i.DueDate < CURRENT_DATE) AS OverdueSchedules,
+             (SELECT COUNT(*) FROM BXS_WorkOrder wo
+                WHERE wo.BXS_Asset_ID = a.BXS_Asset_ID
+                  AND wo.WorkOrderStatus IN ('Draft','Released')) AS PendingWorkOrders,
+             org.Name AS OrgName,
+             cli.Description AS ClientDesc
+      FROM   BXS_Asset a
+      LEFT JOIN BXS_AssetClass cl ON cl.BXS_AssetClass_ID = a.BXS_AssetClass_ID
+      LEFT JOIN AD_Org org        ON org.AD_Org_ID = a.AD_Org_ID
+      LEFT JOIN AD_Client cli     ON cli.AD_Client_ID = a.AD_Client_ID
+      WHERE  a.IsActive = 'Y'
+        AND  ($P{AD_CLIENT_ID} = 0 OR a.AD_Client_ID = $P{AD_CLIENT_ID})
+        AND  ($P{AssetClassIDs} IS NULL OR $P{AssetClassIDs} = ''
+              OR a.BXS_AssetClass_ID IN ($P!{AssetClassIDs}))
+        AND  ($P{OnlyWithOpenItems} = 'N' OR EXISTS (
+                SELECT 1 FROM BXS_AssetItem i
+                 WHERE i.BXS_Asset_ID = a.BXS_Asset_ID
+                   AND i.ItemStatus = 'Open'
+                   AND (i.Type = 'Defect'
+                        OR (i.Type = 'Schedule' AND i.DueDate < CURRENT_DATE))))
+      ORDER BY COALESCE(cl.Value,'~'), a.Value
+    ]]>
+  </queryString>
+
+  <field name="BXS_AssetClass_ID" class="java.lang.Integer"/>
+  <field name="ClassName"         class="java.lang.String"/>
+  <field name="BXS_Asset_ID"      class="java.lang.Integer"/>
+  <field name="Value"             class="java.lang.String"/>
+  <field name="AssetName"         class="java.lang.String"/>
+  <field name="AssetStatus"       class="java.lang.String"/>
+  <field name="Location"          class="java.lang.String"/>
+  <field name="OpenDefects"       class="java.lang.Long"/>
+  <field name="HighDefects"       class="java.lang.Long"/>
+  <field name="OverdueSchedules"  class="java.lang.Long"/>
+  <field name="PendingWorkOrders" class="java.lang.Long"/>
+  <field name="OrgName"           class="java.lang.String"/>
+  <field name="ClientDesc"        class="java.lang.String"/>
+
+  <variable name="vTotalOpenDefects"      class="java.lang.Long" calculation="Sum"><variableExpression><![CDATA[$F{OpenDefects}]]></variableExpression></variable>
+  <variable name="vTotalHigh"             class="java.lang.Long" calculation="Sum"><variableExpression><![CDATA[$F{HighDefects}]]></variableExpression></variable>
+  <variable name="vTotalOverdue"          class="java.lang.Long" calculation="Sum"><variableExpression><![CDATA[$F{OverdueSchedules}]]></variableExpression></variable>
+  <variable name="vTotalWorkOrders"       class="java.lang.Long" calculation="Sum"><variableExpression><![CDATA[$F{PendingWorkOrders}]]></variableExpression></variable>
+  <variable name="vClassAssets"           class="java.lang.Integer" resetType="Group" resetGroup="ClassGroup" calculation="Count"><variableExpression><![CDATA[$F{BXS_Asset_ID}]]></variableExpression></variable>
+
+  <group name="ClassGroup" isStartNewPage="false" isReprintHeaderOnEachPage="true">
+    <groupExpression><![CDATA[$F{BXS_AssetClass_ID}]]></groupExpression>
+    <groupHeader>
+      <band height="46">
+        <rectangle>
+          <reportElement x="0" y="4" width="782" height="20" backcolor="#1F2F50" forecolor="#1F2F50" uuid="d1e1c001-0003-0010-0001-000000000002"/>
+          <graphicElement><pen lineWidth="0.0"/></graphicElement>
+        </rectangle>
+        <textField>
+          <reportElement x="0" y="4" width="600" height="20" style="GroupBar" uuid="d1e1c001-0003-0010-0002-000000000002"/>
+          <textElement verticalAlignment="Middle"><paragraph leftIndent="10"/></textElement>
+          <textFieldExpression><![CDATA[$F{ClassName}]]></textFieldExpression>
+        </textField>
+        <rectangle>
+          <reportElement x="0" y="24" width="782" height="18" backcolor="#E8ECF2" forecolor="#E8ECF2" uuid="d1e1c001-0003-0010-0020-000000000002"/>
+          <graphicElement><pen lineWidth="0.0"/></graphicElement>
+        </rectangle>
+        <staticText><reportElement x="0"   y="26" width="70"  height="14" style="Heading" uuid="d1e1c001-0003-0010-0010-000000000002"/><textElement verticalAlignment="Middle"><paragraph leftIndent="4"/></textElement><text><![CDATA[Asset No.]]></text></staticText>
+        <staticText><reportElement x="70"  y="26" width="145" height="14" style="Heading" uuid="d1e1c001-0003-0010-0011-000000000002"/><textElement verticalAlignment="Middle"/><text><![CDATA[Name]]></text></staticText>
+        <staticText><reportElement x="215" y="26" width="80"  height="14" style="Heading" uuid="d1e1c001-0003-0010-0012-000000000002"/><textElement verticalAlignment="Middle"/><text><![CDATA[Location]]></text></staticText>
+        <staticText><reportElement x="295" y="26" width="70"  height="14" style="Heading" uuid="d1e1c001-0003-0010-0013-000000000002"/><textElement verticalAlignment="Middle"/><text><![CDATA[Status]]></text></staticText>
+        <staticText><reportElement x="365" y="26" width="80"  height="14" style="Heading" uuid="d1e1c001-0003-0010-0014-000000000002"/><textElement textAlignment="Right" verticalAlignment="Middle"><paragraph rightIndent="10"/></textElement><text><![CDATA[open defects]]></text></staticText>
+        <staticText><reportElement x="445" y="26" width="95"  height="14" style="Heading" uuid="d1e1c001-0003-0010-0015-000000000002"/><textElement textAlignment="Right" verticalAlignment="Middle"><paragraph rightIndent="10"/></textElement><text><![CDATA[of which high]]></text></staticText>
+        <staticText><reportElement x="540" y="26" width="115" height="14" style="Heading" uuid="d1e1c001-0003-0010-0016-000000000002"/><textElement textAlignment="Right" verticalAlignment="Middle"><paragraph rightIndent="10"/></textElement><text><![CDATA[overdue]]></text></staticText>
+        <staticText><reportElement x="655" y="26" width="127" height="14" style="Heading" uuid="d1e1c001-0003-0010-0017-000000000002"/><textElement textAlignment="Right" verticalAlignment="Middle"><paragraph rightIndent="10"/></textElement><text><![CDATA[work orders]]></text></staticText>
+      </band>
+    </groupHeader>
+    <groupFooter>
+      <band height="14">
+        <line>
+          <reportElement x="0" y="2" width="782" height="1" forecolor="#C0C0C0" uuid="d1e1c001-0003-0011-0001-000000000002"/>
+        </line>
+        <textField>
+          <reportElement x="0" y="4" width="400" height="10" style="Label" uuid="d1e1c001-0003-0011-0002-000000000002"/>
+          <textElement><paragraph leftIndent="4"/></textElement>
+          <textFieldExpression><![CDATA[$V{vClassAssets} + " asset" + ($V{vClassAssets} == 1 ? "" : "s") + " in this class"]]></textFieldExpression>
+        </textField>
+      </band>
+    </groupFooter>
+  </group>
+
+  <title>
+    <band height="60">
+      <rectangle>
+        <reportElement x="0" y="0" width="782" height="50" backcolor="#1F2F50" forecolor="#1F2F50" uuid="d1e1c001-0003-0020-0001-000000000002"/>
+        <graphicElement><pen lineWidth="0.0"/></graphicElement>
+      </rectangle>
+      <textField isBlankWhenNull="true">
+        <reportElement x="15" y="8" width="400" height="22" forecolor="#FFFFFF" uuid="d1e1c001-0003-0020-0002-000000000002"/>
+        <textElement><font fontName="SansSerif" size="16" isBold="true"/></textElement>
+        <textFieldExpression><![CDATA[$F{OrgName}]]></textFieldExpression>
+      </textField>
+      <textField isBlankWhenNull="true">
+        <reportElement x="15" y="30" width="400" height="14" forecolor="#C8D1E0" uuid="d1e1c001-0003-0020-0003-000000000002"/>
+        <textElement><font fontName="SansSerif" size="9"/></textElement>
+        <textFieldExpression><![CDATA[$F{ClientDesc}]]></textFieldExpression>
+      </textField>
+      <staticText>
+        <reportElement x="430" y="8" width="345" height="22" forecolor="#E8B12A" uuid="d1e1c001-0003-0020-0004-000000000002"/>
+        <textElement textAlignment="Right"><font fontName="SansSerif" size="16" isBold="true"/><paragraph rightIndent="10"/></textElement>
+        <text><![CDATA[ASSET STATUS OVERVIEW]]></text>
+      </staticText>
+      <textField>
+        <reportElement x="430" y="30" width="345" height="14" forecolor="#FFFFFF" uuid="d1e1c001-0003-0020-0005-000000000002"/>
+        <textElement textAlignment="Right"><font fontName="SansSerif" size="9"/><paragraph rightIndent="10"/></textElement>
+        <textFieldExpression><![CDATA["As of: " + $P{DateLong}.format(new java.util.Date())
+            + ($P{OnlyWithOpenItems}.equals("Y") ? "  ·  only assets with open items" : "")]]></textFieldExpression>
+      </textField>
+    </band>
+  </title>
+
+  <detail>
+    <band height="34" splitType="Stretch">
+      <textField>
+        <reportElement x="0" y="2" width="70" height="14" style="CellBold" uuid="d1e1c001-0003-0030-0001-000000000002"/>
+        <textElement><paragraph leftIndent="4"/></textElement>
+        <textFieldExpression><![CDATA[$F{Value}]]></textFieldExpression>
+      </textField>
+      <textField isBlankWhenNull="true">
+        <reportElement x="70" y="2" width="145" height="14" style="Cell" uuid="d1e1c001-0003-0030-0002-000000000002"/>
+        <textFieldExpression><![CDATA[$F{AssetName}]]></textFieldExpression>
+      </textField>
+      <textField isBlankWhenNull="true">
+        <reportElement x="215" y="2" width="80" height="14" style="Cell" uuid="d1e1c001-0003-0030-0003-000000000002"/>
+        <textFieldExpression><![CDATA[$F{Location}]]></textFieldExpression>
+      </textField>
+      <textField isBlankWhenNull="true">
+        <reportElement x="295" y="2" width="70" height="14" style="Cell" uuid="d1e1c001-0003-0030-0004-000000000002"/>
+        <textFieldExpression><![CDATA["InService".equals($F{AssetStatus}) ? "in service" :
+          "OutOfService".equals($F{AssetStatus}) ? "out of service" :
+          "Disposed".equals($F{AssetStatus}) ? "disposed" : $F{AssetStatus}]]></textFieldExpression>
+      </textField>
+      <textField>
+        <reportElement x="365" y="0" width="80" height="16" uuid="d1e1c001-0003-0030-0010-000000000002">
+          <printWhenExpression><![CDATA[$F{OpenDefects} == null || $F{OpenDefects} == 0]]></printWhenExpression>
+        </reportElement>
+        <textElement textAlignment="Right"><font fontName="SansSerif" size="11"/><paragraph rightIndent="10"/></textElement>
+        <textFieldExpression><![CDATA["—"]]></textFieldExpression>
+      </textField>
+      <textField>
+        <reportElement x="365" y="0" width="80" height="16" style="CellNum" uuid="d1e1c001-0003-0030-0011-000000000002">
+          <printWhenExpression><![CDATA[$F{OpenDefects} != null && $F{OpenDefects} > 0]]></printWhenExpression>
+        </reportElement>
+        <textElement textAlignment="Right"><paragraph rightIndent="10"/></textElement>
+        <textFieldExpression><![CDATA[$F{OpenDefects}]]></textFieldExpression>
+      </textField>
+      <textField>
+        <reportElement x="445" y="0" width="95" height="16" uuid="d1e1c001-0003-0030-0020-000000000002">
+          <printWhenExpression><![CDATA[$F{HighDefects} == null || $F{HighDefects} == 0]]></printWhenExpression>
+        </reportElement>
+        <textElement textAlignment="Right"><font fontName="SansSerif" size="11"/><paragraph rightIndent="10"/></textElement>
+        <textFieldExpression><![CDATA["—"]]></textFieldExpression>
+      </textField>
+      <textField>
+        <reportElement x="445" y="0" width="95" height="16" style="CellWarn" uuid="d1e1c001-0003-0030-0021-000000000002">
+          <printWhenExpression><![CDATA[$F{HighDefects} != null && $F{HighDefects} > 0]]></printWhenExpression>
+        </reportElement>
+        <textElement textAlignment="Right"><paragraph rightIndent="10"/></textElement>
+        <textFieldExpression><![CDATA[$F{HighDefects}]]></textFieldExpression>
+      </textField>
+      <textField>
+        <reportElement x="540" y="0" width="115" height="16" uuid="d1e1c001-0003-0030-0030-000000000002">
+          <printWhenExpression><![CDATA[$F{OverdueSchedules} == null || $F{OverdueSchedules} == 0]]></printWhenExpression>
+        </reportElement>
+        <textElement textAlignment="Right"><font fontName="SansSerif" size="11"/><paragraph rightIndent="10"/></textElement>
+        <textFieldExpression><![CDATA["—"]]></textFieldExpression>
+      </textField>
+      <textField>
+        <reportElement x="540" y="0" width="115" height="16" style="CellWarn" uuid="d1e1c001-0003-0030-0031-000000000002">
+          <printWhenExpression><![CDATA[$F{OverdueSchedules} != null && $F{OverdueSchedules} > 0]]></printWhenExpression>
+        </reportElement>
+        <textElement textAlignment="Right"><paragraph rightIndent="10"/></textElement>
+        <textFieldExpression><![CDATA[$F{OverdueSchedules}]]></textFieldExpression>
+      </textField>
+      <textField>
+        <reportElement x="655" y="0" width="127" height="16" uuid="d1e1c001-0003-0030-0040-000000000002">
+          <printWhenExpression><![CDATA[$F{PendingWorkOrders} == null || $F{PendingWorkOrders} == 0]]></printWhenExpression>
+        </reportElement>
+        <textElement textAlignment="Right"><font fontName="SansSerif" size="11"/><paragraph rightIndent="10"/></textElement>
+        <textFieldExpression><![CDATA["—"]]></textFieldExpression>
+      </textField>
+      <textField>
+        <reportElement x="655" y="0" width="127" height="16" style="CellNum" uuid="d1e1c001-0003-0030-0041-000000000002">
+          <printWhenExpression><![CDATA[$F{PendingWorkOrders} != null && $F{PendingWorkOrders} > 0]]></printWhenExpression>
+        </reportElement>
+        <textElement textAlignment="Right"><paragraph rightIndent="10"/></textElement>
+        <textFieldExpression><![CDATA[$F{PendingWorkOrders}]]></textFieldExpression>
+      </textField>
+
+      <componentElement>
+        <reportElement positionType="Float" x="20" y="18" width="762" height="16" uuid="d1e1c001-0003-0031-0001-000000000002">
+          <printWhenExpression><![CDATA[($F{OpenDefects} != null && $F{OpenDefects} > 0)
+            || ($F{OverdueSchedules} != null && $F{OverdueSchedules} > 0)]]></printWhenExpression>
+        </reportElement>
+        <jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components"
+                 xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd"
+                 printOrder="Vertical">
+          <datasetRun subDataset="TopOpenItems" uuid="d1e1c001-0003-0031-0002-000000000002">
+            <datasetParameter name="BXS_Asset_ID"><datasetParameterExpression><![CDATA[$F{BXS_Asset_ID}]]></datasetParameterExpression></datasetParameter>
+            <datasetParameter name="DateFmt"><datasetParameterExpression><![CDATA[$P{DateFmt}]]></datasetParameterExpression></datasetParameter>
+            <connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+          </datasetRun>
+          <jr:listContents height="14" width="762">
+            <textField>
+              <reportElement x="0" y="0" width="65" height="13" forecolor="#666666" uuid="d1e1c001-0003-0031-0012-000000000002"/>
+              <textElement><font fontName="SansSerif" size="8"/></textElement>
+              <textFieldExpression><![CDATA[$F{RefDate} != null ? $P{DateFmt}.format($F{RefDate}) : ""]]></textFieldExpression>
+            </textField>
+            <textField>
+              <reportElement x="70" y="0" width="85" height="13" forecolor="#1F2F50" uuid="d1e1c001-0003-0031-0010-000000000002"/>
+              <textElement><font fontName="SansSerif" size="8" isBold="true"/></textElement>
+              <textFieldExpression><![CDATA["Defect".equals($F{ItemType}) ? "→ Defect"
+                : "Schedule".equals($F{ItemType}) ? "→ overdue maint."
+                : "→ " + $F{ItemType}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+              <reportElement x="160" y="0" width="600" height="13" forecolor="#000000" uuid="d1e1c001-0003-0031-0013-000000000002"/>
+              <textElement><font fontName="SansSerif" size="9"/></textElement>
+              <textFieldExpression><![CDATA[("High".equals($F{Priority}) ? "[HIGH]  "
+                  : "Medium".equals($F{Priority}) ? "[med]  "
+                  : "Low".equals($F{Priority}) ? "[low]  " : "")
+                + ($F{ItemName} != null ? $F{ItemName} : "")
+                + ($F{ItemDescription} != null && $F{ItemDescription}.length() > 0
+                   ? ($F{ItemName} != null && $F{ItemName}.length() > 0 ? " — " : "") + $F{ItemDescription}
+                   : "")]]></textFieldExpression>
+            </textField>
+          </jr:listContents>
+        </jr:list>
+      </componentElement>
+
+    </band>
+  </detail>
+
+  <pageFooter>
+    <band height="20">
+      <line>
+        <reportElement x="0" y="0" width="782" height="1" forecolor="#E8B12A" uuid="d1e1c001-0003-0060-0001-000000000002"/>
+      </line>
+      <textField isBlankWhenNull="true">
+        <reportElement x="0" y="5" width="400" height="12" style="Footer" uuid="d1e1c001-0003-0060-0002-000000000002"/>
+        <textFieldExpression><![CDATA[($F{OrgName} != null ? $F{OrgName} : "") + ($F{ClientDesc} != null ? " · " + $F{ClientDesc} : "")]]></textFieldExpression>
+      </textField>
+      <textField>
+        <reportElement x="400" y="5" width="250" height="12" style="Footer" uuid="d1e1c001-0003-0060-0003-000000000002"/>
+        <textElement textAlignment="Center"/>
+        <textFieldExpression><![CDATA["Asset Status Overview · " + $P{DateFmt}.format(new java.util.Date())]]></textFieldExpression>
+      </textField>
+      <textField>
+        <reportElement x="650" y="5" width="80" height="12" style="Footer" uuid="d1e1c001-0003-0060-0004-000000000002"/>
+        <textElement textAlignment="Right"/>
+        <textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER} + " of "]]></textFieldExpression>
+      </textField>
+      <textField evaluationTime="Report">
+        <reportElement x="730" y="5" width="50" height="12" style="Footer" uuid="d1e1c001-0003-0060-0005-000000000002"/>
+        <textElement textAlignment="Left"/>
+        <textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+      </textField>
+    </band>
+  </pageFooter>
+
+  <summary>
+    <band height="40">
+      <line>
+        <reportElement x="0" y="4" width="782" height="1" forecolor="#1F2F50" uuid="d1e1c001-0003-0040-0001-000000000002"/>
+      </line>
+      <staticText>
+        <reportElement x="0" y="10" width="365" height="14" style="Heading" uuid="d1e1c001-0003-0040-0002-000000000002"/>
+        <textElement><paragraph leftIndent="4"/></textElement>
+        <text><![CDATA[TOTAL — all selected assets]]></text>
+      </staticText>
+      <textField>
+        <reportElement x="365" y="10" width="80" height="14" style="CellBold" uuid="d1e1c001-0003-0040-0010-000000000002"/>
+        <textElement textAlignment="Right"><paragraph rightIndent="10"/></textElement>
+        <textFieldExpression><![CDATA[$V{vTotalOpenDefects}]]></textFieldExpression>
+      </textField>
+      <textField>
+        <reportElement x="445" y="10" width="95" height="14" style="CellBold" uuid="d1e1c001-0003-0040-0011-000000000002"/>
+        <textElement textAlignment="Right"><paragraph rightIndent="10"/></textElement>
+        <textFieldExpression><![CDATA[$V{vTotalHigh}]]></textFieldExpression>
+      </textField>
+      <textField>
+        <reportElement x="540" y="10" width="115" height="14" style="CellBold" uuid="d1e1c001-0003-0040-0012-000000000002"/>
+        <textElement textAlignment="Right"><paragraph rightIndent="10"/></textElement>
+        <textFieldExpression><![CDATA[$V{vTotalOverdue}]]></textFieldExpression>
+      </textField>
+      <textField>
+        <reportElement x="655" y="10" width="127" height="14" style="CellBold" uuid="d1e1c001-0003-0040-0013-000000000002"/>
+        <textElement textAlignment="Right"><paragraph rightIndent="10"/></textElement>
+        <textFieldExpression><![CDATA[$V{vTotalWorkOrders}]]></textFieldExpression>
+      </textField>
+    </band>
+  </summary>
+
+  <noData>
+    <band height="60">
+      <staticText>
+        <reportElement x="0" y="20" width="782" height="20" style="Heading" uuid="d1e1c001-0003-0050-0001-000000000002"/>
+        <textElement textAlignment="Center"/>
+        <text><![CDATA[No assets match the selected filters.]]></text>
+      </staticText>
+    </band>
+  </noData>
+
+</jasperReport>

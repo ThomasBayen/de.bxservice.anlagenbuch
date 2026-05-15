@@ -1,0 +1,34 @@
+# Profile für den ODS-Multi-Sheet-Importer.
+#
+# Diese Datei ist im Repo und enthält nur die öffentlich bekannten
+# GardenWorld-Demo-Zugangsdaten. Eigene/echte Zugangsdaten gehören in
+# profiles.local.yaml (gitignored, wird über diese Datei gemerged).
+#
+# Default-Profil, falls --profile nicht gesetzt ist:
+default: gardenadmin
+
+profiles:
+
+  # GardenWorld Admin (Standard für Schreib-Tests)
+  gardenadmin:
+    base_url: https://localhost:8443
+    username: GardenAdmin
+    password: GardenAdmin
+    client_id: 11      # GardenWorld
+    role_id: 102       # GardenWorld Admin
+    org_id: 11         # HQ
+    warehouse_id: 103  # HQ Warehouse
+    server_staging_dir: /tmp/idempiere-csv-import
+    verify_tls: false  # selbstsigniertes TLS-Zertifikat lokal
+
+  # GardenWorld User (eingeschränkte Rolle, für Berechtigungs-Tests)
+  gardenuser:
+    base_url: https://localhost:8443
+    username: GardenUser
+    password: GardenUser
+    client_id: 11
+    role_id: 103       # GardenWorld User
+    org_id: 11
+    warehouse_id: 103
+    server_staging_dir: /tmp/idempiere-csv-import
+    verify_tls: false

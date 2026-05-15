@@ -1,0 +1,26 @@
+src/.build/
+*.aux
+*.log
+*.out
+*.toc
+*.snm
+*.nav
+*.vrb
+.DS_Store
+2pack/.build/
+2pack/Anlagenbuch*.zip
+__pycache__/
+
+# Lokaler Claude-Code-Workspace, niemals ins Repo.
+.claude/
+
+# Persönliche Notizdatei im Repo-Root, gitignored.
+/Bemerkungen.txt
+
+# ODS-Importer-Logs (Diagnose-Output pro Run, nicht versioniert).
+tools/logs/
+
+# Credentials und Pfade — niemals committen. Beispieldateien (.env.example)
+# bleiben getrackt, nur die echten config.env-Files sind lokal.
+**/config.env
+tools/profiles.local.yaml

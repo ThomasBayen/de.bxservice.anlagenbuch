@@ -1,0 +1,41 @@
+# Tabelle BXS_Asset — verwaltetes Objekt (Anlage). Datenmodell §2.1.
+# Window mit 4 Tabs (Asset, Fehlerbericht, Wartungstermin, Status) wird
+# in 50-assetitem.yaml definiert, weil 3 der 4 Tabs auf BXS_AssetItem
+# arbeiten und die Tabelle erst dort entsteht.
+#
+# Virtuelle Spalten LastMeterReading/LastMeterDate werden in
+# 50-assetitem.yaml als additional_columns nachgereicht, sobald
+# BXS_AssetItem mit MeterReading-Spalte definiert ist.
+
+tables:
+
+  - name: BXS_Asset
+    label: BXS Asset
+    label_de: Anlage
+    description: Verwaltetes Objekt (Fahrzeug, Stapler, Anlage, Gebäudeteil)
+    access_level: "3"   # Client+Org (Tenant-eigene Bewegungs-/Stamm-Daten)
+    primary_window: BXS_Asset_Window
+    columns:
+      - { name: Value,             type: String,   length: 40,  mandatory: true,  identifier_seq: 1 }
+      - { name: Name,              type: String,   length: 120, mandatory: true,  identifier_seq: 2 }
+      - { name: Description,       type: Text }
+      - { name: BXS_AssetClass_ID, type: TableDir, ref: BXS_AssetClass, mandatory: true,
+          label: Asset Class,      label_de: Anlagenklasse }
+      - { name: AssetStatus,       type: List,     length: 12, mandatory: true,
+          ref_value: BXS_AssetStatus, default: InService,
+          label: Asset Status,     label_de: Status }
+      - { name: Manufacturer,      type: String,   length: 60,
+          label_de: Hersteller }
+      - { name: Model,             type: String,   length: 60,
+          label_de: Modell }
+      - { name: SerialNo,          type: String,   length: 40,
+          label: Serial No, label_de: "Serien-/FIN-Nummer" }
+      - { name: YearBuilt,         type: Integer,  length: 4,
+          label: Year Built, label_de: "Baujahr" }
+      - { name: CommissionDate,    type: Date,
+          label: Commission Date, label_de: "Inbetriebnahme" }
+      - { name: AD_User_ID,        type: TableDir, ref: AD_User,
+          label: User/Contact, label_de: "Stammnutzer" }
+      - { name: Location,          type: String,   length: 120,
+          label_de: Standort }
+      - { name: Note,              type: Text }

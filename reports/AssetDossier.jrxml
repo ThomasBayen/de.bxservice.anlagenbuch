@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Asset Dossier (EN) — Asset dossier: master data + upcoming schedules
+     + open defects + history (last 30 entries).
+     Invocation: $P{RECORD_ID} = BXS_Asset_ID
+
+     Likely adjustments in Jasper Studio:
+       * Logo from AD_OrgInfo.Logo_ID.
+       * For asset classes without UOM, hide the meter column
+         (via Print When Expression on AssetClass.C_UOM_ID).
+-->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="Anlagenakte_en" pageWidth="595" pageHeight="842"
+              columnWidth="535" leftMargin="30" rightMargin="30"
+              topMargin="30" bottomMargin="30" uuid="d1e1c001-0002-0001-0001-000000000001">
+
+  <property name="ireport.zoom" value="1.0"/>
+  <property name="com.jaspersoft.studio.unit." value="pixel"/>
+
+  <!-- Styles (identical to Werkstattmappe for consistency) -->
+  <style name="Brand"      forecolor="#1F2F50" isBold="true"  fontName="SansSerif" fontSize="16"/>
+  <style name="Heading"    forecolor="#1F2F50" isBold="true"  fontName="SansSerif" fontSize="9"/>
+  <style name="HeadingTab" forecolor="#FFFFFF" isBold="true"  fontName="SansSerif" fontSize="9"/>
+  <style name="Label"      forecolor="#666666"               fontName="SansSerif" fontSize="7"/>
+  <style name="Value"      forecolor="#000000" isBold="true"  fontName="SansSerif" fontSize="10"/>
+  <style name="Cell"       forecolor="#000000"               fontName="SansSerif" fontSize="9"/>
+  <style name="CellBold"   forecolor="#000000" isBold="true"  fontName="SansSerif" fontSize="9"/>
+  <style name="Footer"     forecolor="#888888"               fontName="SansSerif" fontSize="8"/>
+
+
+
+  <!-- Subdataset: upcoming schedules -->
+  <subDataset name="Termine" uuid="d1e1c001-0002-0002-0001-000000000001">
+    <parameter name="BXS_Asset_ID" class="java.lang.Integer"/>
+    <parameter name="DateFmt" class="java.text.SimpleDateFormat"/>
+    <queryString>
+      <![CDATA[
+        SELECT i.DocumentNo, st.Name AS Termin, i.DueDate, i.Description, i.ItemStatus
+        FROM   BXS_AssetItem i
+        LEFT JOIN BXS_ScheduleType st ON st.BXS_ScheduleType_ID = i.BXS_ScheduleType_ID
+        WHERE  i.BXS_Asset_ID = $P{BXS_Asset_ID}
+          AND  i.Type = 'Schedule'
+          AND  i.ItemStatus = 'Open'
+        ORDER BY i.DueDate
+      ]]>
+    </queryString>
+    <field name="DocumentNo"  class="java.lang.String"/>
+    <field name="Termin"      class="java.lang.String"/>
+    <field name="DueDate"     class="java.sql.Timestamp"/>
+    <field name="Description" class="java.lang.String"/>
+    <field name="ItemStatus"  class="java.lang.String"/>
+  </subDataset>
+
+  <!-- Subdataset: open defects -->
+  <subDataset name="Beanstandungen" uuid="d1e1c001-0002-0003-0001-000000000001">
+    <parameter name="BXS_Asset_ID" class="java.lang.Integer"/>
+    <parameter name="DateFmt" class="java.text.SimpleDateFormat"/>
+    <queryString>
+      <![CDATA[
+        SELECT i.DocumentNo, i.Name AS Defect, i.ReportedDate, i.Priority,
+               i.EstimatedCost, i.Description, u.Name AS ReporterName
+        FROM   BXS_AssetItem i
+        LEFT JOIN AD_User u ON u.AD_User_ID = i.AD_User_ID
+        WHERE  i.BXS_Asset_ID = $P{BXS_Asset_ID}
+          AND  i.Type = 'Defect'
+          AND  i.ItemStatus = 'Open'
+        ORDER BY CASE i.Priority WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 ELSE 3 END,
+                 i.ReportedDate
+      ]]>
+    </queryString>
+    <field name="DocumentNo"     class="java.lang.String"/>
+    <field name="Defect"         class="java.lang.String"/>
+    <field name="ReportedDate"   class="java.sql.Timestamp"/>
+    <field name="Priority"       class="java.lang.String"/>
+    <field name="EstimatedCost"  class="java.math.BigDecimal"/>
+    <field name="Description"    class="java.lang.String"/>
+    <field name="ReporterName"   class="java.lang.String"/>
+  </subDataset>
+
+  <!-- Subdataset: history (all entries, newest first, max 30) -->
+  <subDataset name="Historie" uuid="d1e1c001-0002-0004-0001-000000000001">
+    <parameter name="BXS_Asset_ID" class="java.lang.Integer"/>
+    <parameter name="DateFmt" class="java.text.SimpleDateFormat"/>
+    <queryString>
+      <![CDATA[
+        SELECT * FROM (
+          SELECT i.DocumentNo, i.Type, i.Name AS Topic,
+                 COALESCE(i.CompletionDate, i.ReportedDate) AS HistDate,
+                 i.MeterReading, i.ItemStatus
+          FROM   BXS_AssetItem i
+          WHERE  i.BXS_Asset_ID = $P{BXS_Asset_ID}
+          ORDER BY COALESCE(i.CompletionDate, i.ReportedDate) DESC, i.BXS_AssetItem_ID DESC
+          LIMIT 30
+        ) t
+        ORDER BY HistDate DESC
+      ]]>
+    </queryString>
+    <field name="DocumentNo"   class="java.lang.String"/>
+    <field name="Type"         class="java.lang.String"/>
+    <field name="Topic"        class="java.lang.String"/>
+    <field name="HistDate"     class="java.sql.Timestamp"/>
+    <field name="MeterReading" class="java.math.BigDecimal"/>
+    <field name="ItemStatus"   class="java.lang.String"/>
+  </subDataset>
+
+  <parameter name="RECORD_ID" class="java.lang.Integer" isForPrompting="false"/>
+  <parameter name="BXS_Asset_ID" class="java.lang.Integer" isForPrompting="false">
+    <defaultValueExpression><![CDATA[$P{RECORD_ID}]]></defaultValueExpression>
+  </parameter>
+  <parameter name="DateFmt" class="java.text.SimpleDateFormat" isForPrompting="false">
+    <defaultValueExpression><![CDATA[new java.text.SimpleDateFormat("dd.MM.yyyy")]]></defaultValueExpression>
+  </parameter>
+  <parameter name="DateLong" class="java.text.SimpleDateFormat" isForPrompting="false">
+    <defaultValueExpression><![CDATA[new java.text.SimpleDateFormat("MMMM d, yyyy", java.util.Locale.ENGLISH)]]></defaultValueExpression>
+  </parameter>
+
+  <!-- Main query: Asset + Class + UOM + Default User -->
+  <queryString>
+    <![CDATA[
+      SELECT a.Value, a.Name AS AssetName, a.Manufacturer, a.Model, a.YearBuilt,
+             a.SerialNo, a.CommissionDate, a.Location, a.AssetStatus, a.Note,
+             (SELECT i.MeterReading FROM BXS_AssetItem i
+                WHERE i.BXS_Asset_ID=a.BXS_Asset_ID AND i.MeterReading IS NOT NULL
+                order by COALESCE(i.CompletionDate, i.ReportedDate) DESC,
+                         i.BXS_AssetItem_ID DESC LIMIT 1) AS LastMeterReading,
+             (SELECT COALESCE(i.CompletionDate, i.ReportedDate) FROM BXS_AssetItem i
+                WHERE i.BXS_Asset_ID=a.BXS_Asset_ID AND i.MeterReading IS NOT NULL
+                order by COALESCE(i.CompletionDate, i.ReportedDate) DESC,
+                         i.BXS_AssetItem_ID DESC LIMIT 1) AS LastMeterDate,
+             cl.Name AS AssetClassName, cl.Category,
+             u.Name AS UOMSymbol,
+             user_a.Name AS UserName,
+             img.BinaryData AS Logo,
+             org.Name AS OrgName,
+             cli.Description AS ClientDesc,
+             TRIM(BOTH ' ' FROM COALESCE(loc.Postal,'') || ' ' || COALESCE(loc.City,'')) AS CompanyCity
+      FROM   BXS_Asset a
+      LEFT JOIN BXS_AssetClass cl ON cl.BXS_AssetClass_ID = a.BXS_AssetClass_ID
+      LEFT JOIN C_UOM u           ON u.C_UOM_ID = cl.C_UOM_ID
+      LEFT JOIN AD_User user_a    ON user_a.AD_User_ID = a.AD_User_ID
+      LEFT JOIN AD_OrgInfo oi     ON oi.AD_Org_ID = a.AD_Org_ID
+      LEFT JOIN AD_Image img      ON img.AD_Image_ID = oi.Logo_ID
+      LEFT JOIN AD_Org org        ON org.AD_Org_ID = a.AD_Org_ID
+      LEFT JOIN AD_Client cli     ON cli.AD_Client_ID = a.AD_Client_ID
+      LEFT JOIN C_Location loc    ON loc.C_Location_ID = oi.C_Location_ID
+      WHERE  a.BXS_Asset_ID = $P{BXS_Asset_ID}
+    ]]>
+  </queryString>
+
+  <field name="Value"             class="java.lang.String"/>
+  <field name="AssetName"         class="java.lang.String"/>
+  <field name="Manufacturer"      class="java.lang.String"/>
+  <field name="Model"             class="java.lang.String"/>
+  <field name="YearBuilt"         class="java.lang.Integer"/>
+  <field name="SerialNo"          class="java.lang.String"/>
+  <field name="CommissionDate"    class="java.sql.Timestamp"/>
+  <field name="Location"          class="java.lang.String"/>
+  <field name="AssetStatus"       class="java.lang.String"/>
+  <field name="Note"              class="java.lang.String"/>
+  <field name="LastMeterReading"  class="java.math.BigDecimal"/>
+  <field name="LastMeterDate"     class="java.sql.Timestamp"/>
+  <field name="AssetClassName"    class="java.lang.String"/>
+  <field name="Category"          class="java.lang.String"/>
+  <field name="UOMSymbol"         class="java.lang.String"/>
+  <field name="UserName"          class="java.lang.String"/>
+  <field name="Logo"              class="java.io.InputStream"/>
+  <field name="OrgName"           class="java.lang.String"/>
+  <field name="ClientDesc"        class="java.lang.String"/>
+  <field name="CompanyCity"       class="java.lang.String"/>
+
+
+
+  <!-- ───── Title ───── -->
+  <title>
+    <band height="80">
+      <rectangle>
+        <reportElement x="0" y="0" width="535" height="70" backcolor="#1F2F50" forecolor="#1F2F50" uuid="d1e1c001-0002-0010-0001-000000000001"/>
+        <graphicElement><pen lineWidth="0.0"/></graphicElement>
+      </rectangle>
+      <image onErrorType="Blank">
+        <reportElement x="15" y="10" width="50" height="50" uuid="d1e1c001-0002-0010-0002-000000000001"/>
+        <imageExpression><![CDATA[$F{Logo}]]></imageExpression>
+      </image>
+      <textField isBlankWhenNull="true">
+        <reportElement x="75" y="14" width="240" height="22" forecolor="#FFFFFF" uuid="d1e1c001-0002-0010-0003-000000000001"/>
+        <textElement><font fontName="SansSerif" size="16" isBold="true"/><paragraph leftIndent="6"/></textElement>
+        <textFieldExpression><![CDATA[$F{OrgName}]]></textFieldExpression>
+      </textField>
+      <textField isBlankWhenNull="true">
+        <reportElement x="75" y="38" width="240" height="14" forecolor="#C8D1E0" uuid="d1e1c001-0002-0010-0004-000000000001"/>
+        <textElement><font fontName="SansSerif" size="9"/><paragraph leftIndent="6"/></textElement>
+        <textFieldExpression><![CDATA[($F{ClientDesc} != null ? $F{ClientDesc} : "") + ($F{CompanyCity} != null && $F{CompanyCity}.length()>0 ? " · " + $F{CompanyCity} : "")]]></textFieldExpression>
+      </textField>
+      <staticText>
+        <reportElement x="320" y="14" width="215" height="22" forecolor="#E8B12A" uuid="d1e1c001-0002-0010-0005-000000000001"/>
+        <textElement textAlignment="Right"><font fontName="SansSerif" size="16" isBold="true"/><paragraph rightIndent="6"/></textElement>
+        <text><![CDATA[ASSET DOSSIER]]></text>
+      </staticText>
+      <textField>
+        <reportElement x="320" y="38" width="215" height="14" forecolor="#FFFFFF" uuid="d1e1c001-0002-0010-0006-000000000001"/>
+        <textElement textAlignment="Right"><font fontName="SansSerif" size="9"/><paragraph rightIndent="6"/></textElement>
+        <textFieldExpression><![CDATA[$F{AssetName} != null ? $F{AssetName} : ($F{Value} != null ? $F{Value} : "")]]></textFieldExpression>
+      </textField>
+    </band>
+  </title>
+
+  <!-- ───── Detail (1 Datensatz) ───── -->
+  <detail>
+    <band height="480" splitType="Stretch">
+
+      <!-- Section: Stammdaten -->
+      <staticText>
+        <reportElement x="0" y="0" width="200" height="14" style="Heading" uuid="d1e1c001-0002-0011-0001-000000000001"/>
+        <text><![CDATA[STAMMDATEN]]></text>
+      </staticText>
+      <line>
+        <reportElement x="0" y="16" width="535" height="1" forecolor="#C0C0C0" uuid="d1e1c001-0002-0011-0002-000000000001"/>
+      </line>
+
+      <staticText><reportElement x="0"   y="26"  width="255" height="10" style="Label" uuid="d1e1c001-0002-0011-0010-000000000001"/><text><![CDATA[ANLAGENNUMMER]]></text></staticText>
+      <textField>
+        <reportElement x="0" y="38" width="255" height="14" style="Value" uuid="d1e1c001-0002-0011-0011-000000000001"/>
+        <textFieldExpression><![CDATA[$F{Value}]]></textFieldExpression>
+      </textField>
+
+      <staticText><reportElement x="0"   y="58"  width="255" height="10" style="Label" uuid="d1e1c001-0002-0011-0012-000000000001"/><text><![CDATA[BEZEICHNUNG]]></text></staticText>
+      <textField>
+        <reportElement x="0" y="70" width="255" height="14" style="Value" uuid="d1e1c001-0002-0011-0013-000000000001"/>
+        <textFieldExpression><![CDATA[$F{AssetName}]]></textFieldExpression>
+      </textField>
+
+      <staticText><reportElement x="0"   y="90"  width="255" height="10" style="Label" uuid="d1e1c001-0002-0011-0014-000000000001"/><text><![CDATA[KLASSE]]></text></staticText>
+      <textField isBlankWhenNull="true">
+        <reportElement x="0" y="102" width="255" height="14" style="Value" uuid="d1e1c001-0002-0011-0015-000000000001"/>
+        <textFieldExpression><![CDATA[$F{AssetClassName}]]></textFieldExpression>
+      </textField>
+
+      <staticText><reportElement x="0"   y="122"  width="255" height="10" style="Label" uuid="d1e1c001-0002-0011-0016-000000000001"/><text><![CDATA[STANDORT]]></text></staticText>
+      <textField isBlankWhenNull="true">
+        <reportElement x="0" y="134" width="255" height="14" style="Value" uuid="d1e1c001-0002-0011-0017-000000000001"/>
+        <textFieldExpression><![CDATA[$F{Location}]]></textFieldExpression>
+      </textField>
+
+      <staticText><reportElement x="0"   y="154"  width="255" height="10" style="Label" uuid="d1e1c001-0002-0011-0018-000000000001"/><text><![CDATA[STAMMNUTZER]]></text></staticText>
+      <textField isBlankWhenNull="true">
+        <reportElement x="0" y="166" width="255" height="14" style="Value" uuid="d1e1c001-0002-0011-0019-000000000001"/>
+        <textFieldExpression><![CDATA[$F{UserName}]]></textFieldExpression>
+      </textField>
+
+      <staticText><reportElement x="280" y="26"  width="255" height="10" style="Label" uuid="d1e1c001-0002-0011-0020-000000000001"/><text><![CDATA[HERSTELLER / MODELL]]></text></staticText>
+      <textField isBlankWhenNull="true">
+        <reportElement x="280" y="38" width="255" height="14" style="Value" uuid="d1e1c001-0002-0011-0021-000000000001"/>
+        <textFieldExpression><![CDATA[($F{Manufacturer} != null ? $F{Manufacturer} : "") + ($F{Model} != null ? " " + $F{Model} : "") + ($F{YearBuilt} != null ? "  (yr. " + $F{YearBuilt} + ")" : "")]]></textFieldExpression>
+      </textField>
+
+      <staticText><reportElement x="280" y="58"  width="255" height="10" style="Label" uuid="d1e1c001-0002-0011-0022-000000000001"/><text><![CDATA[SERIENNUMMER / FIN]]></text></staticText>
+      <textField isBlankWhenNull="true">
+        <reportElement x="280" y="70" width="255" height="14" style="Value" uuid="d1e1c001-0002-0011-0023-000000000001"/>
+        <textFieldExpression><![CDATA[$F{SerialNo}]]></textFieldExpression>
+      </textField>
+
+      <staticText><reportElement x="280" y="90"  width="255" height="10" style="Label" uuid="d1e1c001-0002-0011-0024-000000000001"/><text><![CDATA[INBETRIEBNAHME]]></text></staticText>
+      <textField isBlankWhenNull="true">
+        <reportElement x="280" y="102" width="255" height="14" style="Value" uuid="d1e1c001-0002-0011-0025-000000000001"/>
+        <textFieldExpression><![CDATA[$F{CommissionDate} != null ? $P{DateLong}.format($F{CommissionDate}) : ""]]></textFieldExpression>
+      </textField>
+
+      <staticText><reportElement x="280" y="122" width="255" height="10" style="Label" uuid="d1e1c001-0002-0011-0026-000000000001"/><text><![CDATA[STATUS]]></text></staticText>
+      <textField isBlankWhenNull="true">
+        <reportElement x="280" y="134" width="255" height="14" style="Value" uuid="d1e1c001-0002-0011-0027-000000000001"/>
+        <textFieldExpression><![CDATA[$F{AssetStatus}]]></textFieldExpression>
+      </textField>
+
+      <staticText><reportElement x="280" y="154" width="255" height="10" style="Label" uuid="d1e1c001-0002-0011-0028-000000000001"/>
+        <text><![CDATA[LETZTER ZÄHLERSTAND]]></text>
+      </staticText>
+      <textField isBlankWhenNull="true">
+        <reportElement x="280" y="166" width="255" height="14" style="Value" uuid="d1e1c001-0002-0011-0029-000000000001">
+          <printWhenExpression><![CDATA[$F{LastMeterReading} != null]]></printWhenExpression>
+        </reportElement>
+        <textFieldExpression><![CDATA[
+          $F{LastMeterReading} + ($F{UOMSymbol} != null ? " " + $F{UOMSymbol} : "")
+            + ($F{LastMeterDate} != null ? "  (as of " + $P{DateFmt}.format($F{LastMeterDate}) + ")" : "")
+        ]]></textFieldExpression>
+      </textField>
+
+      <!-- Section: Anstehende Termine -->
+      <staticText>
+        <reportElement x="0" y="190" width="300" height="14" style="Heading" uuid="d1e1c001-0002-0012-0001-000000000001"/>
+        <text><![CDATA[ANSTEHENDE TERMINE]]></text>
+      </staticText>
+      <line>
+        <reportElement x="0" y="206" width="535" height="1" forecolor="#C0C0C0" uuid="d1e1c001-0002-0012-0002-000000000001"/>
+      </line>
+      <componentElement>
+        <reportElement x="0" y="212" width="535" height="42" uuid="d1e1c001-0002-0012-0003-000000000001"/>
+        <jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components"
+                  xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+          <datasetRun subDataset="Termine" uuid="d1e1c001-0002-0012-0004-000000000001">
+            <datasetParameter name="BXS_Asset_ID"><datasetParameterExpression><![CDATA[$P{BXS_Asset_ID}]]></datasetParameterExpression></datasetParameter>
+            <datasetParameter name="DateFmt"><datasetParameterExpression><![CDATA[$P{DateFmt}]]></datasetParameterExpression></datasetParameter>
+            <connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+          </datasetRun>
+          <jr:column width="100" uuid="d1e1c001-0002-0012-0010-000000000001">
+            <jr:tableHeader height="20"><staticText><reportElement x="0" y="0" width="100" height="20" backcolor="#1F2F50" mode="Opaque" style="HeadingTab" uuid="d1e1c001-0002-0012-0011-000000000001"/><textElement verticalAlignment="Middle"/><text><![CDATA[ Nummer]]></text></staticText></jr:tableHeader>
+            <jr:detailCell height="22"><textField><reportElement x="0" y="2" width="100" height="14" style="Cell" uuid="d1e1c001-0002-0012-0012-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA[$F{DocumentNo}]]></textFieldExpression></textField></jr:detailCell>
+          </jr:column>
+          <jr:column width="160" uuid="d1e1c001-0002-0012-0020-000000000001">
+            <jr:tableHeader height="20"><staticText><reportElement x="0" y="0" width="160" height="20" backcolor="#1F2F50" mode="Opaque" style="HeadingTab" uuid="d1e1c001-0002-0012-0021-000000000001"/><textElement verticalAlignment="Middle"/><text><![CDATA[ Termin-Typ]]></text></staticText></jr:tableHeader>
+            <jr:detailCell height="22"><textField isBlankWhenNull="true"><reportElement x="0" y="2" width="160" height="14" style="CellBold" uuid="d1e1c001-0002-0012-0022-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA[$F{Termin}]]></textFieldExpression></textField></jr:detailCell>
+          </jr:column>
+          <jr:column width="80" uuid="d1e1c001-0002-0012-0030-000000000001">
+            <jr:tableHeader height="20"><staticText><reportElement x="0" y="0" width="80" height="20" backcolor="#1F2F50" mode="Opaque" style="HeadingTab" uuid="d1e1c001-0002-0012-0031-000000000001"/><textElement verticalAlignment="Middle"/><text><![CDATA[ Fällig]]></text></staticText></jr:tableHeader>
+            <jr:detailCell height="22"><textField isBlankWhenNull="true"><reportElement x="0" y="2" width="80" height="14" style="Cell" uuid="d1e1c001-0002-0012-0032-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA[$F{DueDate} != null ? $P{DateFmt}.format($F{DueDate}) : ""]]></textFieldExpression></textField></jr:detailCell>
+          </jr:column>
+          <jr:column width="195" uuid="d1e1c001-0002-0012-0040-000000000001">
+            <jr:tableHeader height="20"><staticText><reportElement x="0" y="0" width="195" height="20" backcolor="#1F2F50" mode="Opaque" style="HeadingTab" uuid="d1e1c001-0002-0012-0041-000000000001"/><textElement verticalAlignment="Middle"/><text><![CDATA[ Anmerkung]]></text></staticText></jr:tableHeader>
+            <jr:detailCell height="22"><textField textAdjust="StretchHeight" isBlankWhenNull="true"><reportElement x="0" y="2" width="195" height="14" style="Cell" uuid="d1e1c001-0002-0012-0042-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA[$F{Description}]]></textFieldExpression></textField></jr:detailCell>
+          </jr:column>
+        </jr:table>
+      </componentElement>
+
+      <!-- Section: Offene Beanstandungen -->
+      <staticText>
+        <reportElement positionType="Float" x="0" y="262" width="300" height="14" style="Heading" uuid="d1e1c001-0002-0013-0001-000000000001"/>
+        <text><![CDATA[OFFENE BEANSTANDUNGEN]]></text>
+      </staticText>
+      <line>
+        <reportElement positionType="Float" x="0" y="278" width="535" height="1" forecolor="#C0C0C0" uuid="d1e1c001-0002-0013-0002-000000000001"/>
+      </line>
+      <componentElement>
+        <reportElement positionType="Float" x="0" y="284" width="535" height="42" uuid="d1e1c001-0002-0013-0003-000000000001"/>
+        <jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components"
+                  xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+          <datasetRun subDataset="Beanstandungen" uuid="d1e1c001-0002-0013-0004-000000000001">
+            <datasetParameter name="BXS_Asset_ID"><datasetParameterExpression><![CDATA[$P{BXS_Asset_ID}]]></datasetParameterExpression></datasetParameter>
+            <datasetParameter name="DateFmt"><datasetParameterExpression><![CDATA[$P{DateFmt}]]></datasetParameterExpression></datasetParameter>
+            <connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+          </datasetRun>
+          <jr:column width="100" uuid="d1e1c001-0002-0013-0010-000000000001">
+            <jr:tableHeader height="20"><staticText><reportElement x="0" y="0" width="100" height="20" backcolor="#1F2F50" mode="Opaque" style="HeadingTab" uuid="d1e1c001-0002-0013-0011-000000000001"/><textElement verticalAlignment="Middle"/><text><![CDATA[ Nummer]]></text></staticText></jr:tableHeader>
+            <jr:detailCell height="22"><textField><reportElement x="0" y="2" width="100" height="14" style="Cell" uuid="d1e1c001-0002-0013-0012-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA[$F{DocumentNo}]]></textFieldExpression></textField></jr:detailCell>
+          </jr:column>
+          <jr:column width="60" uuid="d1e1c001-0002-0013-0020-000000000001">
+            <jr:tableHeader height="20"><staticText><reportElement x="0" y="0" width="60" height="20" backcolor="#1F2F50" mode="Opaque" style="HeadingTab" uuid="d1e1c001-0002-0013-0021-000000000001"/><textElement verticalAlignment="Middle"/><text><![CDATA[ Datum]]></text></staticText></jr:tableHeader>
+            <jr:detailCell height="22"><textField isBlankWhenNull="true"><reportElement x="0" y="2" width="60" height="14" style="Cell" uuid="d1e1c001-0002-0013-0022-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA[$F{ReportedDate} != null ? $P{DateFmt}.format($F{ReportedDate}) : ""]]></textFieldExpression></textField></jr:detailCell>
+          </jr:column>
+          <jr:column width="55" uuid="d1e1c001-0002-0013-0030-000000000001">
+            <jr:tableHeader height="20"><staticText><reportElement x="0" y="0" width="55" height="20" backcolor="#1F2F50" mode="Opaque" style="HeadingTab" uuid="d1e1c001-0002-0013-0031-000000000001"/><textElement verticalAlignment="Middle"/><text><![CDATA[ Prio]]></text></staticText></jr:tableHeader>
+            <jr:detailCell height="22"><textField isBlankWhenNull="true"><reportElement x="0" y="2" width="55" height="14" style="Cell" uuid="d1e1c001-0002-0013-0032-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA["High".equals($F{Priority}) ? "high" : "Medium".equals($F{Priority}) ? "medium" : "Low".equals($F{Priority}) ? "low" : $F{Priority}]]></textFieldExpression></textField></jr:detailCell>
+          </jr:column>
+          <jr:column width="320" uuid="d1e1c001-0002-0013-0040-000000000001">
+            <jr:tableHeader height="20"><staticText><reportElement x="0" y="0" width="320" height="20" backcolor="#1F2F50" mode="Opaque" style="HeadingTab" uuid="d1e1c001-0002-0013-0041-000000000001"/><textElement verticalAlignment="Middle"/><text><![CDATA[ Mangel]]></text></staticText></jr:tableHeader>
+            <jr:detailCell height="22"><textField textAdjust="StretchHeight" isBlankWhenNull="true"><reportElement x="0" y="2" width="320" height="20" style="CellBold" uuid="d1e1c001-0002-0013-0042-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA[$F{Defect}]]></textFieldExpression></textField></jr:detailCell>
+          </jr:column>
+        </jr:table>
+      </componentElement>
+
+      <!-- Section: Historie -->
+      <staticText>
+        <reportElement positionType="Float" x="0" y="334" width="300" height="14" style="Heading" uuid="d1e1c001-0002-0014-0001-000000000001"/>
+        <text><![CDATA[HISTORIE (LETZTE 30 EINTRÄGE)]]></text>
+      </staticText>
+      <line>
+        <reportElement positionType="Float" x="0" y="350" width="535" height="1" forecolor="#C0C0C0" uuid="d1e1c001-0002-0014-0002-000000000001"/>
+      </line>
+      <componentElement>
+        <reportElement positionType="Float" x="0" y="356" width="535" height="120" uuid="d1e1c001-0002-0014-0003-000000000001"/>
+        <jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components"
+                  xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+          <datasetRun subDataset="Historie" uuid="d1e1c001-0002-0014-0004-000000000001">
+            <datasetParameter name="BXS_Asset_ID"><datasetParameterExpression><![CDATA[$P{BXS_Asset_ID}]]></datasetParameterExpression></datasetParameter>
+            <datasetParameter name="DateFmt"><datasetParameterExpression><![CDATA[$P{DateFmt}]]></datasetParameterExpression></datasetParameter>
+            <connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+          </datasetRun>
+          <jr:column width="80" uuid="d1e1c001-0002-0014-0010-000000000001">
+            <jr:tableHeader height="20"><staticText><reportElement x="0" y="0" width="80" height="20" backcolor="#1F2F50" mode="Opaque" style="HeadingTab" uuid="d1e1c001-0002-0014-0011-000000000001"/><textElement verticalAlignment="Middle"/><text><![CDATA[ Datum]]></text></staticText></jr:tableHeader>
+            <jr:detailCell height="20"><textField isBlankWhenNull="true"><reportElement x="0" y="1" width="80" height="14" style="Cell" uuid="d1e1c001-0002-0014-0012-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA[$F{HistDate} != null ? $P{DateFmt}.format($F{HistDate}) : ""]]></textFieldExpression></textField></jr:detailCell>
+          </jr:column>
+          <jr:column width="80" uuid="d1e1c001-0002-0014-0020-000000000001">
+            <jr:tableHeader height="20"><staticText><reportElement x="0" y="0" width="80" height="20" backcolor="#1F2F50" mode="Opaque" style="HeadingTab" uuid="d1e1c001-0002-0014-0021-000000000001"/><textElement verticalAlignment="Middle"/><text><![CDATA[ Typ]]></text></staticText></jr:tableHeader>
+            <jr:detailCell height="20"><textField><reportElement x="0" y="1" width="80" height="14" style="Cell" uuid="d1e1c001-0002-0014-0022-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA["Defect".equals($F{Type}) ? "Defect" : "Schedule".equals($F{Type}) ? "Termin" : "Status".equals($F{Type}) ? "Status" : $F{Type}]]></textFieldExpression></textField></jr:detailCell>
+          </jr:column>
+          <jr:column width="100" uuid="d1e1c001-0002-0014-0030-000000000001">
+            <jr:tableHeader height="20"><staticText><reportElement x="0" y="0" width="100" height="20" backcolor="#1F2F50" mode="Opaque" style="HeadingTab" uuid="d1e1c001-0002-0014-0031-000000000001"/><textElement verticalAlignment="Middle"/><text><![CDATA[ Nummer]]></text></staticText></jr:tableHeader>
+            <jr:detailCell height="20"><textField><reportElement x="0" y="1" width="100" height="14" style="Cell" uuid="d1e1c001-0002-0014-0032-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA[$F{DocumentNo}]]></textFieldExpression></textField></jr:detailCell>
+          </jr:column>
+          <jr:column width="60" uuid="d1e1c001-0002-0014-0040-000000000001">
+            <jr:tableHeader height="20"><staticText><reportElement x="0" y="0" width="60" height="20" backcolor="#1F2F50" mode="Opaque" style="HeadingTab" uuid="d1e1c001-0002-0014-0041-000000000001"/><textElement textAlignment="Right" verticalAlignment="Middle"/><text><![CDATA[Zähler ]]></text></staticText></jr:tableHeader>
+            <jr:detailCell height="20"><textField isBlankWhenNull="true"><reportElement x="0" y="1" width="60" height="14" style="Cell" uuid="d1e1c001-0002-0014-0042-000000000001"/><textElement textAlignment="Right"><paragraph rightIndent="3"/></textElement><textFieldExpression><![CDATA[$F{MeterReading}]]></textFieldExpression></textField></jr:detailCell>
+          </jr:column>
+          <jr:column width="215" uuid="d1e1c001-0002-0014-0050-000000000001">
+            <jr:tableHeader height="20"><staticText><reportElement x="0" y="0" width="215" height="20" backcolor="#1F2F50" mode="Opaque" style="HeadingTab" uuid="d1e1c001-0002-0014-0051-000000000001"/><textElement verticalAlignment="Middle"/><text><![CDATA[ Thema]]></text></staticText></jr:tableHeader>
+            <jr:detailCell height="20"><textField textAdjust="StretchHeight" isBlankWhenNull="true"><reportElement x="0" y="1" width="215" height="14" style="Cell" uuid="d1e1c001-0002-0014-0052-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA[$F{Topic}]]></textFieldExpression></textField></jr:detailCell>
+          </jr:column>
+        </jr:table>
+      </componentElement>
+
+    </band>
+  </detail>
+
+  <!-- ───── Page-Footer ───── -->
+  <pageFooter>
+    <band height="20">
+      <line>
+        <reportElement x="0" y="0" width="535" height="1" forecolor="#E8B12A" uuid="d1e1c001-0002-0020-0001-000000000001"/>
+      </line>
+      <textField isBlankWhenNull="true">
+        <reportElement x="0" y="5" width="260" height="12" style="Footer" uuid="d1e1c001-0002-0020-0002-000000000001"/>
+        <textFieldExpression><![CDATA[($F{OrgName} != null ? $F{OrgName} : "") + ($F{ClientDesc} != null ? " · " + $F{ClientDesc} : "")]]></textFieldExpression>
+      </textField>
+      <textField>
+        <reportElement x="260" y="5" width="130" height="12" style="Footer" uuid="d1e1c001-0002-0020-0003-000000000001"/>
+        <textElement textAlignment="Center"/>
+        <textFieldExpression><![CDATA[($F{Value} != null ? $F{Value} : "")]]></textFieldExpression>
+      </textField>
+      <textField>
+        <reportElement x="390" y="5" width="100" height="12" style="Footer" uuid="d1e1c001-0002-0020-0004-000000000001"/>
+        <textElement textAlignment="Right"/>
+        <textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER} + " of "]]></textFieldExpression>
+      </textField>
+      <textField evaluationTime="Report">
+        <reportElement x="490" y="5" width="45" height="12" style="Footer" uuid="d1e1c001-0002-0020-0005-000000000001"/>
+        <textElement textAlignment="Left"/>
+        <textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+      </textField>
+    </band>
+  </pageFooter>
+
+</jasperReport>

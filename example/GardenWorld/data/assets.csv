@@ -1,0 +1,8 @@
+Value;Name;KlassenValue;Hersteller;Modell;Baujahr;SerialNo;Standort;AssetStatus;Anmerkung
+MOWER-01;Aufsitzmäher Nord;GW-MOWER;John Deere;X350;2022;JD-X350-0142;Hauptgelände;InService;Pflege der Wiesenflächen nördlich der HQ
+MOWER-02;Aufsitzmäher Süd;GW-MOWER;Husqvarna;R420 TS AWD;2021;HQV-R420-0089;Hauptgelände;InService;Pflege der Hangflächen Süd
+PUMP-01;Bewässerungspumpe Block A;GW-IRRIG;Grundfos;CR 5-12;2020;GF-CR5-7732;Block A;InService;Versorgt Beetbewässerung Block A
+PICKUP-01;GardenWorld Pickup;GW-PICKUP;Ford;Ranger XL;2023;WF0LMFE60PUS00451;Werkstatt;InService;Materialtransport, Anhängerkupplung verbaut
+TRAILER-01;Geräteanhänger;GW-TRAILER;Humbaur;HTK 3500.31;2020;WHB-HTK-2020-3331;Werkstatt;InService;Anhänger 3,5t, Auffahrrampe
+SHED-NORTH;Gerätehäuschen Nord;GW-BLDG;;;2018;;Block N;InService;Lagerung Kleingeräte und Saatgut
+SAW-01;Kettensäge;GW-TOOL;STIHL;MS 251 C-BE;2024;MS251-0445;Werkstatt;InService;Astpflege, Sturmschäden

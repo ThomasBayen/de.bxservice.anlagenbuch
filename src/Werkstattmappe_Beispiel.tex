@@ -1,0 +1,176 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,top=1.7cm,bottom=1.7cm,left=2cm,right=2cm,headheight=14pt,headsep=10pt]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+\usepackage{lmodern}
+\renewcommand{\familydefault}{\sfdefault}
+
+\definecolor{jbblue}{HTML}{1F3A5F}
+\definecolor{jbaccent}{HTML}{C8A24B}
+\definecolor{jbgray}{HTML}{6B6B6B}
+\definecolor{jblightgray}{HTML}{D8D8D8}
+\definecolor{jbverylight}{HTML}{F4F4F4}
+\definecolor{jbboxbg}{HTML}{FAFAFA}
+
+\setlength{\parindent}{0pt}
+\setlength{\fboxsep}{6pt}
+\setlength{\fboxrule}{0.4pt}
+\setlength{\arrayrulewidth}{0.4pt}
+\arrayrulecolor{jblightgray}
+
+\newcommand{\boxlabel}[1]{{\footnotesize\color{jbgray}\MakeUppercase{#1}}}
+\newcommand{\boxval}[1]{{\normalsize\textbf{#1}}}
+\newcommand{\fld}[2]{%
+  \begin{minipage}[t]{\linewidth}%
+    \boxlabel{#1}\par\vspace{1pt}\boxval{#2}%
+  \end{minipage}}
+
+\newcommand{\checkboxopen}{\fbox{\rule{0pt}{1.6mm}\hspace{1.6mm}}}
+\newcommand{\sigline}{\rule{0pt}{0.4pt}\dotfill}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyfoot[L]{\footnotesize\color{jbgray}Jakob Bayen KG \quad·\quad Getränke-Fachgroßhandel Krefeld}
+\fancyfoot[R]{\footnotesize\color{jbgray}WAU-2026-00031 \quad·\quad gedruckt aus Anlagenbuch}
+\fancyfoot[C]{\textcolor{jbaccent}{\rule[1.6em]{\linewidth}{0.6pt}}}
+
+\begin{document}
+
+% ===== KOPF: blauer Balken =====
+\setlength{\fboxsep}{10pt}
+\noindent\colorbox{jbblue}{%
+  \begin{minipage}{\dimexpr\linewidth-2\fboxsep\relax}
+    \vspace{3pt}%
+    \begin{tabular*}{\linewidth}{@{}>{\centering\arraybackslash}m{2.6cm} @{\hspace{10pt}} >{\raggedright\arraybackslash}m{6.4cm} @{\extracolsep{\fill}} >{\raggedleft\arraybackslash}m{5.6cm}@{}}
+      \includegraphics[width=2.4cm]{/mnt/disk2/claudecode/Jakob_Bayen_KG/Logo/JB_LOGO_transparent.png}
+      &
+      {\color{white}\fontsize{15}{18}\selectfont\textbf{Jakob Bayen KG}}\newline
+      {\color{white!82}\small Getränke-Fachgroßhandel\,·\,Krefeld}
+      &
+      {\color{jbaccent}\fontsize{16}{19}\selectfont\textbf{WERKSTATTMAPPE}}\newline
+      {\color{white!82}\small Auftrag WAU-2026-00031}
+    \end{tabular*}
+    \vspace{3pt}%
+  \end{minipage}%
+}
+\setlength{\fboxsep}{6pt}
+
+\vspace{16pt}
+
+% ===== KOPFDATEN =====
+{\color{jbgray}\footnotesize\MakeUppercase{Auftragsdaten}}\\[1pt]
+{\color{jbblue}\rule{\linewidth}{0.8pt}}\\[8pt]
+
+\renewcommand{\arraystretch}{1.55}
+\begin{tabularx}{\linewidth}{@{} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X @{}}
+\fld{Auftragsnummer}{WAU-2026-00031}                       & \fld{Auftragsdatum}{12. Mai 2026}                 \\
+\fld{Anlage}{KR-JB 2078 (LKW-MB-2078)}                     & \fld{Hersteller / Modell}{Mercedes Actros 1845 (Bj. 2019)} \\
+                                                           & \fld{Fahrgestellnummer (FIN)}{WDB9634031L678234}  \\
+\fld{Werkstatt}{Nutzfahrzeuge Schmidt GmbH}                & \fld{Telefon Werkstatt}{02151 / 4711-0}           \\
+\fld{Bringer (Fahrer)}{F. Müller}                          & \fld{Ansprechpartner intern}{Frau Heider}         \\
+                                                           & \fld{Telefon Ansprechpartner}{02151 / 12345-67}   \\
+\end{tabularx}
+
+\vspace{16pt}
+
+% ===== POSITIONEN =====
+{\color{jbgray}\footnotesize\MakeUppercase{Zu erledigende Positionen}}\\[1pt]
+{\color{jbblue}\rule{\linewidth}{0.8pt}}\\[6pt]
+
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\linewidth}{@{} >{\raggedright\arraybackslash}p{0.7cm}
+                                  >{\raggedright\arraybackslash}p{1.6cm}
+                                  >{\raggedright\arraybackslash}p{2.7cm}
+                                  >{\raggedright\arraybackslash}p{2.4cm}
+                                  X @{}}
+\rowcolor{jbblue}
+{\color{white}\textbf{Pos.}} &
+{\color{white}\textbf{Typ}}  &
+{\color{white}\textbf{Nummer}} &
+{\color{white}\textbf{Festgestellt}} &
+{\color{white}\textbf{Beanstandung / Termin}} \\
+\midrule
+
+\rowcolor{jbverylight}
+1 & Termin & TER-2026-00412 & fällig 15.06.2026
+  & \textbf{TÜV-Hauptuntersuchung} \newline
+    Gem. §29 StVZO. Plakette gültig bis 06/2026. Bitte mit erledigen. \\
+\midrule
+2 & Termin & TER-2026-00413 & fällig 15.06.2026
+  & \textbf{Sicherheitsprüfung SP} \newline
+    Pflicht-Prüfung Nutzfahrzeug, üblicherweise zusammen mit dem TÜV. \\
+\midrule
+\rowcolor{jbverylight}
+3 & Beanstand. & BEA-2026-00184 & 08.05.2026, F.~Müller
+  & \textbf{Ladeklappe rechts klemmt} \newline
+    Rechte Ladeklappe öffnet nicht. Mechanik klemmt, hörbar beim
+    Versuch zu öffnen. Letzte Reparatur 11/2024. Kostenschätzung: ca.~250\,€. \\
+\midrule
+4 & Beanstand. & BEA-2026-00190 & 06.05.2026, H.~Weber
+  & \textbf{Reifen vorn links: Flankenriss} \newline
+    Bei Außendienst-Tour aufgefallen, Riss ca. 4\,cm in Seitenflanke.
+    Bitte vor Weiterfahrt prüfen, ggf. tauschen. \\
+\midrule
+\rowcolor{jbverylight}
+5 & Beanstand. & BEA-2026-00191 & 04.05.2026, F.~Müller
+  & \textbf{Innenraum-Lüfter brummt} \newline
+    Auf Stufe 2 und 3 deutliches Brummen, Stufe 1 normal. Vermutlich
+    Lüfterrad oder Lager. Nicht sicherheitskritisch — wenn zeitlich machbar. \\
+\bottomrule
+\end{tabularx}
+
+\vspace{14pt}
+
+% ===== Hinweise an Werkstatt =====
+{\color{jbgray}\footnotesize\MakeUppercase{Hinweise an die Werkstatt}}\\[3pt]
+\fcolorbox{jblightgray}{jbboxbg}{%
+  \begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}
+    \small
+    Bitte vor Beginn telefonisch Rücksprache zu Position~3 und~4
+    (Kostenfreigabe ab 200\,€). Ansprechpartnerin: Frau Heider,
+    Tel.~02151 / 12345-67.\\[3pt]
+    Rückgabe nach Möglichkeit bis Freitag 15.05.2026 — der LKW ist am
+    Montag wieder eingeplant.
+  \end{minipage}%
+}
+
+\vspace{16pt}
+
+% ===== Bestätigung Rückgabe =====
+{\color{jbgray}\footnotesize\MakeUppercase{Bestätigung Rückgabe (von der Werkstatt auszufüllen)}}\\[1pt]
+{\color{jbblue}\rule{\linewidth}{0.8pt}}\\[6pt]
+
+\renewcommand{\arraystretch}{1.55}
+\begin{tabularx}{\linewidth}{@{} >{\raggedright\arraybackslash}p{0.8cm}
+                                  X
+                                  >{\centering\arraybackslash}p{2.0cm}
+                                  >{\centering\arraybackslash}p{2.4cm}@{}}
+\rowcolor{jblightgray}
+\textbf{Pos.} & \textbf{Tatsächliche Maßnahme / Bemerkung} & \textbf{erledigt} & \textbf{nicht erledigt} \\
+1 & \dotfill & \checkboxopen & \checkboxopen \\
+2 & \dotfill & \checkboxopen & \checkboxopen \\
+3 & \dotfill & \checkboxopen & \checkboxopen \\
+4 & \dotfill & \checkboxopen & \checkboxopen \\
+5 & \dotfill & \checkboxopen & \checkboxopen \\
+\end{tabularx}
+
+\vspace{14pt}
+
+\renewcommand{\arraystretch}{2.4}
+\begin{tabularx}{\linewidth}{@{} >{\raggedright\arraybackslash}X
+                                  >{\raggedright\arraybackslash}X @{}}
+\fld{Rückgabedatum}{\sigline}                       & \fld{Tatsächliche Kosten netto}{\sigline}      \\
+\fld{Belegnummer}{\sigline}                         & \fld{Übernahme Disposition}{\sigline}          \\
+\fld{Werkstatt — Unterschrift / Stempel}{\sigline}  &                                                \\
+\end{tabularx}
+
+\end{document}

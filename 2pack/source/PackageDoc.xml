@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<idempiereDocument>
+    <header>de.bxservice.anlagenbuch Package Description</header>
+    <H1>Package Name:</H1>
+    <packagename>de.bxservice.anlagenbuch</packagename>
+    <H1>Author:</H1>
+    <Name>Jakob Bayen KG / BX Service</Name>
+    <H1>Email Address:</H1>
+    <Email>tbayen@bayen.de</Email>
+    <H1>Description:</H1>
+    <description>Anlagenbuch — zentrales Wartungs- und Fehlerberichts-System (2Pack + JRXML + BeanShell-Rules)</description>
+    <H1>License:</H1>
+    <License>AGPL-3.0-or-later (GNU Affero General Public License v3 or later)</License>
+</idempiereDocument>

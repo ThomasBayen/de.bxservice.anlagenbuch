@@ -1,0 +1,69 @@
+# ModelValidator-Skripte (BeanShell). Vergeben DocumentNo per Sequenz beim
+# Insert (BXS_AssetItem Type-spezifisch, BXS_WorkOrder), legen Folgetermine
+# nach Schließen an, ziehen offene Einträge in den Werkstattauftrag.
+
+rules:
+
+  # Beim Insert eines BXS_AssetItem die richtige DocumentNo-Sequenz ziehen.
+  # Format: FEH-/TER-/STA-{Jahr}-{lfd.Nr}, je nach Type. Sequenzen sind
+  # bereits in 50-assetitem.yaml definiert (BXS_AssetItem_Defect/Schedule/
+  # Status). Falls DocumentNo schon gesetzt ist (Import, manuelle Eingabe),
+  # nichts tun.
+  - value: "beanshell:BXS_AssetItem_DocumentNo"
+    name: BXS_AssetItem DocumentNo
+    description: "Setzt DocumentNo (FEH-/TER-/STA-) je nach Type beim Insert."
+    event_type: T   # ModelValidatorTableEvent — *nicht* 'M' (das ist "Measure for Performance Analysis")
+    rule_type: S
+    # Hinweis: BeanShell kann varargs-Methoden (`getSQLValue(String,String,Object...)`)
+    # nicht dispatchen — wir füllen explizit eine `java.util.List` und nutzen die
+    # `getSQLValue(String,String,List<Object>)`-Überladung.
+    script: |
+      import org.compiere.model.*;
+      import org.compiere.util.*;
+      import java.util.*;
+      PO po = A_PO;
+      String docNo = po.get_ValueAsString("DocumentNo");
+      if (docNo == null || docNo.length() == 0) {
+          String type = po.get_ValueAsString("Type");
+          String seqName = "BXS_AssetItem_" + type;
+          List params = new ArrayList();
+          params.add(seqName);
+          params.add(new Integer(po.getAD_Client_ID()));
+          int seqId = DB.getSQLValue(po.get_TrxName(),
+              "SELECT AD_Sequence_ID FROM AD_Sequence WHERE Name=? AND AD_Client_ID IN (0, ?)",
+              params);
+          if (seqId > 0) {
+              MSequence seq = new MSequence(po.getCtx(), seqId, po.get_TrxName());
+              String newDocNo = MSequence.getDocumentNoFromSeq(seq, po.get_TrxName(), po);
+              if (newDocNo != null) po.set_ValueOfColumn("DocumentNo", newDocNo);
+          }
+      }
+      return "";
+    table_validators:
+      - { table: BXS_AssetItem, event: TBN, seqno: 10 }
+
+  # Werkstattauftrag-Belegnummer (WAU-{Jahr}-{lfd.Nr}). Sequenz ist
+  # BXS_WorkOrder_DocumentNo (in 60-workorder.yaml definiert).
+  - value: "beanshell:BXS_WorkOrder_DocumentNo"
+    name: BXS_WorkOrder DocumentNo
+    description: "Setzt DocumentNo (WAU-) auf neuen Werkstattaufträgen."
+    event_type: T   # ModelValidatorTableEvent — *nicht* 'M' (das ist "Measure for Performance Analysis")
+    rule_type: S
+    script: |
+      import org.compiere.model.*;
+      import org.compiere.util.*;
+      PO po = A_PO;
+      String docNo = po.get_ValueAsString("DocumentNo");
+      if (docNo == null || docNo.length() == 0) {
+          int seqId = DB.getSQLValue(po.get_TrxName(),
+              "SELECT AD_Sequence_ID FROM AD_Sequence WHERE Name='BXS_WorkOrder_DocumentNo' AND AD_Client_ID IN (0, ?)",
+              po.getAD_Client_ID());
+          if (seqId > 0) {
+              MSequence seq = new MSequence(po.getCtx(), seqId, po.get_TrxName());
+              String newDocNo = MSequence.getDocumentNoFromSeq(seq, po.get_TrxName(), po);
+              if (newDocNo != null) po.set_ValueOfColumn("DocumentNo", newDocNo);
+          }
+      }
+      return "";
+    table_validators:
+      - { table: BXS_WorkOrder, event: TBN, seqno: 10 }

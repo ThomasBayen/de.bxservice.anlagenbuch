@@ -1,0 +1,7 @@
+Value;Name;NameEN;Kategorie;Description
+GW-MOWER;Rasenmäher;Lawn Mower;Equipment;Aufsitz- und Handrasenmäher
+GW-IRRIG;Bewässerungspumpe;Irrigation Pump;Stationary;Festinstallierte Pumpe für Bewässerungssysteme
+GW-PICKUP;Pickup;Pickup Truck;Vehicle;Pickup-LKW für Materialtransport
+GW-TRAILER;Anhänger;Trailer;Vehicle;Geräteanhänger, zulassungspflichtig
+GW-BLDG;Gartenhäuschen;Shed;Building;Gerätehaus, fest verbaut
+GW-TOOL;Motorgerät;Power Tool;Equipment;Motorbetriebene Werkzeuge (Kettensäge, Heckenschere)

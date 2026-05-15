@@ -1,0 +1,106 @@
+Wir haben im Unternehmen ein Problem. Bei der Überlegung darüber habe ich mir gedacht, das man es gut abstrahieren kann. Jetzt suche ich Tipps und Pläne, wie man das erweitern kann oder sollte.
+
+Das Problem ist, das wir mehrere LKWs im Unternemhen haben. Ab und zu ist einer kaputt. Wenn ich dann frage, was damit ist, höre ich, das man das ja schon längst gewusst hat. Ein Fahrer hat dfas irgendjemandem im Büro gesagt oder einem Kollegen. Dann ist irgendwie nichts passiert. Gestern wollten wir einen LKW einsetzen, der letzte Woche in einer Werkstatt zum TÜV-Termin war. Da sagte mir dann der Fahrer, das er mit dem nicht fahren könne. Die rechte LAdeklappe geht nicht auf, das wüsste doch jeder. Das ist zwar ein Problem für eine andere Werkstatt als der TÜV, aber wir hätten super einfach das Auto beim Abholen aus der Werkstatt direkt zum Aufbauhersteller fahren können. Stattdessen haben zwei Leute (damit jemand den Fahrer da hin bringt) den 25 km entfernt abgeholt und dann ist der hier erstmal ihngestellt worden. Jetzt - eine Woche später - haben wir dann verstanden, das wir den nochmal mit zwei Leuten 30km wegbringen müssen. Grrr...
+
+Also: Ich möchte eine Akte haben, wo alle Tatsachen über einen LKW, die wartungsrelevant sind, niedergeschrieben werden. Jedes Mal, wenn jemand ein Problem mit einem Auto hat, sollte man kurz eine Notiz machen. Wer hat was wann an welchem Auto festgestellt. Vielleicht auch eine Priorität.
+
+Außerdem könnte so ein System TÜV- und SP-Termine speichern und helfen, die einzuhalten - und dann natürlich auch nach eventuellen Wartungsmeldungen die Priorität vorlegen ,welches Auto wir als nächstes in die Werkstatt schicken. 
+
+Diese Akte soll natürlich elektronisch sein. Es soll einen Zugang zuerst über unser ERP (FreiBier/iDEmpiere - das weisst Du sicherlich) geben, wo diese Informationen in Tabellen stehen. Später sollen die Fahrer Einträge über unsere neue Fahrer-App vornehmen können. (Dieses Projekt ist noch nicht begonnen, das verschieben wir auf eine spätere Version).
+
+Ich möchte, das man jederzeit eine Papierversion der aktuellen Akte ausdrucken kann. Also Berichte. Das geben wir dann mit in die Werkstatt.
+
+
+So weit, so gut.
+
+
+Wenn ich jetzt über dieses Thema nachdenke, fallen mir aber noch ganz viele ähnliche Probleme ein. Ich bin davon überzeugt, das es schlauer ist, diese Software direkt so generalisiert zu machen, das man damit noch viel mehr machen kann.
+
+Sie kann nicht nur LKWs, sondern auch unsere PKWs verwalten. Auch, wenn die feste Faghrer oder so haben. Termine haben die auch.
+
+Gabelstapler sind auch nicht so anders. Die haben auch UVV-Termine. Und Einträge wegen Wartungsthemen. (Wie nennt man diese Einträge wegen einer bewsonderen Bemerkung über den Zustand eines GErätes eigentlich?)
+
+Technische Einrichtungen wie z.B. Rolltore haben auch Wartungstermine.
+
+Manche Geräte wie Zapfgeräte haben auch wiederkehrende Probleme oder Wartungssituationen, die man sich merken können sollte.
+
+Computer und Netzwerkkomponenten wie Switche etc. haben auch technische Informationen, Seriennummern, Kaufdatum und Pflegehinweise. Obwohl die in der Wartung eher nicht so sind wie echthe Maschinen.
+
+Immobilien. Hm. Wir haben Probleme am Dach und der Dachdecker kommt immer nur, wenn es ganz schlimm ist. Dann wäre es nett, zu wissen, was es noch so an Kleinigkeiten gibt.
+
+Ich denke, es gibt verschiedene Kategorien von Dingen, die teilweise etwas unterschiedliche Bedüfnisse in dieser Datenbank haben.
+
+Du siehst - das Problem zieht immer weitere Kreise.
+
+Und wie implementieren wir das in unserer Datenbank und unserem ERP? LKWs sind zur Zeit z.B. durch Resourcen abgebildet, um sie in der Tourenplanung zu verwalten. Aber was wir hier machen, erscheint mir nicht so, als ob wir es auf die Resourcen drafsetzen. Es gibt in iDempiere auch Assets. Da habe ich aber noch nicht so viel mit gearbeitet.
+
+Zu diesem gesamten Thema gibt es bestimmt auch bereits schlaue Bücher, Webseiten und Standards. Wie machen andere das? Kannst Du das recherchieren und mir einen Überblick geben, was andere Menschen dazu bereit gedacht haben und was an meinen Ideen besser geht oder an was ich noch nicht gedacht habe.
+
+Ich warte auf Ideen und Vorschläge und möchte erst mal Brainstorming betreiben.
+
+Am Ende ist noch ein besonderes Problem, das ich einen guten Namen für dieses Projekt suche. LKW-Wartung ist es ja wohl nicht. Wartungspläne sagt auch nicht alles. Anlagegütermanagement ist ganz schön lang. Lach! Ich weiss, das Du gut mit Sprache umgehen kannst und bin gesapnnt auf Deine Vorschläge.
+
+
+------------------------------------------------------------
+
+
+Das Projekt istd jetzt umbenannt in Anlagenbuch.
+
+Antworten auf Brainstorming:
+
+Danke für die Liste mit Disziplinen und Normen. Ich möchte es nicht zu kompliziert machen, aber dennoch nicht in eine falsche Richtung laufen. Deshalb wäre es gut, wenn Du das, was wir machen, mit gängigen Normen und Verfahren abgleichst. Vielleicht recherchierst Du kurz und denkst nach, ob wir etwas völlig gegen die Normen machen oder wo wir mit kleinen Anpassungen näher dran sein könnten.
+
+Die Berichte, von denen ich spreche, könnte man Mängelmeldung oder Beanstandung nennen. Mir gefällt Beanstandung besser. Das erfasst mehr Einsatzbereiche, finde ich. Das nehmen wir.
+
+Noch etwas. Wenn das eine Community-taugliche Arbeit werden soll (und das wäre toll), sollten wir direkt die Tabellen im iDempiere Stil denken. Dann brauchen wir auch englische Tabellennamen. Allerdings auch klare deutsche Begriffe, um das hier zu besprechen und den Benutzern gegenüber.
+
+Überschrift 2 aus Deinem Brainstorming
+
+Getrennte Arbeitsaufträge wären gut. Manche Mängel brauchen ja auch unterschiedliche Werkstätten. Oder wir möchten sie wirklich jetzt noch nicht beheben. Das ist ein eigenes Dokument mit eigenem Workflow. Und es braucht ein Detailtab, um die Arbeitsaufträge zuzuordnen. Und natürlcih ein Feld für die Werkstatt, also einen Geschäftspartner. Hm. Was noch? Kommen dort Zählerstände rein?
+
+Equipment-Hierarchie macht es komplizierter als nötig. Das würde ich nicht machen wollen.
+
+Zählerstände gehören auch dazu. Eigentlich sowohl in Beanstandungen als auch in Werkstattaufträge.
+
+Vorlagen für Wartungspläne ist schwierig. Ich würde eher sagen, das man beim Abschließen eines solchen Termins gezwungen wird, direkt den nächsten anzulegen und dsabei vielleicht eine Hilfe oder eine Vorlage bekommt. Es ist aber nicht so, das TÜV-Termine wirklcih immer alle 12 Monate sind. Wenn man die etwas schiebt, können die auch nach 13 oder 14 Monaten sein. Das weiss man erst, wenn der davon erledigt ist.
+
+Pflicht/Kür: Ja. Definitiv.
+
+Kostenerfassung. Vielleicht macchen wir ein Feld für eine Ksotenschätzung an die Beanstandung. Und ein Feld für die letzlcihen Kosten an den Werstattauftrag. Und ein Feld, wo wir eine Rechnung aus dem ERP verknüpfen können.
+
+Dokumente am Asset geht in iDempiere immer. Das muss nicht extra gemacht werden.
+
+Garantieverfolgung sollte eine Art von Termin sein. So wie TÜV.
+
+Stillegung bedeutet, das der Datensatz inaktiv gesetzt wird. Das ist quasi auch direkt in iDempiere enthalten.
+
+Kennzahlen fügen wir wie Du sagst später hinzu, wenn wir mehr Daten haben.
+
+Überschrift 3
+
+Mit den Kategorien und Eigenheiten hast Du nicht ganz unrecht, aber ich weiss noch nicht genau, wie wir das umsetzen. Ich würde ungern für jede Kategorie eigene Tabellen definieren. Mir wäre lieber, die Asset, Beanstandung und Werkstattauftrag Datensätze enthalten Felder für alles und wir blenden dann vielleicht einige davon in manchen Fällen aus. Sonst bläht sich das ganze Ding so auf. Aber ich bin natürlich offen für ARgumente, wenn Du das anders siehst.
+
+Überschrift 4
+
+Zur Nutzung von A_Asset: Ich meine, das dieser Datensatz auch Buchführungs-Konsequenzen hat uns bereits einige Logik damit verbunden ist. Kannst Du (Im NEtz aber gerne auch im Quellcode) recherchieren, was genau A_Asset in iDempiere ist. Ich befürchte, das ist ein uraltes Konzept, das quasi niemals von jemandem benutzt wurde. Wir müssen überlegen, ob wir das nutzen und beleben können (was schön wäre), oder ob wir damit Nebeneffekte lostreten, die uns zu lästig werden.
+
+Beim Verhältnis zur Resource stimme ich Dir zu.
+
+iDempiere CMMS hört sich sehr spannend an. Bitte schau Dir das genau an, falls es das gibt. Vielleicht in einem subprozess, der uns eine genaue Analyse aufbereitet. Vielleicht ist das ja schon fast, was wir brauchen. Ich kann sowas aber nicht finden - vielleicht war das auch ein Irrtum von Dir?!?
+
+Berichte per Jasper ist perfekt.
+
+Überschrift 5
+
+1. MVP klingt gut.
+2. Daten einpflegen ist klar. Du könntest eine Tabelle zum CSV-IMport aus den Resourcen erzeugen mit den Basisdaten für den Anfang.
+3. zentrale Eingabestelle ist die Disponentin
+4. machen wir so.
+
+Was machen wir im nächsten Schritt? Suchst Du noch mehr Informationen und wir arbeiten wieter am BRainsorming? Oder wissen wir, was wir wollen und Du entwirfst ein Datenmodell? Vielleicht recherchierst Du erst noch zu dem Thema und dem vermeintlichen CMMS, das bereits implementiert sein könne machst Du zuerst einen Plan, wie wir weiter vorgehen.
+
+
+------------------------------------------------------------
+
+
+
