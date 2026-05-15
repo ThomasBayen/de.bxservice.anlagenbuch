@@ -2,6 +2,8 @@
 
 # Anlagenbuch
 
+Repository: <https://github.com/ThomasBayen/de.bxservice.anlagenbuch>
+
 Anlagenbuch (German for *asset and maintenance log*) is a central
 maintenance and defect-tracking system for assets (vehicles, forklifts,
 parts of buildings, equipment), packaged as an iDempiere extension.

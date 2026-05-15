@@ -19,13 +19,6 @@ sollen diese Einträge nach GitHub Issues migrieren.
       die Akzeptanzkriterien durchläuft (Anlage → Fehlerbericht →
       Werkstattauftrag → Anlagenakte drucken).
 
-- [ ] **Author-/Maintainer-Block nach Veröffentlichung finalisieren**:
-  
-      Sobald das Repo öffentlich liegt, in
-      `2pack/source/spec/00-package.yaml` und
-      `2pack/source/PackageDoc.xml` die Repo-URL und einen
-      License-Verweis (AGPL-3.0-or-later) nachziehen.
-
 ## Auslieferung & Community
 
 - [ ] **Plugin-Listing**: Eintrag im iDempiere-Plugin-Index und

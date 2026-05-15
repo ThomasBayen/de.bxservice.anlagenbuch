@@ -11,4 +11,6 @@
     <description>Anlagenbuch — zentrales Wartungs- und Fehlerberichts-System (2Pack + JRXML + BeanShell-Rules)</description>
     <H1>License:</H1>
     <License>AGPL-3.0-or-later (GNU Affero General Public License v3 or later)</License>
+    <H1>Repository:</H1>
+    <Repository>https://github.com/ThomasBayen/de.bxservice.anlagenbuch</Repository>
 </idempiereDocument>

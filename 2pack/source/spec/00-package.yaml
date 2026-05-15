@@ -4,6 +4,8 @@
 # SPDX-Header steht in jedem Skript. iDempiere-2Pack hat selbst kein
 # License-Feld in <idempiere ...>, deshalb hier nur als Kommentar; die
 # menschenlesbare Variante steht in 2pack/source/PackageDoc.xml.
+#
+# Repository: https://github.com/ThomasBayen/de.bxservice.anlagenbuch
 package:
   name: de.bxservice.anlagenbuch
   version: 1.0.0

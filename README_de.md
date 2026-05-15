@@ -2,6 +2,8 @@
 
 # Anlagenbuch
 
+Repository: <https://github.com/ThomasBayen/de.bxservice.anlagenbuch>
+
 Zentrales Wartungs- und Fehlerberichts-System für Anlagen (Fahrzeuge,
 Stapler, Gebäudeteile, Geräte) als iDempiere-Erweiterung. Entwickelt
 für die Jakob Bayen KG, ausgeliefert als 2Pack — installierbar in jedes
