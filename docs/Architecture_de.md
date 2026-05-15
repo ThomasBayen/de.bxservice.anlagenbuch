@@ -151,36 +151,24 @@ inkludieren die Master-Rolle per `AD_Role_Included`. Anlage und Wartung
 
 Hintergrund-Konzept: `../Datalotte.md` im übergeordneten Repo-Verzeichnis.
 
-## Wichtigste Lessons aus dem 2Pack-Bau
+## Lessons aus dem 2Pack-Bau
 
-Detail in `~/iDempiere-development/2packtool/docs/11-lessons-handcoded-2pack.md`.
-Die Punkte mit dem höchsten Stolperpotenzial:
+Die Stolpersteine, die beim Hand-Schreiben dieses 2Packs auftauchten —
+Trl-Nesting, `AD_Element`-Wiederverwendung für Core-Spalten,
+`<SQLStatement>` vs. generic-PO-Initialdaten, `_AccessLevel`-
+Mismatches, `AD_Field` für jede Spalte, der `EventType='T'` /
+BeanShell-Varargs / Default-`DocumentNo`-Sequenz-Cluster bei
+`AD_Rule`-Table-Event-Validatoren, der Server-Restart-Bedarf nach
+`psql`-Änderungen an Rules — sind **nicht Anlagenbuch-spezifisch**.
+Sie gelten für jeden hand- oder generator-getriebenen 2Pack-Bau.
 
-1. **Trl-Records nested** `type="translation"` statt Sibling `type="table"`.
-2. **Standardspalten** (`Value`/`Name`/`IsActive`/…) referenzieren Core-`AD_Element`-IDs;
-   kein neues `AD_Element` anlegen.
-3. **Initialdaten neu erstellter Tabellen als generische PO-Records** (`<TableName type="table">`) mit
-   gesetzter `_UU`-Spalte — PackIn defert sie automatisch, bis Tabelle und FK-Refs aufgelöst sind.
-   `<SQLStatement>` läuft synchron und scheitert beim Erstinstall an noch nicht existierenden Tabellen.
-4. **`_AccessLevel`-Mismatches** geben subtile Pflicht-Verletzungen — System-Stammdaten = 6,
-   Tenant-Bewegungsdaten = 3.
-5. **ZIP-Filename `…_SYSTEM_…`** für system-level 2Pack (Wert `AD_Client.Value` für `AD_Client_ID=0`,
-   nicht der String `System`).
-6. **`AD_Field` für *jede* Tabellenspalte** emittieren (auch System-/Audit-/Parent-Spalten mit
-   `IsDisplayed=N`). Ohne füllt `GridTab.setCurrentRow` den Tab-Kontext nicht — Folge:
-   Felder grau, Save scheitert mit `AD_Client_ID=-1`, Detail-Tabs leer.
-7. **`TableDir` auf Core-Tabellen ohne `AD_Window`** (z.B. `M_Resource` in der Standard-Installation)
-   ist ein UI-Killer: NPE in `MLookupFactory.getLookup_TableDir` beim Tab-Init.
-8. **`AD_Rule.EventType='T'`** für Table-Event-Validatoren. `M` (Measure for Performance Analysis)
-   triggert nicht — der Validator bleibt stumm.
-9. **BeanShell + `DB.getSQLValue(...)` mit Parametern**: die varargs-Überladung ist nicht
-   dispatchbar — `java.util.List<Object>` füllen.
-10. **Default-Tabellen-Sequenz** (`DocumentNo_<Tabelle>`) deaktivieren, sonst greift `PO.saveNew()`
-    aus ihr — bevor unsere TBN-Rule überhaupt gefragt wird.
-
-Bei Änderung von `AD_Rule`-Records per `psql`: **iDempiere-Server neu starten**,
-sonst greift der MRule-/MTableScriptValidator-Cache und liefert die alte Version
-(oder gecachtes „kein Validator gefunden").
+Die vollständige Liste mit Reproduktions-Hinweisen und Code-Snippets
+wird zentral in `2pack-knowhow.md` in der iDempiere-Entwicklungs-
+umgebung des Autors gepflegt (nicht Teil dieses Repos; falls
+Community-Bedarf besteht, wird sie später in ein eigenes Public-
+Projekt ausgelagert). Anlagenbuch-lokale Notizen, die darüber hinaus
+gehen — DocumentNo-Präfix-Mapping, Menü-Tree-Verkabelung im Detail —
+stehen in der `CLAUDE.md` im Repo-Root.
 
 ## Migration zu einem OSGi-Plugin (offen)
 

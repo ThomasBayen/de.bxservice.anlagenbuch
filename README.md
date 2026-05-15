@@ -8,8 +8,10 @@ Anlagenbuch (German for *asset and maintenance log*) is a central
 maintenance and defect-tracking system for assets (vehicles, forklifts,
 parts of buildings, equipment), packaged as an iDempiere extension.
 It was developed for Jakob Bayen KG and is delivered as a 2Pack —
-installable into any iDempiere 11 without server access or a plugin
-build.
+installable into any iDempiere instance without server access or a
+plugin build. The only feature used that is not available in very old
+versions is the multi-selection report parameter, which has been part
+of iDempiere since 7.1 (verified against iDempiere 11).
 
 **What it solves:** Defects, maintenance schedules and workshop visits
 are recorded centrally, bound to the asset, and automatically pulled
@@ -17,32 +19,39 @@ together on every work order. TÜV, SP, UVV and warranty dates no
 longer live in people's heads and paper folders, but in a searchable
 record with a printable workshop dossier.
 
-**Status:** The data model, the four windows, the workflow buttons
-and the JasperReports are wired up and have been verified against a
-local iDempiere 11 installation. Versioning will start once the
-repository goes public.
+**Status:** Released as v1.0. The data model, the four windows, the
+workflow buttons and the JasperReports are wired up and have been
+verified against a local iDempiere 11 installation.
+
+## Overview
+
+For a quick visual tour, start here:
+
+- **Slides:** [`docs/Praesentation_Mitarbeiter.pdf`](docs/Praesentation_Mitarbeiter.pdf)
+  — training deck with screenshots and process diagrams (**in German**;
+  the only documentation artefact that is not translated).
+- **Concept:** [`docs/Concept.md`](docs/Concept.md) — terminology,
+  architectural decisions, and why specific paths were chosen.
 
 ## Quick start
 
-1. **Understand the concept:** [`docs/Concept.md`](docs/Concept.md) —
-   terminology, architectural decisions, and why specific paths were
-   chosen.
-2. **Use it:** [`docs/QuickReference.md`](docs/QuickReference.md)
+1. **Use it:** [`docs/QuickReference.md`](docs/QuickReference.md)
    (PDF next to it) — what goes where, the typical workflows.
-3. **Install it:** [`docs/Installation.md`](docs/Installation.md) —
+2. **Install it:** [`docs/Installation.md`](docs/Installation.md) —
    import the 2Pack, check sequences, load the initial CSV.
 
 ## Documentation overview
 
 | File | Role | Audience |
 | --- | --- | --- |
+| [`docs/Praesentation_Mitarbeiter.pdf`](docs/Praesentation_Mitarbeiter.pdf) | Training material (German only) | Trainers |
+| [`docs/Concept.md`](docs/Concept.md) | Terminology, architectural decisions | Architects, contributors |
 | [`docs/QuickReference.md`](docs/QuickReference.md) (+ PDF) | Daily use | End users |
 | [`docs/Installation.md`](docs/Installation.md) | 2Pack install, sequences, permissions | Admins |
-| [`docs/Concept.md`](docs/Concept.md) | Terminology, architectural decisions | Architects, contributors |
 | [`docs/DataModel.md`](docs/DataModel.md) | Table and column reference | Developers, report authors |
 | [`docs/Architecture.md`](docs/Architecture.md) | How it is built: generator, UUIDs, scripts | Contributors |
 | [`docs/CHANGELOG.md`](docs/CHANGELOG.md) | What changed in which version | Everyone |
-| `docs/Praesentation_Mitarbeiter.pdf` | Training material (German) | Trainers |
+| [`TODO.md`](TODO.md) | Open items for upcoming releases | Contributors |
 
 German translations of every documentation file live next to the
 English ones with a `_de` suffix (e.g. `docs/Concept_de.md`).

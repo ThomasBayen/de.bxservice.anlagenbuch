@@ -6,8 +6,11 @@ Repository: <https://github.com/ThomasBayen/de.bxservice.anlagenbuch>
 
 Zentrales Wartungs- und Fehlerberichts-System für Anlagen (Fahrzeuge,
 Stapler, Gebäudeteile, Geräte) als iDempiere-Erweiterung. Entwickelt
-für die Jakob Bayen KG, ausgeliefert als 2Pack — installierbar in jedes
-iDempiere 11 ohne Server-Zugriff oder Plugin-Build.
+für die Jakob Bayen KG, ausgeliefert als 2Pack — installierbar in
+beliebige iDempiere-Instanzen ohne Server-Zugriff oder Plugin-Build.
+Das einzige genutzte Feature, das nicht in sehr alten Versionen
+existiert, ist der Multi-Selection-Berichtsparameter; den gibt es seit
+iDempiere 7.1 (verifiziert gegen iDempiere 11).
 
 **Was es löst:** Mängel, Wartungstermine und Werkstattbesuche werden zentral
 erfasst, an die Anlage gebunden und bei jedem Werkstattauftrag automatisch
@@ -15,31 +18,38 @@ zusammengeführt. TÜV-, SP-, UVV- und Garantietermine landen nicht mehr in
 Köpfen und Papierordnern, sondern in einer durchsuchbaren Akte mit
 druckbarer Werkstattmappe.
 
-**Status:** Datenmodell, die vier Fenster, Workflow-Buttons und
-JasperReports sind verkabelt und gegen eine lokale iDempiere-11-
-Installation verifiziert. Versionsnummern kommen, sobald das
-Repository öffentlich ist.
+**Status:** Veröffentlicht als v1.0. Datenmodell, die vier Fenster,
+Workflow-Buttons und JasperReports sind verkabelt und gegen eine lokale
+iDempiere-11-Installation verifiziert.
+
+## Überblick
+
+Für einen schnellen visuellen Einstieg:
+
+- **Folien:** [`docs/Praesentation_Mitarbeiter.pdf`](docs/Praesentation_Mitarbeiter.pdf)
+  — Schulungsfolien mit Screenshots und Ablauf-Diagrammen.
+- **Konzept:** [`docs/Concept_de.md`](docs/Concept_de.md) — Begriffe,
+  Architekturentscheidungen, warum bestimmte Wege gewählt wurden.
 
 ## Schnelleinstieg
 
-1. **Konzept verstehen:** [`docs/Concept_de.md`](docs/Concept_de.md) — Begriffe,
-   Architekturentscheidungen, warum bestimmte Wege gewählt wurden.
-2. **Bedienen:** [`docs/QuickReference_de.md`](docs/QuickReference_de.md) (PDF
+1. **Bedienen:** [`docs/QuickReference_de.md`](docs/QuickReference_de.md) (PDF
    daneben) — was man wo eingibt, typische Abläufe.
-3. **Installieren:** [`docs/Installation_de.md`](docs/Installation_de.md) —
+2. **Installieren:** [`docs/Installation_de.md`](docs/Installation_de.md) —
    2Pack importieren, Sequenzen prüfen, Initial-CSV laden.
 
 ## Dokumentationsübersicht
 
 | Datei | Rolle | Zielgruppe |
 | --- | --- | --- |
+| [`docs/Praesentation_Mitarbeiter.pdf`](docs/Praesentation_Mitarbeiter.pdf) | Schulungsmaterial | Multiplikator |
+| [`docs/Concept_de.md`](docs/Concept_de.md) | Begriffe, Architekturentscheidungen | Architekt, Mitwirkende |
 | [`docs/QuickReference_de.md`](docs/QuickReference_de.md) (+ PDF) | Tägliche Bedienung | Endanwender |
 | [`docs/Installation_de.md`](docs/Installation_de.md) | 2Pack-Install, Sequenzen, Rechte | Admin |
-| [`docs/Concept_de.md`](docs/Concept_de.md) | Begriffe, Architekturentscheidungen | Architekt, Mitwirkende |
 | [`docs/DataModel_de.md`](docs/DataModel_de.md) | Tabellen-/Spalten-Referenz | Entwickler, Report-Bauer |
 | [`docs/Architecture_de.md`](docs/Architecture_de.md) | Wie ist das gebaut: Generator, UUIDs, Skripte | Mitwirkende |
 | [`docs/CHANGELOG.md`](docs/CHANGELOG.md) | Was kam in welcher Version dazu | Alle |
-| `docs/Praesentation_Mitarbeiter.pdf` | Schulungsmaterial | Multiplikator |
+| [`TODO.md`](TODO.md) | Offene Punkte für künftige Releases | Mitwirkende |
 
 ### Beispiel-Reports
 

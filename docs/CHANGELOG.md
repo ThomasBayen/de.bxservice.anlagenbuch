@@ -1,9 +1,8 @@
 # Changelog
 
-A log of notable changes to Anlagenbuch. There is no versioning yet —
-versions will be tagged once the repository is published.
+A log of notable changes to Anlagenbuch.
 
-## Current state
+## v1.0 — initial public release
 
 ### Data model
 
