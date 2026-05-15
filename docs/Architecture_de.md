@@ -152,10 +152,56 @@ spezifischen Rechte. Dadurch lässt sich das Plugin per einem einzigen
 Include in eine Login-Rolle aufnehmen oder wieder entfernen, und die
 vier Kern­fenster bleiben ohne Pro-Rolle-Pflege synchron.
 
-Master-Rolle und Includes werden idempotent über
-`setup/bootstrap_roles.py` (REST-getrieben) angelegt. Ein konkretes
-Deployment inklusive der kundenspezifischen Login-Rollen liegt unter
-`example/JakobBayenKG/`.
+### Master-Rolle im System-Mandanten
+
+Die Master-Rolle wird vom 2Pack im **System-Mandanten** (`AD_Client_ID=0`,
+`IsMasterRole=Y`, `IsManual=Y`) ausgeliefert — als drittes Paket
+`Anlagenbuch_03_role.zip`, das nach Schema + Daten alphabetisch importiert
+wird. Damit erbt jeder Tenant, der die Rolle via `AD_Role_Included` in eine
+seiner Login-Rollen einhängt, automatisch alle Anlagenbuch-spezifischen
+Access-Records — auch nachträglich, wenn ein 2Pack-Update neue Fenster
+oder Prozesse mitbringt. Kein Tenant muss die Berechtigungen einzeln
+pflegen.
+
+Mechanik im Detail:
+
+- `MRoleIncluded.beforeSave` prüft nur Schleifen, **nicht** ob die
+  inkludierte Rolle im selben Mandanten liegt.
+- Der DB-FK `AD_Role_Included.Included_Role_ID → AD_Role(AD_Role_ID)`
+  hat keinen Client-Constraint.
+- `MRole.loadChildRoles` und `mergeIncludedAccess` mergen die
+  Access-Records der inkludierten Rolle **ungefiltert** in die
+  Login-Rolle.
+- Login-Query (`Login.getRoles`) filtert die Rollen­auswahl nicht auf
+  Tenant-Match — sie zeigt nur dem User explizit zugeordnete Rollen
+  (`AD_User_Roles`), nicht inkludierte.
+
+Caveats:
+
+- Die System-Master-Rolle darf nur Access auf System-Records
+  (`AD_Client_ID=0`) tragen. Beim 2Pack-Lieferumfang automatisch der
+  Fall (alle BXS_*-Records liegen im System-Mandanten).
+- **`IsManual=Y` ist zwingend**: ohne diesen Flag legt
+  `MRole.afterSave → updateAccessRecords` für ALLE Windows/Processes
+  automatisch Access-Records gemäß UserLevel an. Unsere expliziten
+  Access-Records kollidieren dann am Unique-Index, der ganze
+  Pack-Import schlägt fehl.
+- **UserLevel** wird von `MRole.beforeSave` für `AD_Client_ID=0`
+  automatisch auf `"S  "` (System) gezwungen. Das ist OK: die
+  Master-Rolle dient nur als Access-Container; UserLevel und
+  OrgAccess kommen aus der Login-Rolle.
+- Selektives Override im Tenant ist nicht vorgesehen — wer einzelne
+  Berechtigungen abweichend braucht, muss eine eigene Login-Rolle ohne
+  Include pflegen.
+
+### Customer-Deployment
+
+Eine Tenant-Bindung ist Customer-spezifisch. Für JBKG legt
+`example/JakobBayenKG/bootstrap_roles.py` idempotent ein
+`AD_Role_Included` von der konfigurierten Login-Rolle (`Datalotte` /
+`GF` / `Disposition` / …) auf die System-Master-Rolle an — mehr macht
+das Skript nicht. Andere Anwender erledigen denselben Schritt manuell
+in der UI (siehe `Installation.md`).
 
 ## Lessons aus dem 2Pack-Bau
 

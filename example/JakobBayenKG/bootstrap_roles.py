@@ -1,32 +1,28 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-or-later
-"""Bootstrap der Anlagenbuch-Master-Rolle und ihrer Verkabelung mit der
-Bayen-Login-Rolle (Datalotte) via iDempiere-REST.
+"""Hängt die System-Master-Rolle „anlagenbuch" in die JBKG-Login-Rolle
+ein (per AD_Role_Included). Mehr macht dieses Skript nicht mehr.
 
-Dieses Skript ist **JBKG-spezifisch** — es ist Beispiel-Code für ein
-Customer-Deployment.
+Das Anlagenbuch-2Pack (`Anlagenbuch_03_role.zip`) liefert die Master-
+Rolle samt allen Window-/Process-Access-Records bereits im System-
+Mandanten (AD_Client_ID=0) aus. Tenants müssen also keine eigenen
+Access-Records mehr pflegen — sie binden die System-Rolle nur per
+`AD_Role_Included` in eine ihrer eigenen Login-Rollen ein. Cross-Tenant-
+Inclusion ist im iDempiere-Core erlaubt (siehe `docs/Architecture.md`,
+Abschnitt „System-Master-Rolle").
 
-Rollenkonzept: eine projektspezifische Master-Rolle `anlagenbuch`
-(kleingeschrieben, `IsMasterRole=Y`). Sie wird sowohl von menschlichen
-Login-Rollen (GF, Disposition, …) als auch von der Skript-Login-Rolle
-„Datalotte" per `AD_Role_Included` eingebunden. Datalotte bekommt
-**keine eigene Anlagenbuch-spezifische Master-Rolle** — sie nutzt
-dieselbe wie GF.
+Dieses Skript ist **JBKG-spezifisch** — es ist Beispiel-Code für das
+Customer-Deployment der Jakob Bayen KG. Andere Anwender können das
+gleiche Pattern manuell in der UI klicken (Window „Role" → Login-Rolle
+öffnen → Tab „Included Role" → System-Rolle `anlagenbuch` auswählen)
+oder ein analoges Skript für ihre Umgebung schreiben.
 
-Voraussetzung (einmalig manuell vom Admin in der iDempiere-UI):
-  * Login-Rolle „Datalotte" existiert und User „Datalotte Bayen" ist
-    der Rolle zugeordnet.
-  * Datalotte hat Window-Access auf „Role" (AD_Role-CRUD per REST)
-    und auf „Report and Process" (AD_Process-Lookups per REST).
-
-Dieses Skript pflegt die `anlagenbuch`-Master-Rolle idempotent:
-  1. Master-Rolle „anlagenbuch" anlegen, falls nicht vorhanden.
-  2. Process-Access für alle Anlagenbuch-Prozesse + ImportCSVProcess
-     + Cache Reset.
-  3. Window-Access für die vier BXS-Fenster.
-  4. Master-Rolle als Include in die Login-Rolle „Datalotte"
-     eintragen (analoge Pflege für menschliche Login-Rollen wie GF
-     macht der iDempiere-Admin manuell).
+Voraussetzung (einmalig manuell vom Admin):
+  * Anlagenbuch-2Pack ist eingespielt (`./install.sh`) — die Rolle
+    `anlagenbuch` existiert im System-Mandanten.
+  * Login-Rolle aus `LOGIN_ROLE_NAME` existiert; der User, mit dem das
+    Skript läuft, ist dieser Rolle zugeordnet und hat Window-Access
+    auf „Role" (für den AD_Role_Included-POST per REST).
 
 Konfiguration aus `example/JakobBayenKG/config.env`:
   LOGIN_ROLE_NAME=Datalotte    (umgebungs-spezifisch)
@@ -40,44 +36,11 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent.parent
-# lib_rest liegt im community-setup/-Verzeichnis und bleibt dort.
 sys.path.insert(0, str(REPO_ROOT / "setup"))
 from lib_rest import RestError, from_config  # noqa: E402
 
 
-# ── Konfiguration ──────────────────────────────────────────────────────────
-
 MASTER_ROLE_NAME = "anlagenbuch"
-MASTER_ROLE_DESC = (
-    "Master-Rolle für das Anlagenbuch-2Pack: Workflow-Buttons, "
-    "JasperReports und ods-/CSV-Import. Wird per AD_Role_Included "
-    "eingebunden von menschlichen Login-Rollen (GF, Disposition, …) "
-    "UND von der Skript-Login-Rolle Datalotte."
-)
-
-BXS_PROCESS_VALUES = [
-    "ImportCSVProcess",
-    "Cache Reset",
-    "BXS_AssetItem_CloseItem",
-    "BXS_WorkOrder_CompleteOrder",
-    "BXS_WorkOrder_PullOpenItems",
-    "BXS_Asset_CreateWorkOrder",
-    "BXS_Print_WorkshopDossier",
-    "BXS_Print_AssetDossier",
-    "BXS_Print_AssetStatusOverview",
-]
-
-# BXS-Fenster — gepaart mit ihrem `uuids.csv`-Schlüssel. Die UUID wird zum
-# AD_Window_Access-POST mitgereicht (siehe ensure_window_access), damit
-# trekglobal-REST die AD_Window_ID per FK-Resolution selbst bestimmt — kein
-# vorgelagerter Lookup auf AD_Window nötig (das wäre per /api/v1/models/
-# ad_window für CO-Rollen 403, siehe Datalotte.md).
-BXS_WINDOWS = [
-    ("BXS Asset",         "BXS_Asset_Window"),
-    ("BXS Asset Class",   "BXS_AssetClass_Window"),
-    ("BXS Schedule Type", "BXS_ScheduleType_Window"),
-    ("BXS Work Order",    "BXS_WorkOrder_Window"),
-]
 
 
 STEP = "BOOTSTRAP"
@@ -113,32 +76,23 @@ def find_one(rest, table: str, filter_expr: str) -> dict | None:
     return recs[0] if recs else None
 
 
-# ── Bootstrap-Schritte ─────────────────────────────────────────────────────
-
-
-def ensure_master_role(rest, ad_org_id: int) -> int:
-    rec = find_one(rest, "ad_role", f"Name eq '{MASTER_ROLE_NAME}'")
-    if rec:
-        log(f"[skip] Master-Rolle existiert (id={rec['id']})")
-        return int(rec["id"])
-    body = {
-        "AD_Org_ID": ad_org_id,
-        "Name": MASTER_ROLE_NAME,
-        "Description": MASTER_ROLE_DESC,
-        "RoleType": "WS",
-        "IsMasterRole": "Y",
-        "IsAccessAllOrgs": "N",
-        "UserLevel": " CO",
-        "IsActive": "Y",
-        "IsManual": "Y",
-        "IsCanExport": "Y",
-        "IsCanReport": "Y",
-        "IsAccessAdvanced": "N",
-    }
-    res = rest._raw("POST", "/api/v1/models/ad_role", body=body)
-    new_id = int(res.get("id") or res.get("AD_Role_ID"))
-    log(f"[neu]  Master-Rolle angelegt (id={new_id})")
-    return new_id
+def find_master_role_id(rest) -> int:
+    # Master-Rolle liegt im System-Mandanten (AD_Client_ID=0). Der REST-
+    # Filter sucht Client-übergreifend, weil unser Login-User in den
+    # AD_Role-Filter SELECT alle Clients sieht; wir prüfen den Client zur
+    # Sicherheit gleich mit, damit eine gleichnamige Tenant-Rolle aus
+    # Versehen nicht erwischt wird.
+    rec = find_one(
+        rest, "ad_role",
+        f"Name eq '{MASTER_ROLE_NAME}' and AD_Client_ID eq 0",
+    )
+    if not rec:
+        raise RestError(
+            f"System-Master-Rolle '{MASTER_ROLE_NAME}' fehlt im "
+            "System-Mandanten. Erst `./install.sh` laufen lassen, damit "
+            "das Anlagenbuch_03_role.zip eingespielt wird."
+        )
+    return int(rec["id"])
 
 
 def find_login_role_id(rest, login_role_name: str) -> int:
@@ -148,90 +102,6 @@ def find_login_role_id(rest, login_role_name: str) -> int:
             f"Login-Rolle '{login_role_name}' fehlt — vom Admin manuell anlegen."
         )
     return int(rec["id"])
-
-
-def find_process_id(rest, value: str) -> int:
-    rec = find_one(rest, "ad_process", f"Value eq '{value}'")
-    if not rec:
-        raise RestError(
-            f"Prozess '{value}' nicht gefunden. "
-            "Bei 403: Login-Rolle braucht Window-Access auf 'Report and Process'."
-        )
-    return int(rec["id"])
-
-
-def ensure_process_access(rest, role_id: int, process_id: int,
-                          process_label: str, ad_org_id: int) -> None:
-    existing = find_one(
-        rest, "ad_process_access",
-        f"AD_Role_ID eq {role_id} and AD_Process_ID eq {process_id}",
-    )
-    if existing:
-        log(f"[skip] Process-Access {process_label}")
-        return
-    body = {
-        "AD_Org_ID": ad_org_id,
-        "AD_Role_ID": role_id,
-        "AD_Process_ID": process_id,
-        "IsActive": "Y",
-        "IsReadWrite": "Y",
-    }
-    rest._raw("POST", "/api/v1/models/ad_process_access", body=body)
-    log(f"[neu]  Process-Access {process_label}")
-
-
-def load_uuid_map() -> dict[tuple[str, str], str]:
-    """uuids.csv (Repo-Root) als (ObjectType, Key) → UUID-Mapping einlesen.
-
-    Wird gebraucht, um AD_Window_Access via UUID-FK anlegen zu können (s.
-    ensure_window_access). Der Generator schreibt diese Datei beim 2Pack-
-    Bau; sie ist projekt-weit die einzige Wahrheit über fixe UUIDs.
-    """
-    csv_path = REPO_ROOT / "uuids.csv"
-    if not csv_path.exists():
-        raise RestError(f"uuids.csv fehlt unter {csv_path}.")
-    import csv as _csv
-    mapping: dict[tuple[str, str], str] = {}
-    with csv_path.open() as fh:
-        reader = _csv.reader(fh)
-        next(reader, None)  # Header überspringen
-        for row in reader:
-            if not row or row[0].lstrip().startswith("#"):
-                continue
-            if len(row) < 3:
-                continue
-            mapping[(row[0].strip(), row[1].strip())] = row[2].strip()
-    return mapping
-
-
-def ensure_window_access(rest, role_id: int, window_uuid: str,
-                         window_label: str, ad_org_id: int) -> None:
-    """Window-Access auf der Master-Rolle anlegen — ohne vorgelagerten
-    AD_Window-Lookup. trekglobal-REST resolved `{"uid": "<UUID>"}` in
-    FK-Feldern serverseitig (s. Datalotte.md, Abschnitt „REST-FK per
-    UUID auflösen"). Damit funktioniert der Bootstrap rein per REST,
-    auch beim allerersten Lauf, wo die Login-Rolle noch keinen Window-
-    Access auf die BXS-Fenster hat (Henne-Ei-Problem mit
-    /api/v1/models/ad_window und /api/v1/windows umgangen)."""
-    body = {
-        "AD_Org_ID": ad_org_id,
-        "AD_Role_ID": role_id,
-        "AD_Window_ID": {"uid": window_uuid},
-        "IsActive": "Y",
-        "IsReadWrite": "Y",
-    }
-    # Idempotenz: kein Vor-Lookup möglich (REST-Filter kennt keinen
-    # FK-Pfad-Filter à la AD_Window.AD_Window_UU für CO-Rollen). Stattdessen
-    # POST direkt und „duplicate key" als Erfolg werten — der Constraint
-    # AD_Window_Access(AD_Role_ID, AD_Window_ID) ist UNIQUE.
-    try:
-        rest._raw("POST", "/api/v1/models/ad_window_access", body=body)
-        log(f"[neu]  Window-Access {window_label}")
-    except RestError as e:
-        if "duplicate key" in str(e):
-            log(f"[skip] Window-Access {window_label}")
-        else:
-            raise
 
 
 def ensure_role_include(rest, role_id: int, included_role_id: int,
@@ -254,30 +124,13 @@ def ensure_role_include(rest, role_id: int, included_role_id: int,
     log(f"[neu]  Role-Include {login_role_name} ⊃ {MASTER_ROLE_NAME}")
 
 
-# ── Main ───────────────────────────────────────────────────────────────────
-
-
 def main() -> int:
     cfg = load_config()
     ad_org_id = int(cfg.get("IDEMPIERE_ORG_ID", "0"))
     login_role_name = cfg.get("LOGIN_ROLE_NAME", "Datalotte")
     rest = from_config(cfg)
 
-    master_id = ensure_master_role(rest, ad_org_id)
-
-    for proc_value in BXS_PROCESS_VALUES:
-        proc_id = find_process_id(rest, proc_value)
-        ensure_process_access(rest, master_id, proc_id, proc_value, ad_org_id)
-
-    uuid_map = load_uuid_map()
-    for win_label, uuid_key in BXS_WINDOWS:
-        win_uuid = uuid_map.get(("AD_Window", uuid_key))
-        if not win_uuid:
-            raise RestError(
-                f"AD_Window/{uuid_key} fehlt in uuids.csv — 2Pack neu bauen."
-            )
-        ensure_window_access(rest, master_id, win_uuid, win_label, ad_org_id)
-
+    master_id = find_master_role_id(rest)
     login_id = find_login_role_id(rest, login_role_name)
     ensure_role_include(rest, login_id, master_id, ad_org_id, login_role_name)
 

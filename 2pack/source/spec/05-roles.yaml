@@ -1,0 +1,54 @@
+# System-Mandanten-Master-Rolle für das Anlagenbuch-2Pack.
+#
+# Die Rolle wird im System-Mandanten (AD_Client_ID=0) mit IsMasterRole=Y
+# angelegt und enthält Window-, Process- und Form-Access für alle vom
+# Anlagenbuch-Pack ausgelieferten AD-Records (System-weite Records,
+# AD_Client_ID=0).
+#
+# Anwender hängen die Rolle per `AD_Role_Included` in eine ihrer eigenen
+# Login-Rollen ein (oder lassen ein Beispiel-Skript wie
+# `example/JakobBayenKG/bootstrap_roles.py` das übernehmen). Damit
+# müssen Process-/Window-Access **nicht** mehr im Tenant per REST/SQL
+# nachgepflegt werden — sie wandern mit dem Pack-Update mit.
+#
+# Cross-Tenant-Rollen-Inklusion: iDempiere prüft im Core weder in
+# MRoleIncluded.beforeSave noch im DB-FK auf gleiche AD_Client_ID
+# (MRole.java loadChildRoles / mergeIncludedAccess mergen ungefiltert).
+# Solange die Master-Rolle nur Access auf System-Records (Client=0)
+# bekommt, ist die Inklusion stabil.
+#
+# Bucket-Zuordnung (siehe assemble.py): Roles laufen im dritten Part
+# `role` und landen in `Anlagenbuch_03_role.zip`, das nach Schema +
+# Daten alphabetisch importiert wird.
+
+roles:
+  - name: anlagenbuch
+    description: "Master-Rolle: gibt Zugriff auf das Anlagenbuch-Pack (Fenster, Prozesse, Reports, CSV-Import, Cache-Reset). Per AD_Role_Included in eine Tenant-Login-Rolle einbinden."
+    description_de: "Master-Rolle: gibt Zugriff auf das Anlagenbuch-Pack (Fenster, Prozesse, Reports, CSV-Import, Cache-Reset). Per AD_Role_Included in eine Tenant-Login-Rolle einbinden."
+    # user_level wird hier NICHT gesetzt: MRole.beforeSave() erzwingt
+    # UserLevel="S  " (System), sobald AD_Client_ID=0 ist. Das ist
+    # gewollt — die Master-Rolle selbst dient nur als Container für
+    # Access-Records; UserLevel + OrgAccess kommen aus der Login-Rolle
+    # des Tenants, die diese Master-Rolle per AD_Role_Included einbindet.
+    is_master_role: true
+    # Process-Access: lokale Plugin-Prozesse (per Value gegen uuids.csv
+    # gemappt) und Core-Prozesse (per ID gegen MAX_OFFICIAL_ID).
+    process_access:
+      - BXS_AssetItem_CloseItem
+      - BXS_WorkOrder_CompleteOrder
+      - BXS_WorkOrder_PullOpenItems
+      - BXS_Asset_CreateWorkOrder
+      - BXS_Print_WorkshopDossier
+      - BXS_Print_AssetDossier
+      - BXS_Print_AssetStatusOverview
+    # Core-Prozesse: ID-Referenz aus offiziellem iDempiere-Stamm
+    # (≤ MAX_OFFICIAL_ID=50000, daher Cross-Install stabil).
+    # ImportCSVProcess = 200076, Cache Reset = 205.
+    process_access_core_id:
+      - 200076   # ImportCSVProcess (Import CSV Process)
+      - 205      # Cache Reset
+    window_access:
+      - BXS_Asset_Window
+      - BXS_AssetClass_Window
+      - BXS_ScheduleType_Window
+      - BXS_WorkOrder_Window

@@ -1,18 +1,24 @@
 #!/bin/bash
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-# Baut 2pack/source/ + scripts/*.bsh + reports/*.jrxml zu ZWEI ZIPs:
+# Baut 2pack/source/ + scripts/*.bsh + reports/*.jrxml zu DREI ZIPs:
 #   2pack/Anlagenbuch_01_schema.zip — alle AD-Records (Tabellen, Spalten,
 #                                     Fenster, Prozesse, Rules, PrintFormats)
 #   2pack/Anlagenbuch_02_data.zip   — nur initial_data
+#   2pack/Anlagenbuch_03_role.zip   — System-Master-Rolle „anlagenbuch"
+#                                     (AD_Client_ID=0, IsMasterRole=Y) plus
+#                                     Window-/Process-/Form-Access auf alle
+#                                     vom Pack ausgelieferten Records.
 #
-# Zwei Pakete, weil iDempiere-PIPO im selben Lauf eine frisch angelegte
+# Drei Pakete, weil iDempiere-PIPO im selben Lauf eine frisch angelegte
 # Custom-Tabelle nicht zuverlässig mit Initial-Daten füllen kann
 # (PO.checkRecordIDCrossTenant sieht die noch uncommitteten AD_Column-
 # Zeilen nicht und liefert leere keyColumns → ArrayIndexOutOfBounds).
 # Lösung: Schema-ZIP committed, Daten-ZIP läuft danach gegen die nun
-# committeten Tabellen. RUN_ApplyPackInFromFolder.sh appliziert ZIPs in
-# alphabetischer Reihenfolge — die Präfixe `_01_` / `_02_` ordnen das.
+# committeten Tabellen, Rolle-ZIP läuft zuletzt gegen die committeten
+# AD_Window/AD_Process-Records. RUN_ApplyPackInFromFolder.sh appliziert
+# ZIPs in alphabetischer Reihenfolge — die Präfixe `_01_` / `_02_` /
+# `_03_` ordnen das.
 #
 # Layout je ZIP (iDempiere-2Pack-Konvention):
 #   de.bxservice.anlagenbuch.<part>/dict/PackOut.xml
@@ -54,3 +60,4 @@ build_part() {
 
 build_part schema 01_schema
 build_part data   02_data
+build_part role   03_role

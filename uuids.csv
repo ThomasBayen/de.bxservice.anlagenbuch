@@ -565,3 +565,17 @@ AD_Process,BXS_Print_Anlagenakte_DE,597d1314-fde0-456d-b7c8-d4768dd0ea9f
 AD_Process,BXS_Print_Werkstattmappe_DE,891f1681-6da1-4276-8d8d-7e92de6db6e9
 Initial,C_UOM.1000000,acd70dcc-b059-4eb6-9516-5acb73b49321
 Initial,C_UOM.KME,ad55c7f9-aa9a-418e-a4dc-f88e183e8f18
+AD_Role,anlagenbuch,aea9bad2-0d30-4678-88e5-27c693e8c00d
+AD_Window_Access,anlagenbuch.BXS_Asset_Window,ed1e6eaf-2bfd-49c8-b231-0dd758384b80
+AD_Window_Access,anlagenbuch.BXS_AssetClass_Window,2945d24b-6873-4e7a-98b3-34cab3c774d6
+AD_Window_Access,anlagenbuch.BXS_ScheduleType_Window,436b6bd9-0dc9-49cf-8d80-6f75f50f04c1
+AD_Window_Access,anlagenbuch.BXS_WorkOrder_Window,e97247d8-eb03-4eb6-8f75-d86fb3ff0d26
+AD_Process_Access,anlagenbuch.BXS_AssetItem_CloseItem,2e3c972d-603f-446e-852a-da8a9fd30cb3
+AD_Process_Access,anlagenbuch.BXS_WorkOrder_CompleteOrder,50a0fd98-af44-482e-a139-3a5b524bdca4
+AD_Process_Access,anlagenbuch.BXS_WorkOrder_PullOpenItems,9fd11127-68c6-4340-9e1b-c34e6462177b
+AD_Process_Access,anlagenbuch.BXS_Asset_CreateWorkOrder,6bf537aa-ccb3-430e-a976-2536df73eb94
+AD_Process_Access,anlagenbuch.BXS_Print_WorkshopDossier,a459ffd9-002b-4d46-ae3d-9359a5abf347
+AD_Process_Access,anlagenbuch.BXS_Print_AssetDossier,338fd9b3-5481-4462-8a29-457d1dc6181a
+AD_Process_Access,anlagenbuch.BXS_Print_AssetStatusOverview,beecab59-4ff2-442a-8265-2ed60cf169d4
+AD_Process_Access,anlagenbuch.core.200076,32bf441f-df25-4e8e-9ace-1db28e37cba3
+AD_Process_Access,anlagenbuch.core.205,70be9718-69bc-4c9f-b471-aa630db1af8f

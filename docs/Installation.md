@@ -93,22 +93,45 @@ automatically one table-ID sequence. They all start at `1`
 
 ## Permissions
 
-The 2Pack ships **no** Anlagenbuch role of its own (`AD_Role` is
-tenant-specific). The role concept is a **master role**
-`anlagenbuch` (convention: master roles in lower case, hold all
-permissions; login roles such as `GF` / `Dispatch` include them).
-Create it with write access to the four main windows:
+The 2Pack ships a **system-tenant master role** `anlagenbuch` that
+already carries:
 
-| Window            | Table access                                                           |
-| ----------------- | ---------------------------------------------------------------------- |
-| BXS Asset Class   | `BXS_AssetClass`                                                       |
-| BXS Schedule Type | `BXS_ScheduleType`                                                     |
-| BXS Asset         | `BXS_Asset` (R/W), `BXS_AssetItem` (R/W)                               |
-| BXS Work Order    | `BXS_WorkOrder` (R/W), `BXS_WorkOrder_Item` (R/W), `BXS_AssetItem` (R) |
+- Window access to the four main windows
+  (`BXS Asset`, `BXS Asset Class`, `BXS Schedule Type`, `BXS Work Order`).
+- Process access to all workflow buttons and reports
+  (`BXS_AssetItem_CloseItem`, `BXS_WorkOrder_CompleteOrder`,
+  `BXS_WorkOrder_PullOpenItems`, `BXS_Asset_CreateWorkOrder`,
+  `BXS_Print_WorkshopDossier`, `BXS_Print_AssetDossier`,
+  `BXS_Print_AssetStatusOverview`) plus the core processes
+  `Import CSV Process` and `Cache Reset`.
 
-Grant window access through the *Role* window → tab *Window Access*.
-Afterwards reset the cache (log out and back in) so the role sees the
-new windows.
+The role lives in the **system tenant** (`AD_Client_ID=0`) and is
+flagged as a master role (`IsMasterRole=Y`, `IsManual=Y`). Tenants
+bind it into one of their own login roles through `AD_Role_Included`
+— new processes / windows introduced by future 2Pack updates therefore
+propagate to every installation automatically.
+
+**Admin step per tenant** (once after `./install.sh`):
+
+1. Log in as system administrator.
+2. Open the *Role* window → select the tenant's login role
+   (e.g. `GF`, `Dispatch`).
+3. Tab *Included Role* → new entry, *Included Role* = `anlagenbuch`
+   (in the system tenant), *Seq No* e.g. `20`, *Active* = ✓.
+4. Reset the cache (log out and back in) so the login role sees the
+   inherited window/process access records.
+
+The master role itself never gets a user assignment — it is only
+included. UserLevel and OrgAccess come from the tenant's login role;
+the system role only grants "may see this window / may run this
+process".
+
+> Background: iDempiere core allows cross-tenant inclusion
+> (`MRoleIncluded.beforeSave` only checks for loops, not the client;
+> `MRole.mergeIncludedAccess` merges unfiltered). As long as the
+> master role holds access exclusively to system records
+> (Client=0) — which is automatic for a pure 2Pack delivery — the
+> pattern is stable.
 
 ## Initial data at the customer
 
@@ -138,9 +161,6 @@ The asset inventory is loaded via the CSV template (see
 
 See `docs/CHANGELOG.md` for the version history. Currently open:
 
-- **Role `anlagenbuch`** is created manually by the admin — `AD_Role`
-  is tenant-specific and does not fit into a system-level 2Pack.
-  Bootstrap helper in `setup/bootstrap_roles.py`.
 - **Reports (JRXML)** live in `reports/` and must be copied once to
   `$IDEMPIERE_HOME/reports/`; the 2Pack install does not copy them
   along (see "Reports — switching language" below).

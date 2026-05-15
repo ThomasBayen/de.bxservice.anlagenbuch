@@ -79,16 +79,44 @@ Das 2Pack legt 4 DocumentNo-Sequenzen (`BXS_AssetItem_Defect`, `_Schedule`, `_St
 
 ## Berechtigungen
 
-Das 2Pack liefert **keine** eigene Anlagenbuch-Rolle aus (`AD_Role` ist tenant-spezifisch). Das Rollenkonzept ist eine **Master-Rolle** `anlagenbuch` (Konvention: Master-Rollen kleingeschrieben, halten alle Rechte; Login-Rollen wie `GF`/`Disposition` inkludieren sie). Anlegen mit Schreibrechten auf die vier Hauptfenster:
+Das 2Pack liefert eine **System-Master-Rolle** `anlagenbuch` mit:
 
-| Fenster           | Tabellen-Zugriff                                                       |
-| ----------------- | ---------------------------------------------------------------------- |
-| BXS Asset Class   | `BXS_AssetClass`                                                       |
-| BXS Schedule Type | `BXS_ScheduleType`                                                     |
-| BXS Asset         | `BXS_Asset` (R/W), `BXS_AssetItem` (R/W)                               |
-| BXS Work Order    | `BXS_WorkOrder` (R/W), `BXS_WorkOrder_Item` (R/W), `BXS_AssetItem` (R) |
+- Window-Access auf die vier Hauptfenster
+  (`BXS Asset`, `BXS Asset Class`, `BXS Schedule Type`, `BXS Work Order`).
+- Process-Access auf alle Workflow-Buttons und Reports
+  (`BXS_AssetItem_CloseItem`, `BXS_WorkOrder_CompleteOrder`,
+  `BXS_WorkOrder_PullOpenItems`, `BXS_Asset_CreateWorkOrder`,
+  `BXS_Print_WorkshopDossier`, `BXS_Print_AssetDossier`,
+  `BXS_Print_AssetStatusOverview`) sowie Core-Prozesse
+  `Import CSV Process` und `Cache Reset`.
 
-Window-Access vergeben über das Fenster *Role* → Tab *Window Access*. Anschließend Cache-Reset (Login neu) damit die Rolle die Fenster sieht.
+Die Rolle liegt im **System-Mandanten** (`AD_Client_ID=0`) und ist als
+Master-Rolle markiert (`IsMasterRole=Y`, `IsManual=Y`). Tenants binden
+sie per `AD_Role_Included` in eine ihrer eigenen Login-Rollen ein —
+neue Prozesse / Fenster aus späteren 2Pack-Updates wandern damit
+automatisch in alle Anwender-Installationen mit.
+
+**Admin-Schritt pro Tenant** (einmal nach `./install.sh`):
+
+1. Als System-Administrator einloggen.
+2. Fenster *Role* → die gewünschte Login-Rolle des Tenants (z. B. `GF`,
+   `Disposition`) öffnen.
+3. Tab *Included Role* → neuen Eintrag, *Included Role* = `anlagenbuch`
+   (im System-Mandanten), *Seq No* z. B. `20`, *Active* = ✓.
+4. Cache-Reset auslösen (Login neu), damit die Login-Rolle die vererbten
+   Window-/Process-Access-Records sieht.
+
+Die Master-Rolle selbst bekommt keinen User-Eintrag — sie wird nur
+inkludiert. UserLevel und OrgAccess kommen aus der Login-Rolle des
+Tenants; die System-Rolle vergibt nur „darf das Fenster sehen / den
+Prozess starten".
+
+> Hintergrund: iDempiere-Core lässt Cross-Tenant-Inclusion zu
+> (`MRoleIncluded.beforeSave` prüft nur Loops, kein Client-Match;
+> `MRole.mergeIncludedAccess` merged ungefiltert). Solange die
+> Master-Rolle nur Access auf System-Records (Client=0) hält — was bei
+> einem reinen 2Pack-Lieferumfang automatisch der Fall ist — ist das
+> Pattern stabil.
 
 ## Initial-Daten beim Kunden
 
@@ -112,7 +140,6 @@ Der Anlagenbestand wird über die CSV-Vorlage geladen (siehe `import/AssetImport
 
 Versionsverlauf siehe `docs/CHANGELOG.md`. Aktuell offen:
 
-- **Rolle `anlagenbuch`** wird vom Admin manuell angelegt — `AD_Role` ist tenant-spezifisch und passt nicht in ein System-2Pack. Bootstrap-Hilfe in `setup/bootstrap_roles.py`.
 - **Reports (JRXML)** liegen in `reports/` und müssen einmalig nach `$IDEMPIERE_HOME/reports/` kopiert werden — 2Pack-Install kopiert sie nicht mit (s.u. „Reports — Sprache umstellen").
 
 ## Reports — Sprache umstellen

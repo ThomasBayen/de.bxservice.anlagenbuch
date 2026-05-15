@@ -21,10 +21,13 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 CONFIG_ENV="$REPO_ROOT/setup/config.env"
-# Zwei ZIPs: Schema-2Pack zuerst, Daten-2Pack danach (alphabetisch sortiert
-# vom iDempiere-Folder-Apply). Siehe 2pack/build.sh für die Begründung.
+# Drei ZIPs: Schema-2Pack zuerst, Daten-2Pack, dann Rolle-2Pack (alphabetisch
+# sortiert vom iDempiere-Folder-Apply). Siehe 2pack/build.sh für die
+# Begründung der Aufteilung. Rolle = System-Master-Rolle „anlagenbuch"
+# mit Window-/Process-Access; Tenants binden sie per AD_Role_Included ein.
 ZIP_SCHEMA="$REPO_ROOT/2pack/Anlagenbuch_01_schema.zip"
 ZIP_DATA="$REPO_ROOT/2pack/Anlagenbuch_02_data.zip"
+ZIP_ROLE="$REPO_ROOT/2pack/Anlagenbuch_03_role.zip"
 
 STANDALONE=0
 SKIP_BUILD=0
@@ -65,9 +68,11 @@ needs_build() {
     [ "$SKIP_BUILD" -eq 1 ] && return 1
     [ ! -f "$ZIP_SCHEMA" ] && return 0
     [ ! -f "$ZIP_DATA" ]   && return 0
-    # Source-Dateien neuer als die ältere der beiden ZIPs?
+    [ ! -f "$ZIP_ROLE" ]   && return 0
+    # Source-Dateien neuer als die älteste der drei ZIPs?
     local older_zip="$ZIP_SCHEMA"
-    [ "$ZIP_DATA" -ot "$ZIP_SCHEMA" ] && older_zip="$ZIP_DATA"
+    [ "$ZIP_DATA" -ot "$older_zip" ] && older_zip="$ZIP_DATA"
+    [ "$ZIP_ROLE" -ot "$older_zip" ] && older_zip="$ZIP_ROLE"
     if find "$REPO_ROOT/2pack/source" "$REPO_ROOT/scripts" "$REPO_ROOT/reports" \
             -type f \( -name '*.yaml' -o -name '*.bsh' -o -name '*.jrxml' \
                     -o -name '*.py' -o -name 'PackageDoc.xml' \) \
@@ -92,12 +97,14 @@ fi
 STAMP="$(date +%Y%m%d%H%M)"
 DROP_SCHEMA="${STAMP}_SYSTEM_Anlagenbuch_01_schema.zip"
 DROP_DATA="${STAMP}_SYSTEM_Anlagenbuch_02_data.zip"
+DROP_ROLE="${STAMP}_SYSTEM_Anlagenbuch_03_role.zip"
 
 if [ "$STANDALONE" -eq 1 ]; then
     DROP_DIR="$(mktemp -d -t anlagenbuch_install.XXXXXX)"
     step "Standalone-Apply via $DROP_DIR"
     cp "$ZIP_SCHEMA" "$DROP_DIR/$DROP_SCHEMA"
     cp "$ZIP_DATA"   "$DROP_DIR/$DROP_DATA"
+    cp "$ZIP_ROLE"   "$DROP_DIR/$DROP_ROLE"
     if [ ! -x "$IDEMPIERE_HOME/utils/RUN_ApplyPackInFromFolder.sh" ]; then
         echo "FEHLER: $IDEMPIERE_HOME/utils/RUN_ApplyPackInFromFolder.sh nicht ausführbar." >&2
         exit 1
@@ -109,7 +116,8 @@ else
     mkdir -p "$DROP_DIR"
     cp "$ZIP_SCHEMA" "$DROP_DIR/$DROP_SCHEMA"
     cp "$ZIP_DATA"   "$DROP_DIR/$DROP_DATA"
-    step "2Packs abgelegt: $DROP_DIR/$DROP_SCHEMA + $DROP_DATA"
+    cp "$ZIP_ROLE"   "$DROP_DIR/$DROP_ROLE"
+    step "2Packs abgelegt: $DROP_DIR/{$DROP_SCHEMA,$DROP_DATA,$DROP_ROLE}"
     echo "         Server (neu)starten — Auto-PackIn läuft beim Start."
     echo "         Log-Marker: grep 'installed\$' \$IDEMPIERE_HOME/log/idempiere.*.log"
 fi

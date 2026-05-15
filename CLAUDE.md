@@ -42,13 +42,17 @@ Quellen schreiben, neu bauen, neu einspielen.**
 - `TODO.md` — offene Release-Punkte (migriert zu GitHub Issues, sobald Repo öffentlich ist).
 - `docs/` — Anwender- und Architektur-Doku (englisch Default, deutsch als `_de.md` daneben). Reihenfolge zum Einlesen: `Concept.md` → `DataModel.md` → `Architecture.md` (für Mitwirkende). Bedienung: `QuickReference.md`, Installation: `Installation.md`, Versionsverlauf: `CHANGELOG.md`.
 - `docs/archiv/` — historische Arbeitsdokumente (Brainstorming, ursprüngliches Implementierungs-Briefing). Nicht aktiv pflegen.
-- `2pack/` — 2Pack-Quelle (YAML-Specs) + `build.sh`. Baut **zwei** ZIPs:
-  `Anlagenbuch_01_schema.zip` (Schema, Fenster, Prozesse, Rules, PrintFormats)
-  und `Anlagenbuch_02_data.zip` (initial-Daten). Reihenfolge wird beim
-  Folder-Apply alphabetisch erzwungen — nötig, weil iDempiere-PIPO Custom-
-  Tabellen-Anlage und Initial-Daten-Insert nicht atomar in EINEM Pack-Lauf
-  schafft (PO.checkRecordIDCrossTenant sieht uncommittete AD_Column-Zeilen
-  nicht).
+- `2pack/` — 2Pack-Quelle (YAML-Specs) + `build.sh`. Baut **drei** ZIPs:
+  `Anlagenbuch_01_schema.zip` (Schema, Fenster, Prozesse, Rules, PrintFormats),
+  `Anlagenbuch_02_data.zip` (initial-Daten) und
+  `Anlagenbuch_03_role.zip` (System-Master-Rolle `anlagenbuch` mit
+  Window-/Process-Access, AD_Client_ID=0, IsMasterRole=Y, IsManual=Y).
+  Reihenfolge wird beim Folder-Apply alphabetisch erzwungen — nötig, weil
+  iDempiere-PIPO Custom-Tabellen-Anlage und Initial-Daten-Insert nicht
+  atomar in EINEM Pack-Lauf schafft (PO.checkRecordIDCrossTenant sieht
+  uncommittete AD_Column-Zeilen nicht), und weil die Access-Records erst
+  funktionieren, wenn die referenzierten Window/Process-Records committet
+  sind.
 - `scripts/` — BeanShell-Rules und generischer Schema-Smoke-Test.
 - `reports/` — JasperReports-Quellen (DE + EN).
 - `import/` — generische Templates (CSV, ODS-Erfassungsvorlage) und Master-Rolle-Definition.

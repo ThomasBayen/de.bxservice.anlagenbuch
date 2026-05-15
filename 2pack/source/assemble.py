@@ -1299,6 +1299,191 @@ def emit_initial_data(b: XmlBuilder, item: dict, uuids: UuidStore,
         b.close(table)
 
 
+def emit_role(b: XmlBuilder, role: dict, uuids: UuidStore) -> None:
+    """AD_Role im System-Mandanten (AD_Client_ID=0) als Master-Rolle plus
+    AD_Window_Access / AD_Process_Access / AD_Form_Access / AD_Workflow_Access.
+
+    Tenants binden die Rolle per AD_Role_Included in ihre Login-Rolle ein
+    (Beispiel: example/JakobBayenKG/bootstrap_roles.py). Cross-Tenant-
+    Inclusion ist in iDempiere-Core nicht gesperrt; die Master-Rolle muss
+    dafür ausschließlich Access auf System-Records (AD_Client_ID=0)
+    halten — was bei einem reinen 2Pack-Lieferumfang automatisch der Fall
+    ist.
+
+    YAML-Felder:
+      name:                  Rollen-Name (Pflicht, identisch zum uuids.csv-Key)
+      description / _de:     Beschreibung (optional)
+      user_level:            UserLevel-Code (3-Zeichen-Pattern aus
+                             AD_Reference 226): " CO" Client+Org, " C "
+                             Client, "  O" Org, "S  " System.
+                             Default " CO".
+      is_master_role:        bool, default True
+      process_access:        Liste von Plugin-Process-Values (per UUID gemappt)
+      process_access_core_id:Liste von Core-AD_Process_ID (≤ 50000)
+      window_access:         Liste von AD_Window-Namen (per UUID gemappt)
+      form_access:           Liste von AD_Form-Namen (optional)
+      workflow_access:       Liste von AD_Workflow-Werten (optional)
+    """
+    role_uu = uuids.get("AD_Role", role["name"])
+
+    b.open("AD_Role", type="table")
+    b.leaf("AD_Client_ID", 0)
+    b.leaf("AD_Org_ID", 0)
+    b.leaf("Name", role["name"])
+    b.leaf("Description", role.get("description", ""))
+    # UserLevel ist ein 3-Zeichen-Pattern (AD_Reference 226): " CO",
+    # " C ", "  O", "S  ". Aliase ohne Leerzeichen werden hier
+    # auf das Pattern gemappt, damit YAML-Specs lesbar bleiben.
+    _user_level_alias = {
+        "CO": " CO", "C": " C ", "O": "  O", "S": "S  ",
+    }
+    ul_raw = role.get("user_level", "CO").strip()
+    user_level = _user_level_alias.get(ul_raw, role.get("user_level", " CO"))
+    b.leaf("UserLevel", user_level)
+    b.leaf("IsMasterRole", "Y" if role.get("is_master_role", True) else "N")
+    # Konservative Defaults: Master-Rolle vergibt nur „darf sehen" / „darf
+    # ausführen", keine Daten-Reichweite. OrgAccess / All-Orgs etc. kommt
+    # aus der Login-Rolle, die diese Master-Rolle inkludiert.
+    #
+    # IsManual=Y ist **zwingend**: bei IsManual=N feuert MRole.afterSave()
+    # → updateAccessRecords() und legt für ALLE Windows/Processes/Forms
+    # automatisch Access-Records gemäß UserLevel an. Unsere expliziten
+    # Window_Access/Process_Access-Inserts kollidieren dann am
+    # unique-Index (ad_window_id, ad_role_id) und der ganze Pack-Import
+    # rollt zurück. Mit IsManual=Y überspringt updateAccessRecords das
+    # Auto-Pflegen (return "-" gleich am Anfang) — wir kontrollieren die
+    # Access-Liste vollständig über das 2Pack.
+    b.leaf("IsManual", "Y")
+    b.leaf("IsActive", "Y")
+    b.leaf("IsShowAcct", "N")
+    b.leaf("IsPersonalLock", "N")
+    b.leaf("IsPersonalAccess", "N")
+    b.leaf("IsCanExport", "Y")
+    b.leaf("IsCanReport", "Y")
+    b.leaf("IsCanApproveOwnDoc", "N")
+    b.leaf("IsAccessAllOrgs", "N")
+    b.leaf("IsChangeLog", "N")
+    b.leaf("PreferenceType", "C")
+    b.leaf("OverwritePriceLimit", "N")
+    b.leaf("IsUseUserOrgAccess", "N")
+    b.leaf("ConfirmQueryRecords", 0)
+    b.leaf("MaxQueryRecords", 0)
+    b.leaf("Allow_Info_Account", "N")
+    b.leaf("Allow_Info_Asset", "N")
+    b.leaf("Allow_Info_BPartner", "N")
+    b.leaf("Allow_Info_CashJournal", "N")
+    b.leaf("Allow_Info_InOut", "N")
+    b.leaf("Allow_Info_Invoice", "N")
+    b.leaf("Allow_Info_Order", "N")
+    b.leaf("Allow_Info_Payment", "N")
+    b.leaf("Allow_Info_Product", "N")
+    b.leaf("Allow_Info_Resource", "N")
+    b.leaf("Allow_Info_Schedule", "N")
+    b.leaf("Allow_Info_MRP", "N")
+    b.leaf("Allow_Info_CRP", "N")
+    b.leaf("IsDiscountUptoLimitPrice", "N")
+    b.leaf("IsDiscountAllowedOnTotal", "N")
+    b.leaf("IsMenuAutoExpand", "N")
+    b.leaf("IsAccessAdvanced", "N")
+    b.leaf("IsClientAdministrator", "N")
+    b.leaf("EntityType", "U")
+    # AD_Role hat keine Trl-Tabelle (Name+Description sind nicht übersetzbar).
+    b.leaf("AD_Role_UU", role_uu)
+
+    # Access-Records — nested innerhalb von <AD_Role>, analog zum
+    # Core-RoleElementHandler.create (Output-Pfad). PIPO-Importer
+    # dispatcht Top-Level-Elemente per Tag; AD_Role_ID auf den Access-
+    # Records verweist per UUID auf die soeben angelegte Rolle.
+    # Access-Records brauchen jeweils ein eigenes <…_UU>, damit PIPO beim
+    # Reimport via findPO den vorhandenen Record erkennt und UPDATE statt
+    # INSERT macht — sonst kollidiert der unique-Index (ad_role_id,
+    # ad_window_id) bei jedem zweiten Lauf. UUID-Key kombiniert
+    # Rolle+Ziel, deterministisch über uuids.csv.
+    role_name = role["name"]
+
+    for win_name in role.get("window_access", []) or []:
+        acc_uu = uuids.get("AD_Window_Access",
+                           f"{role_name}.{win_name}")
+        b.open("AD_Window_Access", type="table")
+        b.leaf("AD_Client_ID", 0)
+        b.leaf("AD_Org_ID", 0)
+        b.leaf("IsActive", "Y")
+        b.leaf("AD_Role_ID", role_uu, reference="uuid",
+               **{"reference-key": "AD_Role"})
+        b.leaf("AD_Window_ID",
+               uuids.get("AD_Window", win_name),
+               reference="uuid", **{"reference-key": "AD_Window"})
+        b.leaf("IsReadWrite", "Y")
+        b.leaf("AD_Window_Access_UU", acc_uu)
+        b.close("AD_Window_Access")
+
+    for proc_value in role.get("process_access", []) or []:
+        acc_uu = uuids.get("AD_Process_Access",
+                           f"{role_name}.{proc_value}")
+        b.open("AD_Process_Access", type="table")
+        b.leaf("AD_Client_ID", 0)
+        b.leaf("AD_Org_ID", 0)
+        b.leaf("IsActive", "Y")
+        b.leaf("AD_Role_ID", role_uu, reference="uuid",
+               **{"reference-key": "AD_Role"})
+        b.leaf("AD_Process_ID",
+               uuids.get("AD_Process", proc_value),
+               reference="uuid", **{"reference-key": "AD_Process"})
+        b.leaf("IsReadWrite", "Y")
+        b.leaf("AD_Process_Access_UU", acc_uu)
+        b.close("AD_Process_Access")
+
+    for proc_id in role.get("process_access_core_id", []) or []:
+        # Core-AD_Process_ID ≤ MAX_OFFICIAL_ID (50000) ist installations-
+        # stabil; ID-Referenz reicht, kein UUID-Lookup nötig.
+        acc_uu = uuids.get("AD_Process_Access",
+                           f"{role_name}.core.{proc_id}")
+        b.open("AD_Process_Access", type="table")
+        b.leaf("AD_Client_ID", 0)
+        b.leaf("AD_Org_ID", 0)
+        b.leaf("IsActive", "Y")
+        b.leaf("AD_Role_ID", role_uu, reference="uuid",
+               **{"reference-key": "AD_Role"})
+        b.leaf("AD_Process_ID", proc_id, reference="id")
+        b.leaf("IsReadWrite", "Y")
+        b.leaf("AD_Process_Access_UU", acc_uu)
+        b.close("AD_Process_Access")
+
+    for form_name in role.get("form_access", []) or []:
+        acc_uu = uuids.get("AD_Form_Access",
+                           f"{role_name}.{form_name}")
+        b.open("AD_Form_Access", type="table")
+        b.leaf("AD_Client_ID", 0)
+        b.leaf("AD_Org_ID", 0)
+        b.leaf("IsActive", "Y")
+        b.leaf("AD_Role_ID", role_uu, reference="uuid",
+               **{"reference-key": "AD_Role"})
+        b.leaf("AD_Form_ID",
+               uuids.get("AD_Form", form_name),
+               reference="uuid", **{"reference-key": "AD_Form"})
+        b.leaf("IsReadWrite", "Y")
+        b.leaf("AD_Form_Access_UU", acc_uu)
+        b.close("AD_Form_Access")
+
+    for wf_value in role.get("workflow_access", []) or []:
+        acc_uu = uuids.get("AD_Workflow_Access",
+                           f"{role_name}.{wf_value}")
+        b.open("AD_Workflow_Access", type="table")
+        b.leaf("AD_Client_ID", 0)
+        b.leaf("AD_Org_ID", 0)
+        b.leaf("IsActive", "Y")
+        b.leaf("AD_Role_ID", role_uu, reference="uuid",
+               **{"reference-key": "AD_Role"})
+        b.leaf("AD_Workflow_ID",
+               uuids.get("AD_Workflow", wf_value),
+               reference="uuid", **{"reference-key": "AD_Workflow"})
+        b.leaf("IsReadWrite", "Y")
+        b.leaf("AD_Workflow_Access_UU", acc_uu)
+        b.close("AD_Workflow_Access")
+
+    b.close("AD_Role")
+
+
 def emit_sequence(b: XmlBuilder, seq: dict, uuids: UuidStore) -> None:
     """DocumentNo-Sequenz (kein TableID — die wird automatisch von
     MTable.afterSave erzeugt). Format: {Prefix}{lfd.Nr.}, optional mit
@@ -1354,7 +1539,13 @@ def main() -> int:
     # atomar verarbeiten kann (PO.checkRecordIDCrossTenant sieht die noch
     # uncommitteten AD_Column-Zeilen nicht und liefert leere keyColumns →
     # ArrayIndexOutOfBoundsException).
-    p.add_argument("--part", choices=("schema", "data"), required=True)
+    # schema = Schema + Workflow (alles ausser initial_data + roles)
+    # data   = ausschliesslich initial_data
+    # role   = System-Master-Rolle + Window-/Process-/Form-/Workflow-Access.
+    #          Eigener Bucket, damit die Access-Records erst nach den
+    #          AD_Window/AD_Process-Records importiert werden (deren
+    #          UUIDs müssen bereits committet sein, sonst defert PIPO).
+    p.add_argument("--part", choices=("schema", "data", "role"), required=True)
     args = p.parse_args()
 
     repo_root = args.source.parent.parent
@@ -1373,6 +1564,7 @@ def main() -> int:
     processes: list = []
     print_formats: list = []
     initial: list = []
+    roles: list = []
 
     for f in spec_files:
         with f.open() as fh:
@@ -1399,6 +1591,8 @@ def main() -> int:
             print_formats.extend(data["print_formats"])
         if "initial_data" in data:
             initial.extend(data["initial_data"])
+        if "roles" in data:
+            roles.extend(data["roles"])
 
     if not package:
         print("ERROR: kein package-Header gefunden", file=sys.stderr)
@@ -1503,13 +1697,19 @@ def main() -> int:
             emit_rule(b, rule, uuids)
         for pf in print_formats:
             emit_printformat(b, pf, uuids)
-    else:  # part == "data"
+    elif args.part == "data":
         # Initial-Daten brauchen UUID-Auflösung gegen die im Schema-Pack
         # angelegten Records (per AD_<Tabelle>_UU). uuids.csv ist die
         # gemeinsame Quelle — beide Teile lesen denselben Store.
         initial_uuid_index = build_initial_uuid_index(initial, uuids)
         for init in initial:
             emit_initial_data(b, init, uuids, initial_uuid_index)
+    else:  # part == "role"
+        # System-Master-Rolle + Window-/Process-/Form-/Workflow-Access.
+        # Läuft erst nach Schema + Daten, damit alle referenzierten
+        # AD_Window/AD_Process-Records committet vorliegen.
+        for role in roles:
+            emit_role(b, role, uuids)
 
     out.append(b.render().rstrip())
     out.append("</idempiere>")
@@ -1524,8 +1724,10 @@ def main() -> int:
               f"sequences={len(sequences)} windows={len(windows)} "
               f"processes={len(processes)} rules={len(rules)} "
               f"print_formats={len(print_formats)}")
-    else:
+    elif args.part == "data":
         print(f"  initial-blocks={len(initial)}")
+    else:
+        print(f"  roles={len(roles)}")
     return 0
 
 

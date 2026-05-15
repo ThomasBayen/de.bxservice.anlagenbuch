@@ -157,10 +157,55 @@ themselves. This way the plugin can be added to or removed from a
 login role with a single include, and the four core windows stay in
 sync without per-role maintenance.
 
-Master and includes are created idempotently via
-`setup/bootstrap_roles.py` (REST-driven). A concrete deployment
-including the customer-specific login roles is shown in
-`example/JakobBayenKG/`.
+### System-tenant master role
+
+The master role is shipped by the 2Pack in the **system tenant**
+(`AD_Client_ID=0`, `IsMasterRole=Y`, `IsManual=Y`) — as a third package
+`Anlagenbuch_03_role.zip`, imported alphabetically after schema +
+data. Every tenant that includes the role via `AD_Role_Included` in one
+of its login roles automatically inherits all Anlagenbuch-specific
+access records — even retroactively, when a 2Pack update introduces
+new windows or processes. No tenant has to maintain the permissions
+manually.
+
+Mechanics:
+
+- `MRoleIncluded.beforeSave` only checks for loops, **not** whether the
+  included role belongs to the same client.
+- The DB FK `AD_Role_Included.Included_Role_ID → AD_Role(AD_Role_ID)`
+  carries no client constraint.
+- `MRole.loadChildRoles` and `mergeIncludedAccess` merge the included
+  role's access records into the login role **unfiltered**.
+- The login query (`Login.getRoles`) does not filter the role choice on
+  client match — it shows only roles assigned to the user directly
+  (`AD_User_Roles`), not included ones.
+
+Caveats:
+
+- The system master role must carry access only to system records
+  (`AD_Client_ID=0`). Automatically the case for a 2Pack delivery
+  (all BXS_* records live in the system tenant).
+- **`IsManual=Y` is mandatory**: without it,
+  `MRole.afterSave → updateAccessRecords` auto-creates access records
+  for every window/process matching the UserLevel. Our explicit access
+  rows then collide on the unique index, failing the entire pack
+  import.
+- **UserLevel** is forced to `"S  "` (System) by `MRole.beforeSave`
+  whenever `AD_Client_ID=0`. That is fine — the master role only
+  serves as an access container; UserLevel and OrgAccess come from the
+  tenant's login role.
+- No selective per-tenant override — anyone who needs deviating
+  permissions has to maintain a separate login role without the
+  include.
+
+### Customer deployment
+
+Binding the role into a tenant is customer-specific. For JBKG,
+`example/JakobBayenKG/bootstrap_roles.py` idempotently creates one
+`AD_Role_Included` from the configured login role (`Datalotte` /
+`GF` / `Dispatch` / …) to the system master role — that is all the
+script does. Other users perform the same step in the UI (see
+`Installation.md`).
 
 ## Lessons from building the 2Pack
 

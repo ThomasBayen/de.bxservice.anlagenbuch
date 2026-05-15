@@ -2,6 +2,21 @@
 
 A log of notable changes to Anlagenbuch.
 
+## Unreleased
+
+- 2Pack now ships a **system-tenant master role** `anlagenbuch`
+  (`AD_Client_ID=0`, `IsMasterRole=Y`, `IsManual=Y`) carrying all
+  window and process access for the plugin. New third package
+  `Anlagenbuch_03_role.zip` imported after schema + data. Tenants
+  bind it into one of their login roles via `AD_Role_Included` once
+  and get future plugin updates automatically.
+- `example/JakobBayenKG/bootstrap_roles.py` reduced to a single
+  `AD_Role_Included` POST — role creation, process-access and
+  window-access maintenance are no longer needed (the 2Pack handles
+  them).
+- New spec file `2pack/source/spec/05-roles.yaml` and generator
+  helper `emit_role` in `2pack/source/assemble.py`.
+
 ## v1.0 — initial public release
 
 ### Data model
