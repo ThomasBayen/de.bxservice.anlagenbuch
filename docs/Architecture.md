@@ -148,15 +148,19 @@ generator — details in `CLAUDE.md` (including the workaround for the
 
 ## Permissions
 
-The Jakob Bayen KG master/login role concept: one domain-specific
+Permissions follow a master/login role split: a domain-specific
 **master role** `anlagenbuch` (lower case) holds the window and
-process permissions for all four main windows. **Login roles**
-(`GF`, `Dispatch`, …) include the master role via
-`AD_Role_Included`. Creation and maintenance through
-`setup/bootstrap_roles.py` (REST-driven, idempotent).
+process access for all four main windows. **Login roles** (the actual
+user roles in the target installation) include the master role via
+`AD_Role_Included` and never carry Anlagenbuch-specific permissions
+themselves. This way the plugin can be added to or removed from a
+login role with a single include, and the four core windows stay in
+sync without per-role maintenance.
 
-Background concept: `../Datalotte.md` in the parent repository
-directory.
+Master and includes are created idempotently via
+`setup/bootstrap_roles.py` (REST-driven). A concrete deployment
+including the customer-specific login roles is shown in
+`example/JakobBayenKG/`.
 
 ## Lessons from building the 2Pack
 

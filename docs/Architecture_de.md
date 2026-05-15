@@ -143,13 +143,19 @@ Generator — Details in `CLAUDE.md` (inkl. Workaround für die
 
 ## Berechtigungen
 
-Master/Login-Rollen-Konzept der Jakob Bayen KG: eine domänenspezifische
-**Master-Rolle** `anlagenbuch` (lowercase) hält die Window-/Process-Rechte
-auf alle vier Hauptfenster. **Login-Rollen** (`GF`, `Disposition`, …)
-inkludieren die Master-Rolle per `AD_Role_Included`. Anlage und Wartung
-über `setup/bootstrap_roles.py` (REST-getrieben, idempotent).
+Die Rechtevergabe folgt einem Master/Login-Rollen-Schnitt: eine
+domänen­spezifische **Master-Rolle** `anlagenbuch` (lowercase) hält die
+Window-/Process-Rechte auf alle vier Hauptfenster. **Login-Rollen** (die
+tatsächlichen Benutzer­rollen der Zielinstallation) inkludieren die
+Master-Rolle per `AD_Role_Included` und tragen selbst keine Anlagenbuch-
+spezifischen Rechte. Dadurch lässt sich das Plugin per einem einzigen
+Include in eine Login-Rolle aufnehmen oder wieder entfernen, und die
+vier Kern­fenster bleiben ohne Pro-Rolle-Pflege synchron.
 
-Hintergrund-Konzept: `../Datalotte.md` im übergeordneten Repo-Verzeichnis.
+Master-Rolle und Includes werden idempotent über
+`setup/bootstrap_roles.py` (REST-getrieben) angelegt. Ein konkretes
+Deployment inklusive der kundenspezifischen Login-Rollen liegt unter
+`example/JakobBayenKG/`.
 
 ## Lessons aus dem 2Pack-Bau
 
