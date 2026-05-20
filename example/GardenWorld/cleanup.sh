@@ -31,6 +31,16 @@ WHERE AD_Client_ID = $GARDENWORLD_CLIENT_ID;
 
 DELETE FROM BXS_Asset
 WHERE AD_Client_ID = $GARDENWORLD_CLIENT_ID;
+
+-- Tenant-Stammdaten (AssetClass, ScheduleType) auch raus, damit ein
+-- frischer ODS-Re-Import keine Altlasten von früheren Demo-Ständen
+-- mitzieht. System-Records (AD_Client_ID=0) bleiben unangetastet —
+-- die liefert das 2Pack.
+DELETE FROM BXS_ScheduleType
+WHERE AD_Client_ID = $GARDENWORLD_CLIENT_ID;
+
+DELETE FROM BXS_AssetClass
+WHERE AD_Client_ID = $GARDENWORLD_CLIENT_ID;
 COMMIT;
 SQL
 

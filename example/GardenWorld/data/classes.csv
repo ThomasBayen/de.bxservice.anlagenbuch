@@ -1,7 +1,8 @@
 Value;Name;NameEN;Kategorie;Description
-GW-MOWER;Rasenmäher;Lawn Mower;Equipment;Aufsitz- und Handrasenmäher
-GW-IRRIG;Bewässerungspumpe;Irrigation Pump;Stationary;Festinstallierte Pumpe für Bewässerungssysteme
-GW-PICKUP;Pickup;Pickup Truck;Vehicle;Pickup-LKW für Materialtransport
-GW-TRAILER;Anhänger;Trailer;Vehicle;Geräteanhänger, zulassungspflichtig
-GW-BLDG;Gartenhäuschen;Shed;Building;Gerätehaus, fest verbaut
-GW-TOOL;Motorgerät;Power Tool;Equipment;Motorbetriebene Werkzeuge (Kettensäge, Heckenschere)
+1100;Pickup;Pickup Truck;Vehicle;Pickup truck for material transport
+1200;Trailer;Trailer;Vehicle;Equipment trailer, registration required
+2100;Lawn Mower;Lawn Mower;Equipment;Ride-on and walk-behind lawn mowers
+2200;Power Tool;Power Tool;Equipment;Engine-driven hand tools (chainsaw, hedge trimmer, leaf blower)
+2300;Workshop Tool;Workshop Tool;Equipment;Stationary workshop equipment (welder, pressure washer)
+3100;Irrigation Pump;Irrigation Pump;Stationary;Fixed pump for irrigation systems
+5100;Shed;Shed;Building;Tool shed, permanently installed

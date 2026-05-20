@@ -1,6 +1,44 @@
 AssetValue;Type;Name;Description;Priority;ItemStatus;ReportedDate;DueDate;CompletionDate;ScheduleTypeValue;MeterReading;Reporter
-MOWER-01;Defect;Mähwerk hebt nicht an;Hydraulik des Mähdecks reagiert nicht beim Anheben. Vermutlich Hydraulikleitung verstopft.;High;Open;2026-05-04;;;;;GardenAdmin
-PUMP-01;Defect;Pumpendruck zu niedrig;Druck im Bewässerungssystem fällt nach wenigen Minuten Betrieb ab. Filter prüfen.;Medium;Open;2026-05-06;;;;;GardenAdmin
-PICKUP-01;Schedule;TÜV-Hauptuntersuchung;Nächste fällige Hauptuntersuchung;;Open;2026-04-15;2026-08-15;;TUV;;GardenAdmin
-MOWER-02;Status;Erstaufnahme;Mäher in Bestand übernommen, Betriebsstunden notiert.;;Done;2026-04-01;;2026-04-01;;120;GardenAdmin
-SAW-01;Schedule;Jahresinspektion 2026;Reguläre Inspektion durch STIHL-Werkstatt;;Done;2026-04-10;2026-04-20;2026-04-20;ANNUAL_SERVICE;;GardenAdmin
+MOWER-01;Status;Initial intake;Mower taken into the fleet, visual check OK, hour-meter noted.;;Done;2024-04-01;;2024-04-01;;180;GardenAdmin
+MOWER-02;Status;Initial intake;Mower taken into the fleet, minor paint scratches on deck recorded.;;Done;2024-05-15;;2024-05-15;;120;GardenAdmin
+MOWER-03;Status;Initial intake;New machine accepted from dealer.;;Done;2026-03-02;;2026-03-02;;5;Carl Boss
+PICKUP-01;Status;Initial intake;New vehicle accepted, key card and papers with dispatch.;;Done;2023-08-10;;2023-08-10;;145;GardenAdmin
+PICKUP-02;Status;Initial intake;Used vehicle accepted, minor stone chips in windshield.;;Done;2024-02-20;;2024-02-20;;34280;GardenAdmin
+SHED-NORTH;Status;Visual check Q1/2026;Door closes properly, lighting OK, floor dry.;;Done;2026-03-15;;2026-03-15;;;Carl Boss
+PUMP-02;Status;Season start 2026;Pump back in service after winter shutdown, pressure OK.;;Done;2026-03-25;;2026-03-25;;;Henry Seed
+MOWER-01;Defect;Mower deck won't raise;Hydraulic lift on the deck does not respond. Likely a blocked hydraulic line.;High;Open;2026-05-04;;;;220;Joe Sales
+MOWER-01;Defect;Seat switch bouncing;Mower cuts out briefly when crossing bumps. Check seat contact.;Low;Open;2026-05-10;;;;225;Joe Sales
+MOWER-02;Defect;Uneven mowing result;Streaks on the right — likely a blade is dull or the belt is loose.;Medium;Open;2026-05-08;;;;310;Henry Seed
+MOWER-03;Defect;Stiff steering;Steering wheel is hard to turn, especially at standstill. Steering head bearing?;Medium;Open;2026-05-12;;;;42;Carl Boss
+MOWER-04;Defect;Pull cord jams;Starter only turns over in jerks, the cord does not retract smoothly.;Medium;Open;2026-05-09;;;;;Joe Sales
+PUMP-01;Defect;Pump pressure too low;Pressure in the irrigation system drops after a few minutes of operation. Check the filter.;Medium;Open;2026-05-06;;;;;Henry Seed
+PUMP-03;Defect;Pump won't start;Motor hums, pump does not spin up. Capacitor likely defective. Sump pump removed, in storage.;High;Open;2026-04-22;;;;;Henry Seed
+PICKUP-01;Defect;Rear brakes squeal;Loud squeal especially in wet weather. Replace brake pads.;Medium;Open;2026-04-30;;;;48200;Joe Sales
+PICKUP-01;Defect;Tailgate does not close cleanly;Tailgate jams when closing, only locks under firm pressure.;High;Open;2026-05-02;;;;48420;Joe Sales
+PICKUP-01;Defect;Loose trailer plug;7-pin plug is wobbly, trailer indicators cut out intermittently.;High;Open;2026-05-05;;;;48500;Carl Boss
+PICKUP-02;Defect;A/C doesn't cool;Likely lost refrigerant, brief hissing on activation.;Medium;Open;2026-05-11;;;;36210;Joe Sales
+TRAILER-01;Defect;Right rear light defective;Glass cracked, bulb loose in socket.;Low;Open;2026-05-07;;;;;Joe Sales
+TRAILER-02;Defect;Loading ramp warped;Left ramp will not latch without using a pry bar.;Medium;Open;2026-04-25;;;;;Carl Boss
+SAW-01;Defect;Chain tension won't hold;Tensioning screw no longer grips, chain slackens during use.;High;Open;2026-05-13;;;;;Henry Seed
+SAW-02;Defect;Battery runtime significantly shorter;Battery only lasts about 15 min under load (previously 40 min). Check warranty case.;Medium;Open;2026-05-01;;;;;Carl Boss
+HEDGE-01;Defect;Blades dull;Cut quality frayed, blades need sharpening or replacement.;Low;Open;2026-04-28;;;;;Henry Seed
+BLOWER-01;Defect;Bearing noise;Squealing at start-up, check bearings.;Low;Open;2026-05-09;;;;;Henry Seed
+WELD-01;Defect;Earth clamp defective;Earth cable clamp no longer closes properly, unstable arc.;Medium;Open;2026-05-03;;;;;Carl Boss
+WASH-01;Defect;High-pressure hose porous;Hose shows hairline cracks, leaks at full power. Order replacement.;High;Open;2026-05-06;;;;;Carl Boss
+SHED-SOUTH;Defect;Door lock defective;Door can only be secured with a padlock.;Medium;Open;2026-04-20;;;;;Henry Seed
+PICKUP-01;Defect;Weak headlights at night;Left low-beam very dim, check bulb or reflector. (Done, bulb replaced.);Low;Done;2026-03-12;;2026-03-20;;47210;Joe Sales
+MOWER-04;Schedule;Annual service 2026;Regular service by Honda workshop;;Open;2026-04-01;2026-09-01;;ANNUAL_SERVICE;;GardenAdmin
+PICKUP-01;Schedule;Annual safety inspection 2026;Upcoming statutory vehicle inspection;;Open;2026-04-15;2026-08-15;;SAFETY;;GardenAdmin
+PICKUP-02;Schedule;Annual safety inspection 2026;Upcoming statutory vehicle inspection;;Open;2026-04-15;2026-10-30;;SAFETY;;GardenAdmin
+TRAILER-01;Schedule;Annual safety inspection 2026;3.5 t trailer — statutory inspection due;;Open;2026-04-15;2026-07-20;;SAFETY;;GardenAdmin
+TRAILER-02;Schedule;Annual safety inspection 2026;1.5 t trailer — statutory inspection due;;Open;2026-04-15;2026-11-12;;SAFETY;;GardenAdmin
+SAW-01;Schedule;Safety check 2026;DGUV regulation 3 safety inspection;;Open;2026-04-10;2026-09-10;;SAFETY;;GardenAdmin
+SAW-02;Schedule;Safety check 2026;DGUV regulation 3 safety inspection;;Open;2026-04-10;2026-09-10;;SAFETY;;GardenAdmin
+HEDGE-01;Schedule;Safety check 2026;DGUV regulation 3 safety inspection;;Open;2026-04-10;2026-09-10;;SAFETY;;GardenAdmin
+BLOWER-01;Schedule;Safety check 2026;DGUV regulation 3 safety inspection;;Open;2026-04-10;2026-09-10;;SAFETY;;GardenAdmin
+TILLER-01;Schedule;Safety check 2026;DGUV regulation 3 safety inspection;;Open;2026-04-10;2026-09-10;;SAFETY;;GardenAdmin
+SHED-NORTH;Schedule;Fire-safety check 2026;Annual visual inspection of fire extinguishers and emergency exits;;Open;2026-03-15;2027-03-15;;FIREEXT;;GardenAdmin
+SHED-SOUTH;Schedule;Fire-safety check 2026;Annual visual inspection of fire extinguishers and emergency exits;;Open;2026-03-15;2027-03-15;;FIREEXT;;GardenAdmin
+PUMP-01;Schedule;Pump service 2026;Filter change and pressure check;;Open;2026-03-25;2026-10-31;;PUMP_SERVICE;;GardenAdmin
+PUMP-02;Schedule;Pump service 2026;Filter change and pressure check;;Open;2026-03-25;2026-10-31;;PUMP_SERVICE;;GardenAdmin
+SAW-01;Schedule;Annual service 2026;Regular service by STIHL workshop;;Done;2026-04-10;2026-04-20;2026-04-20;ANNUAL_SERVICE;;GardenAdmin

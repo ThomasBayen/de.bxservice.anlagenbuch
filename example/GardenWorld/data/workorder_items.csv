@@ -1,0 +1,8 @@
+WorkOrderValue;AssetValue;ItemName;IsResolved;LineNo;Note
+WAU-DEMO-001;PICKUP-01;Annual safety inspection 2026;Y;10;Safety inspection incl. brake prep.
+WAU-DEMO-001;PICKUP-01;Tailgate does not close cleanly;Y;20;Adjust tailgate or replace latch.
+WAU-DEMO-001;PICKUP-01;Loose trailer plug;Y;30;Replace plug or solder permanently.
+WAU-DEMO-001;PICKUP-01;Rear brakes squeal;Y;40;Renew brake pads.
+WAU-DEMO-002;MOWER-02;Uneven mowing result;Y;10;Check blades and belt, re-tension.
+WAU-DEMO-003;SAW-01;Safety check 2026;Y;10;DGUV regulation 3, new sticker.
+WAU-DEMO-003;SAW-01;Chain tension won't hold;Y;20;Replace tensioner mechanism.

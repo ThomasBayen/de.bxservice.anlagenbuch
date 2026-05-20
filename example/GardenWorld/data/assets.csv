@@ -1,8 +1,22 @@
 Value;Name;KlassenValue;Hersteller;Modell;Baujahr;SerialNo;Standort;AssetStatus;Anmerkung
-MOWER-01;Aufsitzmäher Nord;GW-MOWER;John Deere;X350;2022;JD-X350-0142;Hauptgelände;InService;Pflege der Wiesenflächen nördlich der HQ
-MOWER-02;Aufsitzmäher Süd;GW-MOWER;Husqvarna;R420 TS AWD;2021;HQV-R420-0089;Hauptgelände;InService;Pflege der Hangflächen Süd
-PUMP-01;Bewässerungspumpe Block A;GW-IRRIG;Grundfos;CR 5-12;2020;GF-CR5-7732;Block A;InService;Versorgt Beetbewässerung Block A
-PICKUP-01;GardenWorld Pickup;GW-PICKUP;Ford;Ranger XL;2023;WF0LMFE60PUS00451;Werkstatt;InService;Materialtransport, Anhängerkupplung verbaut
-TRAILER-01;Geräteanhänger;GW-TRAILER;Humbaur;HTK 3500.31;2020;WHB-HTK-2020-3331;Werkstatt;InService;Anhänger 3,5t, Auffahrrampe
-SHED-NORTH;Gerätehäuschen Nord;GW-BLDG;;;2018;;Block N;InService;Lagerung Kleingeräte und Saatgut
-SAW-01;Kettensäge;GW-TOOL;STIHL;MS 251 C-BE;2024;MS251-0445;Werkstatt;InService;Astpflege, Sturmschäden
+MOWER-01;Ride-on Mower North;2100;John Deere;X350;2022;JD-X350-0142;Main Grounds;InService;Mowing the meadows north of HQ
+MOWER-02;Ride-on Mower South;2100;Husqvarna;R420 TS AWD;2021;HQV-R420-0089;Main Grounds;InService;Mowing the south slope
+MOWER-03;Ride-on Mower Park;2100;Stiga;Estate 7102 HWSY;2023;STG-EST7102-0314;City Park;InService;In service for the municipal park lawns
+MOWER-04;Walk-behind Mower Beds;2100;Honda;HRX 537 VK;2022;HND-HRX537-0612;Workshop;InService;Hand-guided mower for tight bed edges
+PUMP-01;Irrigation Pump Block A;3100;Grundfos;CR 5-12;2020;GF-CR5-7732;Block A;InService;Feeds bed irrigation Block A
+PUMP-02;Irrigation Pump Block B;3100;Grundfos;CR 10-6;2021;GF-CR10-9821;Block B;InService;Feeds drip irrigation Block B (greenhouses)
+PUMP-03;Rainwater Sump Pump;3100;KSB;Ama-Drainer N 358;2019;KSB-AMA-3344;Cistern;OutOfService;Defective — replacement planned, see open defect report
+PICKUP-01;GardenWorld Pickup #1;1100;Ford;Ranger XL;2023;WF0LMFE60PUS00451;Workshop;InService;Material transport, tow hitch installed
+PICKUP-02;GardenWorld Pickup #2;1100;Toyota;Hilux Double Cab;2021;AHTKB3CD901234567;Workshop;InService;All-wheel drive, double cab, 3.2 t tow hitch
+TRAILER-01;Equipment Trailer Large;1200;Humbaur;HTK 3500.31;2020;WHB-HTK-2020-3331;Workshop;InService;3.5 t trailer with loading ramp
+TRAILER-02;Equipment Trailer Small;1200;Anssems;GTB 1500.251;2019;ANS-GTB1500-1872;Workshop;InService;1.5 t trailer for small machines
+SHED-NORTH;Tool Shed North;5100;;;2018;;Block N;InService;Storage for small tools and seed
+SHED-SOUTH;Tool Shed South;5100;;;2019;;Block S;InService;Storage for irrigation gear and fertiliser
+SHED-PARK;Container City Park;5100;;;2021;;City Park;InService;Mobile storage container for grounds-keeping tools
+SAW-01;Chainsaw Large;2200;STIHL;MS 251 C-BE;2024;MS251-0445;Workshop;InService;Branch care, storm damage
+SAW-02;Chainsaw Small;2200;STIHL;MSA 220 C-B;2023;MSA220-0871;Workshop;InService;Battery saw for light pruning
+HEDGE-01;Hedge Trimmer;2200;STIHL;HSA 130 T;2023;HSA130-1188;Workshop;InService;Battery hedge trimmer with extension pole
+BLOWER-01;Leaf Blower;2200;STIHL;BGA 200;2024;BGA200-0277;Workshop;InService;Battery leaf blower for paths and park areas
+TILLER-01;Rotary Tiller;2200;Honda;F220;2020;HND-F220-1455;Workshop;InService;Bed preparation, spring and autumn
+WELD-01;Welder;2300;ESAB;Rebel EMP 215ic;2022;ESAB-EMP215-0992;Workshop;InService;Metal frame and trailer-tailgate repairs
+WASH-01;Pressure Washer;2300;Kärcher;HD 7/18-4 M;2021;KRC-HD718-2104;Workshop;InService;Cleaning vehicles and equipment

@@ -42,6 +42,8 @@ python3 "$REPO_ROOT/tools/import-ods.py" \
     "$SCRIPT_DIR/anlagenbuch_demo.ods"
 
 # ── 4. Smoke-Test ───────────────────────────────────────────────────────
+# Werkstattaufträge + Positionen sind seit Punkt 5 (siehe TODO/Plan) Teil
+# derselben ODS — kein separater SQL-Seed mehr nötig.
 if [ -x "$SCRIPT_DIR/test/02_smoke_inserts.sh" ]; then
     step "Smoke-Test"
     bash "$SCRIPT_DIR/test/02_smoke_inserts.sh"

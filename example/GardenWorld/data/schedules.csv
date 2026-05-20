@@ -1,4 +1,5 @@
 Value;Name;NameEN;KlassenValue;IntervallMonate;PflichtDefault;Description
-TUV;TÜV;TÜV;;24;Y;Hauptuntersuchung gem. §29 StVZO (Pickup, Anhänger) — Klasse leer, manuell zuordnen
-ANNUAL_SERVICE;Jahresinspektion;Annual Service;;12;N;Reguläre Hersteller-Wartung (Mäher, Pumpe, Motorgerät)
-SAFETY;UVV-Prüfung;Annual Safety Check;GW-TOOL;12;Y;Unfallverhütungsvorschrift-Prüfung für motorbetriebene Werkzeuge
+ANNUAL_SERVICE;Annual Service;Annual Service;;12;N;Regular manufacturer-recommended service (mowers, pumps, power tools)
+SAFETY;Annual Safety Check;Annual Safety Check;2200;12;Y;Annual safety inspection (DGUV regulation 3) for engine-driven hand tools
+FIREEXT;Fire-Safety Inspection;Fire-Safety Inspection;5100;12;Y;Annual visual inspection of fire extinguishers and emergency exits in sheds
+PUMP_SERVICE;Pump Service;Pump Service;3100;12;N;Filter change and pressure check for irrigation pumps
