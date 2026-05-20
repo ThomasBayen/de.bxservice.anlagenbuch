@@ -656,12 +656,6 @@ def emit_window(b: XmlBuilder, w: dict, tables_by_name: dict, uuids: UuidStore) 
     for tab in w["tabs"]:
         emit_tab(b, win_uu, w["name"], tab, tables_by_name, uuids)
 
-    # Menu-Eintrag (Action=W) — Parent_ID + SeqNo werden zwar im XML
-    # gesetzt, der MenuElementHandler greift sie aber bei Window-Menüs
-    # NICHT durch (MWindow.afterSave legt AD_TreeNodeMM vorab bei Root
-    # an, der nachfolgende AD_Menu-Merge fixt den TreeNode nicht).
-    # Workaround: `setup/bootstrap_roles.py` → fix_window_menu_tree()
-    # verschiebt die vier Window-Menüs nach 2Pack-Import unter Anlagenbuch.
     emit_menu(b, uuids,
               menu_key=w["name"],
               name=w["label"],
@@ -1265,6 +1259,11 @@ def emit_initial_data(b: XmlBuilder, item: dict, uuids: UuidStore,
     for row in item["rows"]:
         rec_uu = uuids.get("Initial", f"{table}.{_initial_row_uu_key(row)}")
 
+        # `trl_de` ist eine optionale Sub-Map mit deutscher Übersetzung.
+        # Wird *nach* allen Datenspalten als nested `<{table}_Trl>` emittiert
+        # (siehe emit_trl-Konvention: nested in den Parent-Record).
+        trl_de = row.get("trl_de") or {}
+
         b.open(table, type="table")
         b.leaf(uu_col, rec_uu)
         b.leaf("AD_Client_ID", 0)
@@ -1272,6 +1271,8 @@ def emit_initial_data(b: XmlBuilder, item: dict, uuids: UuidStore,
         b.leaf("IsActive", "Y")
 
         for k, v in row.items():
+            if k == "trl_de":
+                continue
             m = _FK_COL_RE.match(k)
             if m:
                 ref_table, lookup_col = m.group(1), m.group(2)
@@ -1295,6 +1296,13 @@ def emit_initial_data(b: XmlBuilder, item: dict, uuids: UuidStore,
                     b.leaf(k, "Y" if v else "N")
                 else:
                     b.leaf(k, v)
+
+        if trl_de:
+            emit_trl(b, table,
+                     name=trl_de.get("Name", ""),
+                     description=trl_de.get("Description", ""),
+                     help_text=trl_de.get("Help", ""),
+                     language="de_DE")
 
         b.close(table)
 

@@ -53,14 +53,22 @@ windows:
 
 initial_data:
 
-  # Kilometer-UOM gibt's in iDempiere-Standard nicht (Standard-UOMs sind
+  # Kilometre-UOM gibt's in iDempiere-Standard nicht (Standard-UOMs sind
   # Hour/Day/Each/…). Wir liefern sie als System-UOM mit aus, damit
   # Fahrzeug-Klassen direkt eine sinnvolle Default-Einheit haben.
+  # Default-Sprache englisch (UN/CEFACT X12DE355=KME, „Kilometre"),
+  # deutsche Anzeige per C_UOM_Trl mit „Kilometer".
   - table: C_UOM
     rows:
-      - { X12DE355: KME, Name: Kilometer, UOMSymbol: km,
-          StdPrecision: 0, CostingPrecision: 2,
-          Description: "Kilometer — Distanz, typisch für Fahrzeug-Zähler." }
+      - X12DE355: KME
+        Name: Kilometre
+        UOMSymbol: km
+        StdPrecision: 0
+        CostingPrecision: 2
+        Description: "Kilometre — distance, typical for vehicle odometers."
+        trl_de:
+          Name: Kilometer
+          Description: "Kilometer — Distanz, typisch für Fahrzeug-Zähler."
 
   - table: BXS_AssetClass
     rows:

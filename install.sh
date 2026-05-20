@@ -99,6 +99,22 @@ DROP_SCHEMA="${STAMP}_SYSTEM_Anlagenbuch_01_schema.zip"
 DROP_DATA="${STAMP}_SYSTEM_Anlagenbuch_02_data.zip"
 DROP_ROLE="${STAMP}_SYSTEM_Anlagenbuch_03_role.zip"
 
+# ── 1b. Pre-Apply-Migrationen für bestehende Installationen ──────────────
+# Richtet UUIDs/Schlüssel von Daten-Zeilen auf den aktuellen Stand der
+# `uuids.csv` aus, damit PIPO sie per UUID matchen kann statt zu insert-
+# collidieren. Idempotent. Läuft IMMER (auch bei einer frischen DB,
+# wo die meisten Statements einfach 0 Rows betreffen).
+if command -v psql >/dev/null 2>&1; then
+    step "Pre-Apply-Migrationen (UOM-UUID-Alignment)"
+    PGPASSWORD="${PGPASSWORD:-}" \
+        psql -h "${PGHOST:-localhost}" -p "${PGPORT:-5432}" \
+             -U "${PGUSER:-adempiere}" -d "${PGDATABASE:-idempiere}" \
+             -v ON_ERROR_STOP=1 -q \
+             -f "$REPO_ROOT/setup/migrate_uoms.sql"
+else
+    echo "[install] WARNUNG: psql nicht im PATH — überspringe Pre-Apply-Migrationen." >&2
+fi
+
 if [ "$STANDALONE" -eq 1 ]; then
     DROP_DIR="$(mktemp -d -t anlagenbuch_install.XXXXXX)"
     step "Standalone-Apply via $DROP_DIR"

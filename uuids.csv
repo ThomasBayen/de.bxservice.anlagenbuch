@@ -467,7 +467,6 @@ AD_Field,BXS_WorkOrder_Window.Open Items.Created,0be355d4-97ef-4fce-a955-b367adf
 AD_Field,BXS_WorkOrder_Window.Open Items.CreatedBy,c8849953-38f3-46a7-882b-194cdb7d80e0
 AD_Field,BXS_WorkOrder_Window.Open Items.Updated,336caf87-0a99-43bf-a498-56bae64ce8d8
 AD_Field,BXS_WorkOrder_Window.Open Items.UpdatedBy,da146675-baff-4848-a163-016379aefc10
-Initial,C_UOM.5000000,b64fc517-5f49-4dc7-8d3e-5c7a5e5ea0e5
 AD_Rule,BXS_AssetItem_DocumentNo,95b92f4f-fce6-414c-a8e7-3f3c4fe5247b
 AD_Table_ScriptValidator,BXS_AssetItem_DocumentNo.BXS_AssetItem.TBN,95ddd70e-4eea-4327-a8d5-325f72ebde06
 AD_Rule,BXS_WorkOrder_DocumentNo,05bc2d1a-71d1-438e-9738-7a91ba8856b0
@@ -563,7 +562,6 @@ AD_Process_Para,BXS_Print_AssetStatusOverview.AssetClassIDs,76fb860f-77ab-447f-b
 AD_Process_Para,BXS_Print_AssetStatusOverview.OnlyWithOpenItems,8884aba8-afc1-4b11-b578-8e0d3b57cdf8
 AD_Process,BXS_Print_Anlagenakte_DE,597d1314-fde0-456d-b7c8-d4768dd0ea9f
 AD_Process,BXS_Print_Werkstattmappe_DE,891f1681-6da1-4276-8d8d-7e92de6db6e9
-Initial,C_UOM.1000000,acd70dcc-b059-4eb6-9516-5acb73b49321
 Initial,C_UOM.KME,ad55c7f9-aa9a-418e-a4dc-f88e183e8f18
 AD_Role,anlagenbuch,aea9bad2-0d30-4678-88e5-27c693e8c00d
 AD_Window_Access,anlagenbuch.BXS_Asset_Window,ed1e6eaf-2bfd-49c8-b231-0dd758384b80
