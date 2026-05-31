@@ -110,7 +110,7 @@ CORE_ELEMENTS = {
     "DateDoc": 265, "DocAction": 287,
     "EntityType": 1682, "Manufacturer": 1915, "S_Resource_ID": 1777,
     "Type": 600, "Priority": 1514, "DueDate": 2000,
-    "LineNo": 2945, "Category": 52017,
+    "LineNo": 2945, "Category": 52017, "Status": 3020,
 }
 
 # CreatedDate/UpdatedDate des <idempiere>-Root-Elements. Einzige Nicht-
