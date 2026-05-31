@@ -9,7 +9,7 @@ Voraussetzung: laufende iDempiere-11-Instanz mit PostgreSQL-Backend, Shell-Zugri
 | `2pack/Anlagenbuch.zip`       | 2Pack-Archiv mit allen DB-Objekten, Fenstern, Listen, Sequenzen                  |
 | `2pack/source/PackOut.xml`          | Quell-XML, im Repo zur Diff-Sicht                                                |
 | `2pack/source/spec/*.yaml`          | Source-of-Truth-Specs für den Generator                                          |
-| `2pack/source/assemble.py`         | YAML → PackOut.xml-Generator                                                     |
+| `2pack/gen/assemble.py`            | YAML → PackOut.xml-Generator (gevendort)                                         |
 | `2pack/build.sh`                    | Wrapper, baut `2pack/Anlagenbuch.zip`                                       |
 | `import/AssetImport_Template.csv`  | Vorlage für Erstbefüllung Anlagenstamm                                           |
 | `import/AssetImport_Mapping.md`    | Spalten-Mapping-Doku                                                             |

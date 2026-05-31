@@ -41,7 +41,7 @@ Der AD_Process-Eintrag ist in `2pack/source/spec/90-reports.yaml` als
 `BXS_Print_AssetStatusOverview` definiert (sprachneutral, ein
 Prozess pro Report); die beiden AD_Process_Para-Einträge hängen dort
 unter `process_params:` und werden vom Generator
-(`2pack/source/assemble.py`, `emit_process_para`) inklusive `*_Trl`
+(`2pack/gen/assemble.py`, `emit_process_para`) inklusive `*_Trl`
 mitgepackt.
 
 Der Menü-Eintrag des Reports wird **automatisch erzeugt** und unter dem
@@ -62,8 +62,8 @@ Summary-Knoten **„Anlagenbuch"**, der ganz am Ende des Menübaums steht
 | 110+  | Print-Reports (Werkstattmappe / Anlagenakte / Statusübersicht jeweils DE+EN) |
 
 Verkabelung: AD_Menu.Parent_ID/SeqNo werden vom Generator gesetzt
-(siehe `2pack/source/assemble.py` — `emit_menu`,
-`emit_anlagenbuch_root`). Neue Fenster bekommen optional eine
+(siehe `2pack/gen/assemble.py` — `emit_menu`,
+`emit_menu_root`). Neue Fenster bekommen optional eine
 `menu: { seq: N }`-Sektion in ihrer Window-Spec; neue Prozesse, die im
 Menü erscheinen sollen, ein `menu: { seq: N }` an der Process-Spec.
 Buttons (Tab-Toolbar-Prozesse) brauchen kein `menu:`.

@@ -11,7 +11,7 @@ directory).
 | `2pack/Anlagenbuch.zip`           | 2Pack archive containing all DB objects, windows, lists and sequences            |
 | `2pack/source/PackOut.xml`        | Source XML, kept in the repo for diff-review                                     |
 | `2pack/source/spec/*.yaml`        | Source-of-truth specs for the generator                                          |
-| `2pack/source/assemble.py`        | YAML → PackOut.xml generator                                                     |
+| `2pack/gen/assemble.py`           | YAML → PackOut.xml generator (vendored)                                          |
 | `2pack/build.sh`                  | Wrapper that builds `2pack/Anlagenbuch.zip`                                      |
 | `import/AssetImport_Template.csv` | Template for initial loading of the asset master data                            |
 | `import/AssetImport_Mapping.md`   | Column mapping documentation                                                     |

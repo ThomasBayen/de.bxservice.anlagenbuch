@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import csv
 import datetime as dt
+import os
 import re
 import sys
 import uuid
@@ -112,7 +113,46 @@ CORE_ELEMENTS = {
     "LineNo": 2945, "Category": 52017,
 }
 
-NOW = dt.datetime.now().strftime("%a %b %d %H:%M:%S CET %Y")
+# CreatedDate/UpdatedDate des <idempiere>-Root-Elements. Einzige Nicht-
+# Determiniertheit des Generators. Für reproduzierbare Builds (Byte-Diff
+# zwischen zwei Läufen) kann PACKOUT_NOW gesetzt werden; ohne die Variable
+# bleibt es bei der aktuellen Uhrzeit — Default unverändert, golden-sicher.
+NOW = os.environ.get("PACKOUT_NOW") \
+    or dt.datetime.now().strftime("%a %b %d %H:%M:%S CET %Y")
+
+# ---------------------------------------------------------------------------
+# EntityType
+#
+# Jeder Application-Dictionary-Record trägt einen AD_EntityType-Code. Der
+# Generator setzt ihn global aus dem package-Header (`entity_type:`, Default
+# „U"). ENTITY_TYPE wird in main() einmalig überschrieben und von allen
+# emit_*-Funktionen über b.leaf("EntityType", ENTITY_TYPE) gelesen.
+ENTITY_TYPE = "U"
+
+# Core-EntityTypes, die in JEDER iDempiere-Installation vorhanden sind. Für
+# sie wird KEIN AD_EntityType-Record mitgeliefert (FK ist immer auflösbar).
+CORE_ENTITY_TYPES = {"U", "D", "C", "EXT"}
+
+# Eigene EntityType-Marken, die per 2Pack mitgeliefert werden MÜSSEN, sonst
+# bricht auf einer frischen Ziel-DB die FK AD_*.EntityType → AD_EntityType.
+# Feste UUIDs (NICHT ändern) aus plugins/template/db/000_entitytype_*.sql —
+# alle BAY-/BXS-Plugins liefern denselben Record mit identischer UUID aus
+# (ON CONFLICT DO NOTHING-Sharing; wer zuerst läuft, legt an).
+ENTITY_TYPE_RECORDS: dict[str, dict[str, str]] = {
+    "BAY": {
+        "uu": "ea7c6bae-5992-4f08-8777-c264078da40f",
+        "name": "FreiBier",
+        "description": "Implementation from BX Service/Thomas Bayen for "
+                       "FreiBier, German/European localization and more",
+    },
+    "BXS": {
+        "uu": "a6667483-af36-4cca-9c98-e79a9f2fb0be",
+        "name": "BX Service Community",
+        "description": "Gemeinsame Marke der BX Service GmbH für "
+                       "community-taugliche iDempiere-Plugins "
+                       "(Namespace de.bxservice.*).",
+    },
+}
 
 # ---------------------------------------------------------------------------
 # UUID-Verwaltung
@@ -222,6 +262,34 @@ def emit_trl(b: XmlBuilder, table: str, name: str, description: str = "",
     b.close(table + "_Trl")
 
 
+def emit_entitytype(b: XmlBuilder, code: str) -> None:
+    """AD_EntityType-Record für eine eigene Marke (BAY/BXS). Wird als ERSTES
+    Schema-Element emittiert, weil alle folgenden AD_*-Records ihn per FK
+    (AD_*.EntityType → AD_EntityType.EntityType) referenzieren.
+
+    Die UUID ist FEST (Registry oben), kommt NICHT aus uuids.csv — alle
+    Plugins derselben Marke teilen denselben Record. Der iDempiere-PIPO-
+    EntityTypeElementHandler findet ihn beim Reimport per AD_EntityType_UU
+    und macht UPDATE statt INSERT (kein doppelter Code-PK).
+
+    Für Core-EntityTypes (U/D/C/EXT) wird diese Funktion nicht aufgerufen —
+    deren Record existiert in jeder Installation.
+    """
+    rec = ENTITY_TYPE_RECORDS[code]
+    b.open("AD_EntityType", type="table")
+    b.leaf("AD_Client_ID", 0)
+    b.leaf("AD_Org_ID", 0)
+    b.leaf("EntityType", code)
+    b.leaf("Name", rec["name"])
+    b.leaf("Description", rec.get("description", ""))
+    b.leaf("Help")
+    b.leaf("ModelPackage")
+    b.leaf("IsActive", "Y")
+    b.leaf("Processing", "N")
+    b.leaf("AD_EntityType_UU", rec["uu"])
+    b.close("AD_EntityType")
+
+
 def emit_reference(b: XmlBuilder, ref: dict, uuids: UuidStore) -> None:
     ref_uu = uuids.get("AD_Reference", ref["name"])
     b.open("AD_Reference", type="table")
@@ -232,7 +300,7 @@ def emit_reference(b: XmlBuilder, ref: dict, uuids: UuidStore) -> None:
     b.leaf("Help")
     b.leaf("ValidationType", "L")  # List
     b.leaf("VFormat")
-    b.leaf("EntityType", "U")
+    b.leaf("EntityType", ENTITY_TYPE)
     b.leaf("IsActive", "Y")
     b.leaf("IsOrderByValue", "N")
     if ref.get("label_de"):
@@ -251,7 +319,7 @@ def emit_reference(b: XmlBuilder, ref: dict, uuids: UuidStore) -> None:
         b.leaf("Name", v["name"])
         b.leaf("Description", v.get("description", ""))
         b.leaf("AD_Reference_ID", ref_uu, reference="uuid", **{"reference-key": "AD_Reference"})
-        b.leaf("EntityType", "U")
+        b.leaf("EntityType", ENTITY_TYPE)
         b.leaf("IsActive", "Y")
         if v.get("name_de"):
             emit_trl(b, "AD_Ref_List", v["name_de"], v.get("description_de", v.get("description", "")))
@@ -270,7 +338,7 @@ def emit_element(b: XmlBuilder, column_name: str, label: str, label_de: str,
     b.leaf("PrintName", label)
     b.leaf("Description", description or "")
     b.leaf("Help", help_text or "")
-    b.leaf("EntityType", "U")
+    b.leaf("EntityType", ENTITY_TYPE)
     b.leaf("IsActive", "Y")
     if label_de:
         # AD_Element_Trl benötigt zusätzlich PrintName
@@ -334,7 +402,7 @@ def emit_table(b: XmlBuilder, table: dict, uuids: UuidStore) -> None:
     b.leaf("IsDeleteable", "Y")
     b.leaf("IsHighVolume", "N")
     b.leaf("IsView", "N")
-    b.leaf("EntityType", "U")
+    b.leaf("EntityType", ENTITY_TYPE)
     b.leaf("ImportTable", "N")
     b.leaf("IsChangeLog", "Y")
     b.leaf("ReplicationType", "L")
@@ -499,7 +567,7 @@ def emit_column(b: XmlBuilder, table_uu: str, seq: int, c: dict, uuids: UuidStor
     b.leaf("ValueMax")
     b.leaf("IsSelectionColumn", "N")
     b.leaf("ReadOnlyLogic")
-    b.leaf("EntityType", "U")
+    b.leaf("EntityType", ENTITY_TYPE)
     b.leaf("IsAlwaysUpdateable", "N")
     b.leaf("ColumnSQL", c.get("column_sql", ""))
     b.leaf("MandatoryLogic")
@@ -543,6 +611,35 @@ ANLAGENBUCH_MENU_KEY = "BXS_Menu_Anlagenbuch"
 # keinem produktiven iDempiere mit einem Standardmenü.
 ANLAGENBUCH_ROOT_SEQNO = 999
 
+# Konfigurierbare Menü-Wurzel (package-Header `menu_root:`). In main()
+# überschrieben. Zwei Modi:
+#   "summary" — eigener Summary-Knoten (Default-Name „Anlagenbuch"); alle
+#               Window/Process/Form-Menüs ohne expliziten `menu.parent`
+#               hängen darunter. Default, damit Anlagenbuch byte-gleich bleibt.
+#   "root"    — KEIN Summary-Knoten; Kinder hängen direkt unter dem
+#               DB-Menü-Root (Parent_ID=0). Für Plugins mit nur einem
+#               Menüpunkt (z. B. aireports: eine einzige Form).
+# Die Defaults reproduzieren den bisherigen Anlagenbuch-Stand; ein Plugin
+# überschreibt sie vollständig über `menu_root:` in 00-package.yaml.
+MENU_ROOT_MODE = "summary"
+MENU_ROOT_KEY = ANLAGENBUCH_MENU_KEY
+MENU_ROOT_NAME = "Anlagenbuch"
+MENU_ROOT_NAME_DE = "Anlagenbuch"
+MENU_ROOT_DESC = "Wartungs- und Fehlerberichts-System"
+MENU_ROOT_SEQNO = ANLAGENBUCH_ROOT_SEQNO
+
+
+def _menu_parent(explicit_parent: str | None) -> dict:
+    """Liefert die parent-kwargs für emit_menu aus optionalem Spec-Override
+    und globalem Menü-Wurzel-Modus. Explizites `menu.parent` schlägt immer
+    den Modus. Im „root"-Modus hängt der Default direkt unter DB-Root
+    (Parent_ID=0), sonst unter dem Summary-Knoten."""
+    if explicit_parent:
+        return {"parent_key": explicit_parent}
+    if MENU_ROOT_MODE == "root":
+        return {"parent_id": 0}
+    return {"parent_key": MENU_ROOT_KEY}
+
 
 def emit_menu(b: XmlBuilder, uuids: UuidStore, *,
               menu_key: str,
@@ -558,9 +655,11 @@ def emit_menu(b: XmlBuilder, uuids: UuidStore, *,
               is_summary: bool = False) -> None:
     """Ein AD_Menu-Record mit Tree-Verkabelung (Parent_ID + SeqNo).
 
-    `action` ist eines der gültigen AD_Menu.Action-Werte aus AD_Reference 104:
-      W=Window, P=Process, R=Report, F=Form, X=WorkFlow, T=Task,
-      I=Info, B=Workbench, D=…
+    `action` ist eines der gültigen AD_Menu.Action-Werte aus AD_Reference 104.
+    ACHTUNG, Form und WorkFlow sind nicht-intuitiv kodiert (verifiziert gegen
+    X_AD_Menu.ACTION_* im Core):
+      W=Window, P=Process, R=Report, X=Form, F=WorkFlow, T=Task,
+      I=Info, B=Workbench, D=Detail
     Bei Summary-Knoten (is_summary=True) bleibt Action **leer** —
     AD_Reference 104 kennt kein „Summary"-Token; alle Summary-Menus in der
     DB haben Action=NULL. `action="N"` hatte sich als Validation-Fehler
@@ -591,7 +690,7 @@ def emit_menu(b: XmlBuilder, uuids: UuidStore, *,
                    **{"reference-key": kind})
         else:
             b.leaf(f"{kind}_ID", reference="id")
-    b.leaf("EntityType", "U")
+    b.leaf("EntityType", ENTITY_TYPE)
     b.leaf("IsSummary", "Y" if is_summary else "N")
     b.leaf("IsReadOnly", "N")
     b.leaf("IsSOTrx", "Y")
@@ -614,17 +713,18 @@ def emit_menu(b: XmlBuilder, uuids: UuidStore, *,
     b.close("AD_Menu")
 
 
-def emit_anlagenbuch_root(b: XmlBuilder, uuids: UuidStore) -> None:
-    """Top-Level Summary-Menu „Anlagenbuch" — hängt direkt unter Root
-    (Parent_ID=0 implizit per fehlendem parent_key/parent_id; der Handler
-    setzt dann Parent_ID=0 = Root des Default-Menübaums)."""
+def emit_menu_root(b: XmlBuilder, uuids: UuidStore) -> None:
+    """Top-Level Summary-Menü (Default-Name „Anlagenbuch") — hängt direkt
+    unter dem DB-Menü-Root (Parent_ID=0). Name/Key/Beschreibung/SeqNo kommen
+    aus den MENU_ROOT_*-Globals (package-Header `menu_root:`). Wird im
+    „root"-Modus NICHT aufgerufen (dann hängen die Kinder selbst unter Root)."""
     emit_menu(b, uuids,
-              menu_key=ANLAGENBUCH_MENU_KEY,
-              name="Anlagenbuch",
-              name_de="Anlagenbuch",
-              description="Wartungs- und Fehlerberichts-System",
+              menu_key=MENU_ROOT_KEY,
+              name=MENU_ROOT_NAME,
+              name_de=MENU_ROOT_NAME_DE,
+              description=MENU_ROOT_DESC,
               parent_id=0,
-              seq_no=ANLAGENBUCH_ROOT_SEQNO,
+              seq_no=MENU_ROOT_SEQNO,
               is_summary=True)
 
 
@@ -641,7 +741,7 @@ def emit_window(b: XmlBuilder, w: dict, tables_by_name: dict, uuids: UuidStore) 
     b.leaf("IsActive", "Y")
     b.leaf("IsDefault", "N")
     b.leaf("IsSOTrx", "Y")
-    b.leaf("EntityType", "U")
+    b.leaf("EntityType", ENTITY_TYPE)
     b.leaf("AD_Color_ID", reference="id")
     b.leaf("AD_Image_ID", reference="id")
     b.leaf("ProcessParameterLayout", "V")
@@ -664,8 +764,62 @@ def emit_window(b: XmlBuilder, w: dict, tables_by_name: dict, uuids: UuidStore) 
               action="W",
               target_table="AD_Window",
               target_uu=win_uu,
-              parent_key=w.get("menu", {}).get("parent", ANLAGENBUCH_MENU_KEY),
-              seq_no=w.get("menu", {}).get("seq", 10))
+              seq_no=w.get("menu", {}).get("seq", 10),
+              **_menu_parent(w.get("menu", {}).get("parent")))
+
+
+def emit_form(b: XmlBuilder, form: dict, uuids: UuidStore) -> None:
+    """AD_Form (ZK-Special-Form, registriert über eine OSGi-FormFactory) plus
+    Menü-Eintrag (Action='X' = Form, siehe emit_menu-Docstring).
+
+    Forms sind reiner UI-Code: der `classname` zeigt auf die im Plugin
+    registrierte ADForm-Implementierung; das 2Pack liefert nur den
+    Dictionary-Eintrag, damit sie im Menü auftaucht.
+
+    YAML-Felder:
+      name:           logischer Schlüssel (uuids.csv) — Pflicht
+      label / label_de: AD_Form.Name (EN) + dt. Übersetzung
+      description / help (+ _de)
+      classname:      vollqualifizierter Java-Klassenname der ADForm
+      access_level:   AccessLevel-Code (Default '3' = Client+Org; ZK-Forms,
+                      die auch im System-Mandanten laufen sollen, '6' =
+                      System+Client)
+      beta:           IsBetaFunctionality, bool, Default False
+      menu:           optionale { seq, parent }-Sektion wie bei Windows;
+                      Default-Parent ist der Anlagenbuch-Knoten.
+    """
+    form_uu = uuids.get("AD_Form", form["name"])
+    label = form.get("label", form["name"])
+
+    b.open("AD_Form", type="table")
+    b.leaf("AD_Client_ID", 0)
+    b.leaf("AD_Org_ID", 0)
+    b.leaf("Name", label)
+    b.leaf("Description", form.get("description", ""))
+    b.leaf("Help", form.get("help", ""))
+    b.leaf("AccessLevel", str(form.get("access_level", "3")))
+    b.leaf("EntityType", ENTITY_TYPE)
+    b.leaf("Classname", form.get("classname", ""))
+    b.leaf("IsActive", "Y")
+    b.leaf("IsBetaFunctionality", _yn(form.get("beta", "N")))
+    if form.get("label_de"):
+        emit_trl(b, "AD_Form", form["label_de"],
+                 form.get("description_de", form.get("description", "")),
+                 form.get("help_de", form.get("help", "")))
+    b.leaf("AD_Form_UU", form_uu)
+    b.close("AD_Form")
+
+    menu_cfg = form.get("menu") or {}
+    emit_menu(b, uuids,
+              menu_key=f"Form.{form['name']}",
+              name=label,
+              name_de=form.get("label_de"),
+              description=form.get("description", ""),
+              action="X",  # X = Form (NICHT F — siehe emit_menu-Docstring)
+              target_table="AD_Form",
+              target_uu=form_uu,
+              seq_no=menu_cfg.get("seq", 60),
+              **_menu_parent(menu_cfg.get("parent")))
 
 
 def emit_tab(b: XmlBuilder, win_uu: str, win_name: str, tab: dict,
@@ -684,7 +838,7 @@ def emit_tab(b: XmlBuilder, win_uu: str, win_name: str, tab: dict,
     b.leaf("AD_Column_ID", reference="id")
     b.leaf("AD_Table_ID", table_uu, reference="uuid", **{"reference-key": "AD_Table"})
     b.leaf("AD_Window_ID", win_uu, reference="uuid", **{"reference-key": "AD_Window"})
-    b.leaf("EntityType", "U")
+    b.leaf("EntityType", ENTITY_TYPE)
     b.leaf("HasTree", "N")
     b.leaf("IsActive", "Y")
     b.leaf("IsAdvancedTab", "N")
@@ -813,7 +967,7 @@ def emit_tab(b: XmlBuilder, win_uu: str, win_name: str, tab: dict,
         b.leaf("Help", c.get("help", ""))
         b.leaf("AD_Column_ID", col_uu, reference="uuid", **{"reference-key": "AD_Column"})
         b.leaf("AD_Tab_ID", tab_uu, reference="uuid", **{"reference-key": "AD_Tab"})
-        b.leaf("EntityType", "U")
+        b.leaf("EntityType", ENTITY_TYPE)
         b.leaf("IsActive", "Y")
         b.leaf("IsCentrallyMaintained", "Y")
         b.leaf("IsDisplayed", displayed)
@@ -881,7 +1035,7 @@ def emit_validation_table(b: XmlBuilder, vt: dict, uuids: UuidStore) -> None:
     b.leaf("Help")
     b.leaf("ValidationType", "T")  # Table
     b.leaf("VFormat")
-    b.leaf("EntityType", "U")
+    b.leaf("EntityType", ENTITY_TYPE)
     b.leaf("IsActive", "Y")
     b.leaf("IsOrderByValue", "N")
     if vt.get("label_de"):
@@ -911,7 +1065,7 @@ def emit_validation_table(b: XmlBuilder, vt: dict, uuids: UuidStore) -> None:
            **{"reference-key": "AD_Column"})
     b.leaf("IsValueDisplayed", "N")
     b.leaf("IsActive", "Y")
-    b.leaf("EntityType", "U")
+    b.leaf("EntityType", ENTITY_TYPE)
     b.leaf("WhereClause", vt.get("where_clause", ""))
     b.leaf("OrderByClause", vt.get("order_by", ""))
     b.leaf("AD_Ref_Table_UU", rt_uu)
@@ -965,7 +1119,7 @@ def emit_process_para(b: XmlBuilder, proc_value: str, proc_uu: str,
     b.leaf("Name", param.get("name", column_name))
     b.leaf("Description", param.get("description", ""))
     b.leaf("Help", param.get("help", ""))
-    b.leaf("EntityType", "U")
+    b.leaf("EntityType", ENTITY_TYPE)
     b.leaf("IsActive", "Y")
     b.leaf("IsCentrallyMaintained", "Y")
     b.leaf("IsMandatory", _yn(param.get("is_mandatory", "N")))
@@ -1040,7 +1194,7 @@ def emit_process(b: XmlBuilder, proc: dict, uuids: UuidStore) -> None:
     b.leaf("Description", proc.get("description", ""))
     b.leaf("Help", proc.get("help", ""))
     b.leaf("AccessLevel", str(proc.get("access_level", "3")))
-    b.leaf("EntityType", "U")
+    b.leaf("EntityType", ENTITY_TYPE)
     b.leaf("ProcedureName", "")
     b.leaf("Classname", classname)
     b.leaf("IsReport", "Y" if proc.get("is_report", False) else "N")
@@ -1092,8 +1246,8 @@ def emit_process(b: XmlBuilder, proc: dict, uuids: UuidStore) -> None:
                   action=action,
                   target_table="AD_Process",
                   target_uu=proc_uu,
-                  parent_key=menu_cfg.get("parent", ANLAGENBUCH_MENU_KEY),
-                  seq_no=menu_cfg.get("seq", 50))
+                  seq_no=menu_cfg.get("seq", 50),
+                  **_menu_parent(menu_cfg.get("parent")))
 
 
 # ---------------------------------------------------------------------------
@@ -1148,7 +1302,7 @@ def emit_rule(b: XmlBuilder, rule: dict, uuids: UuidStore) -> None:
     b.leaf("Description", rule.get("description", ""))
     b.leaf("Help", rule.get("help", ""))
     b.leaf("AccessLevel", str(rule.get("access_level", "3")))
-    b.leaf("EntityType", "U")
+    b.leaf("EntityType", ENTITY_TYPE)
     b.leaf("EventType", rule.get("event_type", "M"))   # M=ModelValidator, P=Process, C=Callout, S=SQLValidate
     b.leaf("RuleType", rule.get("rule_type", "S"))     # S=JSR223 (engine aus Value-Prefix engine:name), Q=SQL, R=JSR94
     b.leaf("IsActive", "Y")
@@ -1394,7 +1548,7 @@ def emit_role(b: XmlBuilder, role: dict, uuids: UuidStore) -> None:
     b.leaf("IsMenuAutoExpand", "N")
     b.leaf("IsAccessAdvanced", "N")
     b.leaf("IsClientAdministrator", "N")
-    b.leaf("EntityType", "U")
+    b.leaf("EntityType", ENTITY_TYPE)
     # AD_Role hat keine Trl-Tabelle (Name+Description sind nicht übersetzbar).
     b.leaf("AD_Role_UU", role_uu)
 
@@ -1553,7 +1707,15 @@ def main() -> int:
     #          Eigener Bucket, damit die Access-Records erst nach den
     #          AD_Window/AD_Process-Records importiert werden (deren
     #          UUIDs müssen bereits committet sein, sonst defert PIPO).
-    p.add_argument("--part", choices=("schema", "data", "role"), required=True)
+    # all    = schema + data + role in EINER PackOut.xml (Reihenfolge
+    #          schema→data→role). NUR für Plugins, deren initial_data NICHT
+    #          in eigene, im selben Pack frisch angelegte Tabellen schreibt
+    #          (z. B. aireports: SysConfig/Ref_List auf Core-Tabellen) — sonst
+    #          schlägt die fehlende Commit-Grenze zwischen Schema und Daten zu
+    #          (siehe Kommentar oben). Ein einzelnes ZIP genügt dann als
+    #          META-INF/2Pack_<ver>.zip im OSGi-Bundle.
+    p.add_argument("--part", choices=("schema", "data", "role", "all"),
+                   required=True)
     args = p.parse_args()
 
     repo_root = args.source.parent.parent
@@ -1566,6 +1728,7 @@ def main() -> int:
     validation_tables: list = []
     tables: list = []
     windows: list = []
+    forms: list = []
     sequences: list = []
     additional_columns: list = []
     rules: list = []
@@ -1587,6 +1750,8 @@ def main() -> int:
             tables.extend(data["tables"])
         if "windows" in data:
             windows.extend(data["windows"])
+        if "forms" in data:
+            forms.extend(data["forms"])
         if "sequences" in data:
             sequences.extend(data["sequences"])
         if "additional_columns" in data:
@@ -1605,6 +1770,35 @@ def main() -> int:
     if not package:
         print("ERROR: kein package-Header gefunden", file=sys.stderr)
         return 1
+
+    # EntityType global aus dem package-Header übernehmen (Default „U").
+    # Alle emit_*-Funktionen lesen ENTITY_TYPE; eigene Marken (BAY/BXS)
+    # ziehen zusätzlich einen AD_EntityType-Record nach (siehe unten).
+    global ENTITY_TYPE
+    ENTITY_TYPE = package.get("entity_type", "U")
+    if ENTITY_TYPE not in CORE_ENTITY_TYPES and ENTITY_TYPE not in ENTITY_TYPE_RECORDS:
+        print(f"ERROR: entity_type '{ENTITY_TYPE}' ist weder ein Core-Typ "
+              f"({sorted(CORE_ENTITY_TYPES)}) noch in ENTITY_TYPE_RECORDS "
+              f"hinterlegt. Feste UUID in ENTITY_TYPE_RECORDS ergänzen, sonst "
+              f"bricht die FK auf der Ziel-DB.", file=sys.stderr)
+        return 1
+
+    # Menü-Wurzel aus dem package-Header (`menu_root:`) übernehmen. Ohne
+    # Sektion bleiben die Defaults (summary-Modus, Knoten „Anlagenbuch") —
+    # damit Anlagenbuch byte-gleich bleibt.
+    mr = package.get("menu_root") or {}
+    global MENU_ROOT_MODE, MENU_ROOT_KEY, MENU_ROOT_NAME, MENU_ROOT_NAME_DE
+    global MENU_ROOT_DESC, MENU_ROOT_SEQNO
+    MENU_ROOT_MODE = mr.get("mode", MENU_ROOT_MODE)
+    if MENU_ROOT_MODE not in ("summary", "root"):
+        print(f"ERROR: menu_root.mode '{MENU_ROOT_MODE}' unbekannt "
+              f"(erlaubt: summary, root).", file=sys.stderr)
+        return 1
+    MENU_ROOT_KEY = mr.get("key", MENU_ROOT_KEY)
+    MENU_ROOT_NAME = mr.get("name", MENU_ROOT_NAME)
+    MENU_ROOT_NAME_DE = mr.get("name_de", mr.get("name", MENU_ROOT_NAME_DE))
+    MENU_ROOT_DESC = mr.get("description", MENU_ROOT_DESC)
+    MENU_ROOT_SEQNO = mr.get("seq", MENU_ROOT_SEQNO)
 
     tables_by_name = {t["name"]: t for t in tables}
 
@@ -1633,7 +1827,15 @@ def main() -> int:
 
     b = XmlBuilder()
     b.indent = 1
-    if args.part == "schema":
+    # Welche Buckets in diese Datei kommen. "all" bündelt alle drei in
+    # schema→data→role-Reihenfolge; sonst genau der eine gewählte Part.
+    parts_to_emit = {"schema", "data", "role"} if args.part == "all" else {args.part}
+    if "schema" in parts_to_emit:
+        # Eigene EntityType-Marke (BAY/BXS) als ALLERERSTES Element — alle
+        # folgenden AD_*-Records referenzieren sie per FK. Core-Typen
+        # (U/D/C/EXT) brauchen keinen Record.
+        if ENTITY_TYPE in ENTITY_TYPE_RECORDS:
+            emit_entitytype(b, ENTITY_TYPE)
         for ref in references:
             emit_reference(b, ref, uuids)
         for tbl in tables:
@@ -1644,6 +1846,7 @@ def main() -> int:
         for vt in validation_tables:
             emit_validation_table(b, vt, uuids)
     # Additional columns wurden oben in tables_by_name gemerged und damit
+    # NOTE: dead loop (`if False`) — bleibt aus historischen Gründen stehen.
     # bereits von emit_table emittiert. Der hier folgende Loop ist nur noch
     # für Spalten relevant, die auf eine Tabelle verweisen, die NICHT als
     # tables[..]-Spec im 2Pack steht (z.B. Erweiterungen auf Core-Tabellen).
@@ -1683,20 +1886,27 @@ def main() -> int:
                              seq_no_identifier=0,
                              **elem_args),
                         uuids)
-    if args.part == "schema":
+    if "schema" in parts_to_emit:
         for seq in sequences:
             emit_sequence(b, seq, uuids)
-        # Anlagenbuch-Summary-Menu zuerst, damit Process-/Window-Menüs als
+        # Summary-Menü-Wurzel zuerst, damit Process-/Window-/Form-Menüs als
         # Kinder darauf referenzieren können — der MenuElementHandler
         # verarbeitet AD_Menu-Records in XML-Reihenfolge und braucht den
         # Parent bereits in der DB, bevor Kinder ihn via UUID auflösen.
-        emit_anlagenbuch_root(b, uuids)
+        # Im „root"-Modus entfällt der Knoten; die Kinder hängen direkt
+        # unter dem DB-Menü-Root (Parent_ID=0).
+        if MENU_ROOT_MODE != "root":
+            emit_menu_root(b, uuids)
         # Processes vor Windows, damit Button-Spalten in emit_window auf
         # bereits gepoolte AD_Process-UUIDs verweisen können.
         for proc in processes:
             emit_process(b, proc, uuids)
         for win in windows:
             emit_window(b, win, tables_by_name, uuids)
+        # Forms nach den Windows — beide hängen Menüs unter den
+        # Anlagenbuch-Knoten, der bereits emittiert ist.
+        for form in forms:
+            emit_form(b, form, uuids)
         # primary_window-Verkabelung an AD_Table nachreichen — siehe
         # emit_table_primary_window-Docstring.
         for tbl in tables:
@@ -1705,14 +1915,14 @@ def main() -> int:
             emit_rule(b, rule, uuids)
         for pf in print_formats:
             emit_printformat(b, pf, uuids)
-    elif args.part == "data":
+    if "data" in parts_to_emit:
         # Initial-Daten brauchen UUID-Auflösung gegen die im Schema-Pack
         # angelegten Records (per AD_<Tabelle>_UU). uuids.csv ist die
         # gemeinsame Quelle — beide Teile lesen denselben Store.
         initial_uuid_index = build_initial_uuid_index(initial, uuids)
         for init in initial:
             emit_initial_data(b, init, uuids, initial_uuid_index)
-    else:  # part == "role"
+    if "role" in parts_to_emit:
         # System-Master-Rolle + Window-/Process-/Form-/Workflow-Access.
         # Läuft erst nach Schema + Daten, damit alle referenzierten
         # AD_Window/AD_Process-Records committet vorliegen.
@@ -1727,14 +1937,14 @@ def main() -> int:
     uuids.save()
 
     print(f"Wrote {args.out}  [part={args.part}]")
-    if args.part == "schema":
+    if "schema" in parts_to_emit:
         print(f"  refs={len(references)} tables={len(tables)} "
               f"sequences={len(sequences)} windows={len(windows)} "
-              f"processes={len(processes)} rules={len(rules)} "
+              f"forms={len(forms)} processes={len(processes)} rules={len(rules)} "
               f"print_formats={len(print_formats)}")
-    elif args.part == "data":
+    if "data" in parts_to_emit:
         print(f"  initial-blocks={len(initial)}")
-    else:
+    if "role" in parts_to_emit:
         print(f"  roles={len(roles)}")
     return 0
 

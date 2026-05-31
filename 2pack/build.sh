@@ -39,7 +39,11 @@ build_part() {
 
     mkdir -p "$pkg_dir/dict" "$pkg_dir/doc"
 
-    python3 "$REPO_ROOT/2pack/source/assemble.py" \
+    # Gevendorte Kopie des kanonischen Generators (yaml-2pack/assemble.py),
+    # eingespielt per yaml-2pack/vendor.sh. Bewusst die LOKALE Kopie unter
+    # 2pack/gen/ — damit dieses Repo eigenständig "clone & build" kann, ohne
+    # Cross-Repo-Abhängigkeit. Drift gegen den Kanon: 2pack/gen/.generator-md5.
+    python3 "$REPO_ROOT/2pack/gen/assemble.py" \
         --source  "$REPO_ROOT/2pack/source" \
         --scripts "$REPO_ROOT/scripts" \
         --reports "$REPO_ROOT/reports" \

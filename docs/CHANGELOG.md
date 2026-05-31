@@ -15,7 +15,13 @@ A log of notable changes to Anlagenbuch.
   window-access maintenance are no longer needed (the 2Pack handles
   them).
 - New spec file `2pack/source/spec/05-roles.yaml` and generator
-  helper `emit_role` in `2pack/source/assemble.py`.
+  helper `emit_role` in `2pack/gen/assemble.py`.
+- The generator is now **vendored** into `2pack/gen/assemble.py` (a copy
+  of a shared canonical generator) instead of living in
+  `2pack/source/`. `2pack/build.sh` calls the vendored copy; the repo
+  still builds standalone. Drift marker: `2pack/gen/.generator-md5`.
+  Output is byte-identical to the previous in-tree generator (verified
+  against the schema/data/role baseline).
 
 ## v1.0 — initial public release
 
@@ -102,7 +108,7 @@ A log of notable changes to Anlagenbuch.
 ### Metrics
 
 - Generator: ~720 lines of Python in one file
-  (`2pack/source/assemble.py`).
+  (`2pack/gen/assemble.py`).
 - YAML specs: ~270 lines across 6 files.
 - Generated `PackOut.xml`: ~3000 lines, ~485 records.
 - Build time: < 2 s. 2Pack import against iDempiere 11: ~30 s.

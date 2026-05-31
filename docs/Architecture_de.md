@@ -33,8 +33,8 @@ Anlagenbuch/
 ├── src/                   Quellen der PDF-Outputs (Werkstattmappe, Präsi, Kurzanleitung)
 ├── 2pack/                 2Pack-Quelle und Build-Wrapper
 │   ├── source/spec/       YAML-Specs (eine Datei pro Domäne)
-│   ├── source/assemble.py YAML → PackOut.xml-Generator
-│   └── build.sh           ruft assemble.py + zippt zu Anlagenbuch.zip
+│   ├── gen/assemble.py    YAML → PackOut.xml-Generator (gevendort)
+│   └── build.sh           ruft gen/assemble.py + zippt zu Anlagenbuch.zip
 ├── scripts/               BeanShell-Skripte (als AD_Rule.Script eingebettet)
 ├── reports/               JasperReports-Quellen (jrxml, DE + EN)
 ├── import/                CSV-/ODS-Vorlagen + Mapping-Doku
@@ -61,10 +61,12 @@ und schreibt die Datei zurück. Wiederholte 2Pack-Imports sind idempotent —
 derselbe logische Schlüssel liefert dieselbe UUID, iDempiere erkennt
 bestehende Datensätze und aktualisiert sie statt zu duplizieren.
 
-## Generator (`2pack/source/assemble.py`)
+## Generator (`2pack/gen/assemble.py`)
 
 Python-Generator, der die YAML-Specs aus `2pack/source/spec/` zu
-`2pack/source/PackOut.xml` umsetzt. Top-Level-Blöcke und ihre Aufgabe:
+`2pack/source/PackOut.xml` umsetzt. `gen/assemble.py` ist eine gevendorte
+Kopie des kanonischen Generators; nicht direkt editieren (Drift-Marker:
+`2pack/gen/.generator-md5`). Top-Level-Blöcke und ihre Aufgabe:
 
 | YAML-Block            | Erzeugt                                                                                                                  |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------ |

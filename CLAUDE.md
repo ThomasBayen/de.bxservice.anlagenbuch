@@ -142,9 +142,13 @@ Summary-Knoten „Anlagenbuch", der **ganz am Ende des Menübaums** angefügt
 wird (Parent=Root, SeqNo=999). Verdrahtung läuft komplett über den
 Generator:
 
-- `2pack/source/assemble.py` → `emit_anlagenbuch_root()` legt den Knoten
-  einmalig an, `emit_menu()` ist die generische Helper-Funktion für
-  Kinder (Action W/P/R/N, mit Parent_ID + SeqNo).
+- `2pack/gen/assemble.py` → `emit_menu_root()` legt den Knoten
+  einmalig an (Name/SeqNo aus den `MENU_ROOT_*`-Globals bzw. dem
+  package-Header `menu_root:`; Default „Anlagenbuch"/999), `emit_menu()`
+  ist die generische Helper-Funktion für Kinder (Action W/P/R/X, mit
+  Parent_ID + SeqNo). Der Generator liegt gevendort unter `2pack/gen/`
+  (kanonische Quelle außerhalb dieses Repos; nicht direkt editieren,
+  Drift-Marker `2pack/gen/.generator-md5`).
 - Windows: optionale `menu: { seq: N }`-Sektion in der Window-Spec.
   Default-Parent ist der Anlagenbuch-Knoten.
 - Prozesse: nur Prozesse mit `menu: …` in der Process-Spec bekommen einen
