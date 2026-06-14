@@ -111,7 +111,10 @@ bind it into one of their own login roles through `AD_Role_Included`
 — new processes / windows introduced by future 2Pack updates therefore
 propagate to every installation automatically.
 
-**Admin step per tenant** (once after `./install.sh`):
+**Admin step per tenant** (once after `./install.sh`): a deliberate,
+per-role decision — there is **no predefined role list** and **no
+automation** that wires the master role into user roles. The admin decides
+for each login role whether it should see the Anlagenbuch.
 
 1. Log in as system administrator.
 2. Open the *Role* window → select the tenant's login role
@@ -140,18 +143,19 @@ process".
 `BXS_ScheduleType` records (TUV/SP/UVV/WARRANTY/INSPECTION) ship with
 the 2Pack.
 
-The `C_UOM` link on `BXS_AssetClass` (Kilometer for class `100`, Hour
-for class `200`) is **not** in the 2Pack because the UOM IDs vary per
-tenant — set them manually:
+The `C_UOM` link for the **shipped** system asset classes (Kilometer for
+vehicles, Hour for forklifts) is now provided by the 2Pack data itself
+(`C_UOM_ID[X12DE355]` in `2pack/source/spec/20-assetclass.yaml`) — nothing
+to do manually here. For your **own additional** tenant asset classes set
+the UOM deliberately via the UI or the ODS import. The `UPDATE` below is
+only a **dev/test shortcut with direct DB access** (writing SQL — do not
+use it in the production/standard flow):
 
 ```sql
+-- dev/test only, with direct DB access
 UPDATE BXS_AssetClass SET C_UOM_ID =
     (SELECT C_UOM_ID FROM C_UOM WHERE Name='Kilometer' AND AD_Client_ID IN (0, <client>) LIMIT 1)
 WHERE Value='100';
-
-UPDATE BXS_AssetClass SET C_UOM_ID =
-    (SELECT C_UOM_ID FROM C_UOM WHERE Name='Hour' AND AD_Client_ID IN (0, <client>) LIMIT 1)
-WHERE Value='200';
 ```
 
 The asset inventory is loaded via the CSV template (see

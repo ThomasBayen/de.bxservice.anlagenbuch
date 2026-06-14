@@ -14,8 +14,15 @@
 #   --standalone     Standalone-Java-Apply statt Server-Restart (Server muss
 #                    in dem Fall NICHT laufen).
 #   --skip-build     Vorhandenes 2pack/Anlagenbuch.zip nutzen.
-#   --with-de        Report-Suffix-Switch auf _de.jrxml mitziehen
-#                    (führt setup/install_de_reports.sql aus).
+#   --migrate-uoms   Pre-Apply-UOM-UUID-Alignment ausführen (SCHREIBENDES SQL,
+#                    setup/migrate_uoms.sql). NUR für Bestands-Migration nötig;
+#                    bei Frischinstallation überflüssig (Default: aus).
+#   --with-de        Report-Suffix-Switch auf _de.jrxml mitziehen (SCHREIBENDES
+#                    SQL, setup/install_de_reports.sql). SQL-freie Alternative:
+#                    Suffix im UI als System-Admin setzen (siehe Installation.md).
+#
+# Ohne --migrate-uoms / --with-de fasst install.sh die DB NICHT direkt per SQL
+# an — die Installation läuft dann ausschließlich über 2Pack/PackIn.
 
 set -euo pipefail
 
@@ -32,10 +39,12 @@ ZIP_ROLE="$REPO_ROOT/2pack/Anlagenbuch_03_role.zip"
 STANDALONE=0
 SKIP_BUILD=0
 WITH_DE=0
+MIGRATE_UOMS=0
 for arg in "$@"; do
     case "$arg" in
         --standalone)     STANDALONE=1 ;;
         --skip-build)     SKIP_BUILD=1 ;;
+        --migrate-uoms)   MIGRATE_UOMS=1 ;;
         --with-de)        WITH_DE=1 ;;
         -h|--help)
             grep '^# ' "$0" | sed 's/^# \?//'
@@ -99,20 +108,23 @@ DROP_SCHEMA="${STAMP}_SYSTEM_Anlagenbuch_01_schema.zip"
 DROP_DATA="${STAMP}_SYSTEM_Anlagenbuch_02_data.zip"
 DROP_ROLE="${STAMP}_SYSTEM_Anlagenbuch_03_role.zip"
 
-# ── 1b. Pre-Apply-Migrationen für bestehende Installationen ──────────────
+# ── 1b. Pre-Apply-Migrationen für bestehende Installationen (opt-in) ──────
 # Richtet UUIDs/Schlüssel von Daten-Zeilen auf den aktuellen Stand der
 # `uuids.csv` aus, damit PIPO sie per UUID matchen kann statt zu insert-
-# collidieren. Idempotent. Läuft IMMER (auch bei einer frischen DB,
-# wo die meisten Statements einfach 0 Rows betreffen).
-if command -v psql >/dev/null 2>&1; then
-    step "Pre-Apply-Migrationen (UOM-UUID-Alignment)"
-    PGPASSWORD="${PGPASSWORD:-}" \
-        psql -h "${PGHOST:-localhost}" -p "${PGPORT:-5432}" \
-             -U "${PGUSER:-adempiere}" -d "${PGDATABASE:-idempiere}" \
-             -v ON_ERROR_STOP=1 -q \
-             -f "$REPO_ROOT/setup/migrate_uoms.sql"
-else
-    echo "[install] WARNUNG: psql nicht im PATH — überspringe Pre-Apply-Migrationen." >&2
+# collidieren. SCHREIBENDES SQL — daher NICHT im Default-Pfad: nur mit
+# --migrate-uoms. Bei einer frischen DB überflüssig (die referenzierte
+# KME-UOM existiert dort noch nicht; das 2Pack-Data legt sie selbst an).
+if [ "$MIGRATE_UOMS" -eq 1 ]; then
+    if command -v psql >/dev/null 2>&1; then
+        step "Pre-Apply-Migrationen (UOM-UUID-Alignment) [--migrate-uoms]"
+        PGPASSWORD="${PGPASSWORD:-}" \
+            psql -h "${PGHOST:-localhost}" -p "${PGPORT:-5432}" \
+                 -U "${PGUSER:-adempiere}" -d "${PGDATABASE:-idempiere}" \
+                 -v ON_ERROR_STOP=1 -q \
+                 -f "$REPO_ROOT/setup/migrate_uoms.sql"
+    else
+        echo "[install] WARNUNG: psql nicht im PATH — überspringe --migrate-uoms." >&2
+    fi
 fi
 
 if [ "$STANDALONE" -eq 1 ]; then

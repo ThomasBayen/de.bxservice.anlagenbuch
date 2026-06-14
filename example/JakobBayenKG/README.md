@@ -15,12 +15,15 @@ template for a real customer deployment.
 - `build_ods.py` — builds `anlagenbuch_init.ods` from the CSVs. Hard-
   codes the operational demo defect reports from the Steppert briefing.
 - `anlagenbuch_init.ods` — pre-built ODS, committed.
-- `bootstrap_roles.py` — creates the `anlagenbuch` master role with
-  process/window access and includes it in `Datalotte` (uses a psql
-  fallback for window lookups since Datalotte has no REST access to
-  `AD_Window`).
-- `masterrolle_includes.csv` — list of human login roles (GF,
-  Disposition, …) the iDempiere admin manually wires to `anlagenbuch`.
+- `bootstrap_roles.py` — wires the (2Pack-delivered) system master role
+  `anlagenbuch` into the script login role `Datalotte` via a REST
+  `AD_Role_Included`, so the ODS import can see the BXS windows. Nothing
+  more (it does **not** create the role — that comes from
+  `Anlagenbuch_03_role.zip`).
+- `masterrolle_includes.csv.example` — **example** list of human login
+  roles (GF, Disposition, …). It is **not** applied automatically: which
+  user login roles receive the `anlagenbuch` role is a deliberate **manual**
+  admin decision (UI: Role → *Included Role* tab).
 - `config.env.example` / `config.env` — credentials and Postgres
   settings (Bayen test instance, port 8444).
 - `build.sh` — end-to-end: bootstrap + build_ods + ODS import.

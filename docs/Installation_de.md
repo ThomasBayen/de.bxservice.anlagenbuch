@@ -96,7 +96,10 @@ sie per `AD_Role_Included` in eine ihrer eigenen Login-Rollen ein —
 neue Prozesse / Fenster aus späteren 2Pack-Updates wandern damit
 automatisch in alle Anwender-Installationen mit.
 
-**Admin-Schritt pro Tenant** (einmal nach `./install.sh`):
+**Admin-Schritt pro Tenant** (einmal nach `./install.sh`): bewusste
+Einzelentscheidung — es gibt **keine vorgegebene Rollenliste** und **keine
+Automatik**, die die Master-Rolle in Anwender-Rollen einhängt. Der Admin
+entscheidet pro Login-Rolle selbst, ob sie das Anlagenbuch sehen soll.
 
 1. Als System-Administrator einloggen.
 2. Fenster *Role* → die gewünschte Login-Rolle des Tenants (z. B. `GF`,
@@ -122,16 +125,21 @@ Prozess starten".
 
 `BXS_AssetClass`-Datensätze (`100`=Fahrzeug, `200`=Stapler, `300`=Technische Anlage, `400`=IT, `500`=Immobilie) und `BXS_ScheduleType`-Datensätze (TUV/SP/UVV/WARRANTY/INSPECTION) sind im 2Pack enthalten.
 
-C_UOM-Verknüpfung an `BXS_AssetClass` (Kilometer für Klasse `100`, Hour für Klasse `200`) ist nicht im 2Pack, weil die UOM-IDs pro Tenant variieren — manuell setzen:
+Die C_UOM-Verknüpfung der **mitgelieferten** System-Anlagenklassen
+(Kilometer für Fahrzeuge, Hour für Stapler) bringt das 2Pack-Data
+inzwischen **selbst** mit (`C_UOM_ID[X12DE355]` in
+`2pack/source/spec/20-assetclass.yaml`) — hier ist nichts mehr manuell zu
+tun. Für **eigene zusätzliche** Tenant-Anlagenklassen (per ODS-Import/UI
+angelegt) die UOM bewusst über das UI bzw. den ODS-Import setzen. Das
+folgende `UPDATE` ist nur eine **Dev/Test-Abkürzung mit direktem
+DB-Zugriff** (schreibendes SQL — im Produktiv-/Standard-Ablauf nicht
+verwenden):
 
 ```sql
+-- nur Dev/Test mit direktem DB-Zugriff
 UPDATE BXS_AssetClass SET C_UOM_ID =
     (SELECT C_UOM_ID FROM C_UOM WHERE Name='Kilometer' AND AD_Client_ID IN (0, <client>) LIMIT 1)
 WHERE Value='100';
-
-UPDATE BXS_AssetClass SET C_UOM_ID =
-    (SELECT C_UOM_ID FROM C_UOM WHERE Name='Hour' AND AD_Client_ID IN (0, <client>) LIMIT 1)
-WHERE Value='200';
 ```
 
 Der Anlagenbestand wird über die CSV-Vorlage geladen (siehe `import/AssetImport_Mapping.md`).

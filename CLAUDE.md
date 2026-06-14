@@ -77,7 +77,7 @@ Konvention pro Beispiel-Verzeichnis:
 - `build_ods.py` baut daraus ein `<name>.ods` für den ODS-Importer
 - `build.sh` orchestriert: Master-Rolle anwenden + ODS importieren + Smoke-Test
 - `bootstrap_roles.py` für Master-Rolle-Anlage und Login-Rollen-Include (tenant-spezifisch, weil `LOGIN_ROLE_NAME` umgebungsabhängig ist)
-- `masterrolle_includes.csv` listet die Login-Rollen, in die die Master-Rolle eingehängt wird
+- `masterrolle_includes.csv.example` ist ein **Beispiel** möglicher Login-Rollen. Es wird **nicht** automatisch angewendet. In welche Anwender-Login-Rollen die `anlagenbuch`-Master-Rolle eingehängt wird, ist eine bewusste **manuelle** Admin-Entscheidung (UI: Role → Included Role) — keine vorgegebene Liste, keine Automatik. `bootstrap_roles.py` hängt **ausschließlich** die Skript-Login-Rolle `Datalotte` ein, damit der ODS-Import die Fenster sieht; die Sichtbarkeit für menschliche Anwender entscheidet der Admin separat.
 
 **Wichtig:** beim Schreiben neuer Skripte/Dateien immer fragen, ob das in den Community-Pfad oder ins Beispiel-Verzeichnis gehört. Im Zweifel: alles, was kundenspezifische Identifier, Credentials, Fahrzeug-/Anlagendaten enthält → Beispiel-Verzeichnis. Alles, was tenant-neutral funktioniert → Community-Pfad.
 

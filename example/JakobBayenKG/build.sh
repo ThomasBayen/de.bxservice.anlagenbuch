@@ -47,23 +47,20 @@ python3 "$REPO_ROOT/tools/import-ods.py" \
     --profile "${ODS_PROFILE:-bayen}" \
     "$SCRIPT_DIR/anlagenbuch_init.ods"
 
-# ── 4. Reports auf deutsche JRXML-Variante umstellen ─────────────────────
-# Im Bayen-Mandant sollen die mitgelieferten Reports deutsch drucken.
-# install_de_reports.sql ist idempotent (NOT LIKE '%_de.jrxml'-Guard).
-# Voraussetzung: setup/config.env enthält die PG-Connection (PGHOST/
-# PGPORT/PGUSER/PGPASSWORD/PGDATABASE) — die liest install.sh ohnehin.
-SETUP_CONFIG="$REPO_ROOT/setup/config.env"
-if [ -f "$SETUP_CONFIG" ]; then
-    # shellcheck disable=SC1090
-    set -a; . "$SETUP_CONFIG"; set +a
-    step "Stelle Reports auf deutsche JRXML-Variante um (install_de_reports.sql)"
-    PGPASSWORD="${PGPASSWORD:-}" psql \
-        -h "${PGHOST:-localhost}" -p "${PGPORT:-5432}" \
-        -U "${PGUSER:-adempiere}" -d "${PGDATABASE:-idempiere}" \
-        -f "$REPO_ROOT/setup/install_de_reports.sql"
-else
-    echo "[jbkg-build] Warnung: $SETUP_CONFIG fehlt — Reports bleiben englisch." >&2
-    echo "                       Anlegen via cp setup/config.env.example setup/config.env" >&2
-fi
+# ── 4. Reports auf deutsche JRXML-Variante: bewusster System-Admin-Schritt ─
+# KEIN automatisches schreibendes SQL mehr. Das JasperReport-Feld der drei
+# Print-Prozesse (AD_Process, System-Mandant) auf das `_de.jrxml`-Suffix zu
+# stellen ist eine System-Level-Konfigurationsänderung — sie gehört in
+# System-Administrator-Hände, nicht in die Tenant-Import-Identität Datalotte
+# (die darf AD_Process korrekterweise nicht ändern: REST liefert dort 403).
+#
+# SQL-frei umstellen (eine der beiden Varianten):
+#   • UI als System-Administrator: Anwendung → Bericht & Prozess →
+#     BXS_Print_WorkshopDossier / _AssetDossier / _AssetStatusOverview →
+#     Feld JasperReport: `_de` vor `.jrxml` einfügen.
+#   • REST-PUT auf /api/v1/models/ad_process/{id} mit einer System-Rolle.
+# (Nur als Dev/Test-Abkürzung mit direktem DB-Zugriff existiert weiterhin
+#  setup/install_de_reports.sql — bewusst NICHT mehr aus build.sh aufgerufen.)
+step "Reports-Sprache: SQL-frei als System-Admin umstellen (siehe docs/Installation.md)"
 
 echo "[jbkg-build] fertig."

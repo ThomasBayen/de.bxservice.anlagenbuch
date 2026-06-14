@@ -16,12 +16,14 @@ echtes Customer-Deployment als Vorlage suchen.
   hardcodiert die operativen Demo-Fehlerberichte aus dem Steppert-
   Gespräch.
 - `anlagenbuch_init.ods` — gebaute ODS, mitcommittet.
-- `bootstrap_roles.py` — legt Master-Rolle `anlagenbuch` an, gibt ihr
-  Process-/Window-Access und hängt sie in `Datalotte` (per psql-Fallback
-  für die Window-Lookups) ein.
-- `masterrolle_includes.csv` — Liste der menschlichen Login-Rollen
-  (GF, Disposition, …), in die der iDempiere-Admin manuell die
-  `anlagenbuch`-Master-Rolle einhängt.
+- `bootstrap_roles.py` — hängt die (vom 2Pack gelieferte) System-Master-
+  Rolle `anlagenbuch` per REST `AD_Role_Included` in die Skript-Login-Rolle
+  `Datalotte` ein, damit der ODS-Import die BXS-Fenster sieht. Mehr nicht
+  (legt die Rolle **nicht** an — die kommt aus `Anlagenbuch_03_role.zip`).
+- `masterrolle_includes.csv.example` — **Beispiel**liste menschlicher
+  Login-Rollen (GF, Disposition, …). Wird **nicht** automatisch angewendet:
+  in welche Anwender-Rollen die `anlagenbuch`-Rolle eingehängt wird, ist eine
+  bewusste **manuelle** Admin-Entscheidung (UI: Role → Tab *Included Role*).
 - `config.env.example` / `config.env` — Login-Daten + Postgres-Settings
   (Bayen-Test-Instanz, Port 8444).
 - `build.sh` — End-to-End: bootstrap + build_ods + ODS-Import.

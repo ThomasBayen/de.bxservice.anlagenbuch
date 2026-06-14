@@ -203,11 +203,13 @@ Caveats:
 ### Customer deployment
 
 Binding the role into a tenant is customer-specific. For JBKG,
-`example/JakobBayenKG/bootstrap_roles.py` idempotently creates one
-`AD_Role_Included` from the configured login role (`Datalotte` /
-`GF` / `Dispatch` / …) to the system master role — that is all the
-script does. Other users perform the same step in the UI (see
-`Installation.md`).
+`example/JakobBayenKG/bootstrap_roles.py` idempotently creates **exactly
+one** `AD_Role_Included`: from the script login role `Datalotte` to the
+system master role — solely so the ODS import can see the windows. That is
+all the script does. Which **human** user login roles (`GF`, `Dispatch`,
+…) get to see the Anlagenbuch is a deliberate **manual** per-role admin
+decision in the UI (see `Installation.md`) — there is **no** predefined
+role list and no automation for it.
 
 ## Lessons from building the 2Pack
 

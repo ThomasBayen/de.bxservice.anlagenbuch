@@ -11,8 +11,10 @@ inkludieren sie per `AD_Role_Included`.
   ausgeliefert.
 - **Includes-CSV (eigene Datei pro Deployment)** — listet die
   Login-Rollen, in die die Master-Rolle per `AD_Role_Included`
-  eingehängt wird. **Mandantenspezifisch**. Beispiel:
-  `example/JakobBayenKG/masterrolle_includes.csv`.
+  eingehängt wird. **Mandantenspezifisch** und eine **bewusste
+  Admin-Entscheidung** — keine vorgegebene Liste. Als Vorlage liegt
+  `example/JakobBayenKG/masterrolle_includes.csv.example` bei; pro
+  Deployment selbst kopieren und mit den eigenen Login-Rollen füllen.
 - **`apply.py`** — REST-getriebenes Idempotent-Skript, lädt
   `anlagenbuch.csv` plus die per `--includes`-Flag angegebene
   Includes-CSV und legt Rolle + Accesses + Includes an.
@@ -37,7 +39,8 @@ wird in eine existierende Login-Rolle per Include eingehängt.
 
 ```bash
 cd Anlagenbuch/import/masterrolle
-./apply.py --includes ../../example/JakobBayenKG/masterrolle_includes.csv
+cp ../../example/JakobBayenKG/masterrolle_includes.csv.example meine_includes.csv  # anpassen!
+./apply.py --includes meine_includes.csv
 ./apply.py --no-includes    # nur die Master-Rolle, keine Login-Includes
 ```
 

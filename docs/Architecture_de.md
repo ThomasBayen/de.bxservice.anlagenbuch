@@ -199,11 +199,14 @@ Caveats:
 ### Customer-Deployment
 
 Eine Tenant-Bindung ist Customer-spezifisch. Für JBKG legt
-`example/JakobBayenKG/bootstrap_roles.py` idempotent ein
-`AD_Role_Included` von der konfigurierten Login-Rolle (`Datalotte` /
-`GF` / `Disposition` / …) auf die System-Master-Rolle an — mehr macht
-das Skript nicht. Andere Anwender erledigen denselben Schritt manuell
-in der UI (siehe `Installation.md`).
+`example/JakobBayenKG/bootstrap_roles.py` idempotent **genau einen**
+`AD_Role_Included` an: von der Skript-Login-Rolle `Datalotte` auf die
+System-Master-Rolle — nur damit der ODS-Import die Fenster sieht. Mehr
+macht das Skript nicht. Welche **menschlichen** Anwender-Login-Rollen
+(`GF`, `Disposition`, …) das Anlagenbuch sehen, ist eine bewusste
+**manuelle** Admin-Entscheidung pro Rolle in der UI (siehe
+`Installation.md`) — es gibt **keine** vorgegebene Rollenliste und keine
+Automatik dafür.
 
 ## Lessons aus dem 2Pack-Bau
 

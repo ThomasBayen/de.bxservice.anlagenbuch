@@ -8,7 +8,7 @@ Zwei Eingaben:
   2. `--includes <CSV>` (mandantenspezifisch, vom Deployer mitgegeben)
      listet die Login-Rollen, in die die Master-Rolle per
      `AD_Role_Included` eingehängt wird. Beispiel:
-     `example/JakobBayenKG/masterrolle_includes.csv`.
+     `example/JakobBayenKG/masterrolle_includes.csv.example`.
 
 Idempotent: bestehende Rolle / Accesses / Includes werden mit `[skip]`
 übersprungen.
@@ -20,7 +20,7 @@ Voraussetzungen:
   * `setup/config.env` enthält die REST-/PG-Credentials.
 
 Aufruf:
-    ./apply.py --includes example/JakobBayenKG/masterrolle_includes.csv
+    ./apply.py --includes example/JakobBayenKG/masterrolle_includes.csv.example
     ./apply.py --no-includes      # nur Master-Rolle, keine Login-Includes
 """
 from __future__ import annotations
@@ -241,7 +241,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--includes", type=Path, default=None,
                     help="CSV mit Login-Rollen, in die die Master-Rolle eingehängt wird "
-                         "(z.B. example/JakobBayenKG/masterrolle_includes.csv).")
+                         "(z.B. example/JakobBayenKG/masterrolle_includes.csv.example).")
     ap.add_argument("--no-includes", action="store_true",
                     help="Nur die Master-Rolle einrichten; Includes überspringen.")
     args = ap.parse_args()
