@@ -41,6 +41,29 @@ cp config.env.example config.env   # fill in password
 `tools/profiles.local.yaml` must contain a `bayen` profile — see
 `tools/profiles.yaml.example`.
 
+## Requirements on the login role (Datalotte)
+
+The REST flow runs **entirely** through the application server (no direct
+SQL). For `build.sh` to pass without manual steps, the script login role
+(`Datalotte`, `LOGIN_ROLE_NAME`/`role_id`) must have **two** properties —
+set once by the admin in the UI:
+
+1. **Window access to the *Role* window** — otherwise `bootstrap_roles.py`
+   cannot create the `AD_Role_Included` via REST (`ad_role` returns
+   empty/`403`).
+2. **Full table access — no active *exclusive* whitelist.** If the role
+   (or a role it actively includes) carries `AD_Table_Access` rows with
+   `AccessTypeRule='A'`/`IsExclude='N'`, access is limited to **only**
+   those tables. Then `GET /api/v1/windows` filters out the BXS windows
+   (system dictionary) before the access check → the ODS import cannot
+   resolve its target windows. So the role must **not** have an exclusive
+   whitelist (stock iDempiere: no `AD_Table_Access` rows = access to all
+   tables).
+
+Check (read-only): in the DB `Datalotte` has 0 `AD_Table_Access` rows and
+no **active** whitelist role included. After a DB refresh from prod this is
+automatic, as long as the prod Datalotte role stays that way.
+
 ## No anonymisation
 
 Real Bayen license plates and asset names are in the repo. Deliberate

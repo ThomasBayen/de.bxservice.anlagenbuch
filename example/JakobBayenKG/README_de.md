@@ -46,6 +46,29 @@ cp config.env.example config.env   # Passwort einsetzen
 `tools/profiles.local.yaml` muss ein Profil `bayen` enthalten — siehe
 `tools/profiles.yaml.example`.
 
+## Voraussetzungen an die Login-Rolle (Datalotte)
+
+Der REST-Ablauf läuft **ausschließlich** über den Application Server (kein
+direktes SQL). Damit `build.sh` ohne Handgriffe durchläuft, muss die
+Skript-Login-Rolle (`Datalotte`, `LOGIN_ROLE_NAME`/`role_id`) **zwei**
+Eigenschaften haben — vom Admin einmalig im UI gesetzt:
+
+1. **Window-Access auf das Fenster „Role"** — sonst kann
+   `bootstrap_roles.py` den `AD_Role_Included` nicht per REST anlegen
+   (REST liefert sonst leere/`403`-Antworten auf `ad_role`).
+2. **Voller Tabellenzugriff — keine aktive *exklusive* Whitelist.** Trägt
+   die Rolle (oder eine von ihr aktiv inkludierte Rolle) `AD_Table_Access`-
+   Einträge mit `AccessTypeRule='A'`/`IsExclude='N'`, ist der Zugriff auf
+   **nur** diese Tabellen beschränkt. Dann filtert `GET /api/v1/windows`
+   die BXS-Fenster (System-Dictionary) vor der eigentlichen Access-Prüfung
+   weg → der ODS-Import findet seine Zielfenster nicht. Die Rolle braucht
+   daher **keine** exklusive Whitelist (Standard-iDempiere: keine
+   `AD_Table_Access`-Zeilen = Zugriff auf alle Tabellen).
+
+Prüfen (lesend): in der DB hat `Datalotte` 0 `AD_Table_Access`-Zeilen und
+keine **aktive** Whitelist-Rolle inkludiert. Nach einem DB-Refresh aus Prod
+ist das automatisch gegeben, solange die Prod-Datalotte-Rolle so bleibt.
+
 ## Keine Anonymisierung
 
 Die echten Bayen-Kennzeichen und Anlagen-Namen sind im Repo enthalten.
