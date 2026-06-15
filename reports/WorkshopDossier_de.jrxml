@@ -349,12 +349,12 @@
               </staticText>
             </jr:tableHeader>
             <jr:detailCell height="44" rowSpan="1">
-              <textField textAdjust="StretchHeight" isBlankWhenNull="true">
+              <textField isStretchWithOverflow="true" isBlankWhenNull="true">
                 <reportElement x="0" y="2" width="280" height="14" style="CellBold" uuid="d1e1c001-0001-0004-0052-000000000001"/>
                 <textElement><paragraph leftIndent="3"/></textElement>
                 <textFieldExpression><![CDATA["Schedule".equals($F{Type}) && $F{ScheduleTypeName} != null ? $F{ScheduleTypeName} : $F{ItemName}]]></textFieldExpression>
               </textField>
-              <textField textAdjust="StretchHeight" isBlankWhenNull="true">
+              <textField isStretchWithOverflow="true" isBlankWhenNull="true">
                 <reportElement x="0" y="18" width="280" height="22" style="Cell" uuid="d1e1c001-0001-0004-0053-000000000001"/>
                 <textElement><paragraph leftIndent="3"/></textElement>
                 <textFieldExpression><![CDATA[$F{Description}]]></textFieldExpression>
@@ -374,7 +374,7 @@
       <line>
         <reportElement positionType="Float" x="0" y="362" width="535" height="1" forecolor="#C0C0C0" uuid="d1e1c001-0001-0005-0002-000000000001"/>
       </line>
-      <textField textAdjust="StretchHeight" isBlankWhenNull="true">
+      <textField isStretchWithOverflow="true" isBlankWhenNull="true">
         <reportElement positionType="Float" x="0" y="368" width="535" height="40" style="Note" uuid="d1e1c001-0001-0005-0003-000000000001">
           <propertyExpression name="net.sf.jasperreports.style.backcolor"><![CDATA["#F4F4F0"]]></propertyExpression>
         </reportElement>

@@ -317,7 +317,7 @@
           </jr:column>
           <jr:column width="195" uuid="d1e1c001-0002-0012-0040-000000000001">
             <jr:tableHeader height="20"><staticText><reportElement x="0" y="0" width="195" height="20" backcolor="#1F2F50" mode="Opaque" style="HeadingTab" uuid="d1e1c001-0002-0012-0041-000000000001"/><textElement verticalAlignment="Middle"/><text><![CDATA[ Anmerkung]]></text></staticText></jr:tableHeader>
-            <jr:detailCell height="22"><textField textAdjust="StretchHeight" isBlankWhenNull="true"><reportElement x="0" y="2" width="195" height="14" style="Cell" uuid="d1e1c001-0002-0012-0042-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA[$F{Description}]]></textFieldExpression></textField></jr:detailCell>
+            <jr:detailCell height="22"><textField isStretchWithOverflow="true" isBlankWhenNull="true"><reportElement x="0" y="2" width="195" height="14" style="Cell" uuid="d1e1c001-0002-0012-0042-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA[$F{Description}]]></textFieldExpression></textField></jr:detailCell>
           </jr:column>
         </jr:table>
       </componentElement>
@@ -353,7 +353,7 @@
           </jr:column>
           <jr:column width="320" uuid="d1e1c001-0002-0013-0040-000000000001">
             <jr:tableHeader height="20"><staticText><reportElement x="0" y="0" width="320" height="20" backcolor="#1F2F50" mode="Opaque" style="HeadingTab" uuid="d1e1c001-0002-0013-0041-000000000001"/><textElement verticalAlignment="Middle"/><text><![CDATA[ Mangel]]></text></staticText></jr:tableHeader>
-            <jr:detailCell height="22"><textField textAdjust="StretchHeight" isBlankWhenNull="true"><reportElement x="0" y="2" width="320" height="20" style="CellBold" uuid="d1e1c001-0002-0013-0042-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA[$F{Defect}]]></textFieldExpression></textField></jr:detailCell>
+            <jr:detailCell height="22"><textField isStretchWithOverflow="true" isBlankWhenNull="true"><reportElement x="0" y="2" width="320" height="20" style="CellBold" uuid="d1e1c001-0002-0013-0042-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA[$F{Defect}]]></textFieldExpression></textField></jr:detailCell>
           </jr:column>
         </jr:table>
       </componentElement>
@@ -393,7 +393,7 @@
           </jr:column>
           <jr:column width="215" uuid="d1e1c001-0002-0014-0050-000000000001">
             <jr:tableHeader height="20"><staticText><reportElement x="0" y="0" width="215" height="20" backcolor="#1F2F50" mode="Opaque" style="HeadingTab" uuid="d1e1c001-0002-0014-0051-000000000001"/><textElement verticalAlignment="Middle"/><text><![CDATA[ Thema]]></text></staticText></jr:tableHeader>
-            <jr:detailCell height="20"><textField textAdjust="StretchHeight" isBlankWhenNull="true"><reportElement x="0" y="1" width="215" height="14" style="Cell" uuid="d1e1c001-0002-0014-0052-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA[$F{Topic}]]></textFieldExpression></textField></jr:detailCell>
+            <jr:detailCell height="20"><textField isStretchWithOverflow="true" isBlankWhenNull="true"><reportElement x="0" y="1" width="215" height="14" style="Cell" uuid="d1e1c001-0002-0014-0052-000000000001"/><textElement><paragraph leftIndent="3"/></textElement><textFieldExpression><![CDATA[$F{Topic}]]></textFieldExpression></textField></jr:detailCell>
           </jr:column>
         </jr:table>
       </componentElement>
