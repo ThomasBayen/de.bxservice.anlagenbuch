@@ -153,8 +153,14 @@ fi
 # ── 3. JRXML-Reports nach $IDEMPIERE_HOME/reports/ ────────────────────────
 step "Kopiere JRXML-Reports nach $IDEMPIERE_HOME/reports/"
 mkdir -p "$IDEMPIERE_HOME/reports"
-# -n = no-clobber: vorhandene Reports werden nicht überschrieben.
-cp -n "$REPO_ROOT/reports/"*.jrxml "$IDEMPIERE_HOME/reports/" 2>/dev/null || true
+# -u = update: überschreibt eine vorhandene Report-Datei nur, wenn die
+# Repo-Version neuer ist (oder noch fehlt). So landen Report-Korrekturen
+# (z.B. JasperReports-Engine-Kompatibilität) auch bei einem Update
+# zuverlässig im Server — früher (cp -n / no-clobber) blieb eine veraltete
+# jrxml liegen und der Fix kam nie an. Kopiert wird ausschließlich
+# reports/*.jrxml aus diesem Repo; fremde Reports im selben Verzeichnis
+# werden nicht angefasst.
+cp -u "$REPO_ROOT/reports/"*.jrxml "$IDEMPIERE_HOME/reports/" 2>/dev/null || true
 
 # ── 4. Optional: DE-Report-Suffix aktivieren ─────────────────────────────
 if [ "$WITH_DE" -eq 1 ]; then
