@@ -124,10 +124,11 @@ NOW = os.environ.get("PACKOUT_NOW") \
 # EntityType
 #
 # Jeder Application-Dictionary-Record trägt einen AD_EntityType-Code. Der
-# Generator setzt ihn global aus dem package-Header (`entity_type:`, Default
-# „U"). ENTITY_TYPE wird in main() einmalig überschrieben und von allen
-# emit_*-Funktionen über b.leaf("EntityType", ENTITY_TYPE) gelesen.
-ENTITY_TYPE = "U"
+# Generator setzt ihn global aus dem package-Header (`entity_type:` —
+# PFLICHTANGABE, kein stiller Default mehr; siehe main()). ENTITY_TYPE wird
+# in main() einmalig überschrieben und von allen emit_*-Funktionen über
+# b.leaf("EntityType", ENTITY_TYPE) gelesen.
+ENTITY_TYPE = None
 
 # Core-EntityTypes, die in JEDER iDempiere-Installation vorhanden sind. Für
 # sie wird KEIN AD_EntityType-Record mitgeliefert (FK ist immer auflösbar).
@@ -1713,9 +1714,26 @@ def main() -> int:
     #          (z. B. aireports: SysConfig/Ref_List auf Core-Tabellen) — sonst
     #          schlägt die fehlende Commit-Grenze zwischen Schema und Daten zu
     #          (siehe Kommentar oben). Ein einzelnes ZIP genügt dann als
-    #          META-INF/2Pack_<ver>.zip im OSGi-Bundle.
+    #          META-INF/2Pack_<ver>.zip im OSGi-Bundle. ACHTUNG: Enthält die
+    #          Spec eine NEUE AD_Role, darf sie NICHT mit ins Bundle-ZIP —
+    #          der Bundle-Auto-2Pack kann keine neue Rolle anlegen (TBB009).
+    #          Dann `--part all --exclude role` fürs Bundle + `--part role`
+    #          für ein separates, per Folder-Weg eingespieltes Rollen-ZIP.
     p.add_argument("--part", choices=("schema", "data", "role", "all"),
                    required=True)
+    # --exclude: einzelne Buckets aus dem gewählten --part herausnehmen
+    # (Komma-Liste). Praktisch für „alles AUSSER Rolle" in EINEM Lauf:
+    #   --part all --exclude role  →  schema + data, OHNE die AD_Role-Records.
+    # Hintergrund: Eine NEUE AD_Role lässt sich nicht über den Bundle-Auto-2Pack
+    # (Incremental2PackActivator, ZIP im JAR) anlegen — der Import läuft ohne
+    # Login-Kontext, MUserRoles.beforeSave wirft NPE und rollt das GANZE Pack
+    # zurück (Core-Bug TBB009). Die Rolle muss daher in ein SEPARATES ZIP, das
+    # über den Folder-Weg (PackInApplicationActivator / RUN_ApplyPackInFromFolder)
+    # eingespielt wird. Mit --exclude baut build.sh das rollenfreie Bundle-ZIP
+    # und per `--part role` das Rollen-ZIP — aus EINER Spec-Quelle.
+    p.add_argument("--exclude", default="",
+                   help="Komma-Liste von Buckets (schema,data,role), die aus "
+                        "--part herausfallen. Z. B. '--part all --exclude role'.")
     args = p.parse_args()
 
     repo_root = args.source.parent.parent
@@ -1771,11 +1789,21 @@ def main() -> int:
         print("ERROR: kein package-Header gefunden", file=sys.stderr)
         return 1
 
-    # EntityType global aus dem package-Header übernehmen (Default „U").
+    # EntityType global aus dem package-Header übernehmen — PFLICHTANGABE.
+    # Kein stiller „U"-Default mehr: eigene Plugins müssen ihre Marke bewusst
+    # setzen (i. d. R. BAY/BXS), sonst landeten Records versehentlich als
+    # User-Customization (U) und vermischten sich mit echten Kunden-Anpassungen.
     # Alle emit_*-Funktionen lesen ENTITY_TYPE; eigene Marken (BAY/BXS)
     # ziehen zusätzlich einen AD_EntityType-Record nach (siehe unten).
     global ENTITY_TYPE
-    ENTITY_TYPE = package.get("entity_type", "U")
+    ENTITY_TYPE = package.get("entity_type")
+    if not ENTITY_TYPE:
+        print("ERROR: package-Header ohne 'entity_type'. Das ist eine "
+              "Pflichtangabe — die EntityType-Marke explizit setzen (eigene "
+              "Plugins i. d. R. 'BAY' oder 'BXS'; Core-Typen 'U'/'D'/'C'/'EXT' "
+              "nur bewusst). Frueher fiel das still auf 'U' zurueck.",
+              file=sys.stderr)
+        return 1
     if ENTITY_TYPE not in CORE_ENTITY_TYPES and ENTITY_TYPE not in ENTITY_TYPE_RECORDS:
         print(f"ERROR: entity_type '{ENTITY_TYPE}' ist weder ein Core-Typ "
               f"({sorted(CORE_ENTITY_TYPES)}) noch in ENTITY_TYPE_RECORDS "
@@ -1829,7 +1857,20 @@ def main() -> int:
     b.indent = 1
     # Welche Buckets in diese Datei kommen. "all" bündelt alle drei in
     # schema→data→role-Reihenfolge; sonst genau der eine gewählte Part.
-    parts_to_emit = {"schema", "data", "role"} if args.part == "all" else {args.part}
+    # --exclude nimmt anschließend einzelne Buckets wieder heraus
+    # (z. B. `--part all --exclude role` → schema+data ohne Rolle).
+    excluded = {x.strip() for x in args.exclude.split(",") if x.strip()}
+    bad = excluded - {"schema", "data", "role"}
+    if bad:
+        print(f"ERROR: --exclude kennt nur schema/data/role, nicht {sorted(bad)}",
+              file=sys.stderr)
+        return 1
+    parts_to_emit = ({"schema", "data", "role"} if args.part == "all"
+                     else {args.part}) - excluded
+    if not parts_to_emit:
+        print(f"ERROR: --part {args.part} --exclude {args.exclude} lässt nichts "
+              f"zu emittieren übrig.", file=sys.stderr)
+        return 1
     if "schema" in parts_to_emit:
         # Eigene EntityType-Marke (BAY/BXS) als ALLERERSTES Element — alle
         # folgenden AD_*-Records referenzieren sie per FK. Core-Typen
@@ -1936,7 +1977,8 @@ def main() -> int:
     args.out.write_text("\n".join(out) + "\n", encoding="utf-8")
     uuids.save()
 
-    print(f"Wrote {args.out}  [part={args.part}]")
+    _exc = f" exclude={args.exclude}" if excluded else ""
+    print(f"Wrote {args.out}  [part={args.part}{_exc} -> {sorted(parts_to_emit)}]")
     if "schema" in parts_to_emit:
         print(f"  refs={len(references)} tables={len(tables)} "
               f"sequences={len(sequences)} windows={len(windows)} "
