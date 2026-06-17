@@ -103,6 +103,28 @@ Buttons (Tab-Toolbar-Prozesse) brauchen kein `menu:`.
    linien und Checkbox-Zellen (rechteckige Boxen mit `<rectangle>`)
    ergänzen, sobald die Anzahl Items geklärt ist (max. 10? dynamisch?).
 
+## ⚠️ JasperReports-Version: 5.6.x-kompatibel bleiben
+
+Die Reports werden **nicht** vorkompiliert ausgeliefert — iDempiere
+übersetzt die jrxml bei der ersten Benutzung selbst. Die dafür genutzte
+Engine ist die vom Plugin `de.bxservice.report` mitgelieferte
+**JasperReports 5.6.1**, nicht die neuere Core-Version (6.x). Die jrxml
+müssen daher gegen das **5.6.x-Schema** kompilieren.
+
+Konkret: **keine Attribute/Elemente verwenden, die erst in JasperReports
+6.x eingeführt wurden.** Klassische Falle ist `textAdjust="StretchHeight"`
+(JR 6.0) — Jasper Studio schreibt das beim Speichern automatisch hinein.
+Stattdessen das abwärtskompatible `isStretchWithOverflow="true"` benutzen,
+das **5.6.x und 6.x** verstehen.
+
+Symptom bei einem 6.x-only-Attribut: Der Druck öffnet das Viewer-Fenster,
+zeigt aber **kein PDF** (0 Seiten) — meist ohne sichtbare Exception im
+Server-Log, weil schon die XML-Schema-Validierung der jrxml scheitert.
+
+Wer die Reports in Jasper Studio bearbeitet, sollte sie danach gegen eine
+5.6.x-Engine gegenprüfen (z.B. die Jars aus `de.bxservice.report.libraries`),
+bevor er ausliefert.
+
 ## Lokale Validierung
 
 Die Skelette wurden mit dem im iDempiere-Source-Tree mitgelieferten

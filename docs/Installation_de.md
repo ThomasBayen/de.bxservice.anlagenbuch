@@ -148,7 +148,8 @@ Der Anlagenbestand wird über die CSV-Vorlage geladen (siehe `import/AssetImport
 
 Versionsverlauf siehe `docs/CHANGELOG.md`. Aktuell offen:
 
-- **Reports (JRXML)** liegen in `reports/` und müssen einmalig nach `$IDEMPIERE_HOME/reports/` kopiert werden — 2Pack-Install kopiert sie nicht mit (s.u. „Reports — Sprache umstellen").
+- **Reports (JRXML)** liegen in `reports/` und müssen einmalig nach `$IDEMPIERE_HOME/reports/` kopiert werden — 2Pack-Install kopiert sie nicht mit (s.u. „Reports — Sprache umstellen"). iDempiere übersetzt die jrxml bei der ersten Benutzung selbst, und zwar mit der von `de.bxservice.report` mitgelieferten **JasperReports 5.6.1** — die jrxml müssen **5.6.x-kompatibel** bleiben (keine JR-6.x-only-Attribute wie `textAdjust`; stattdessen `isStretchWithOverflow`). Details in `reports/README.md`.
+- **Typgesteuerte Belegnummern (FEH-/TER-/STA-/WAU-)** vergeben AD_Rule-TBN-Table-Event-Validatoren. Der `MTableScriptValidator`-Cache übernimmt sie erst **nach einem Server-Neustart**. Die Import-Varianten A und B enthalten ohnehin einen (Neu-)Start — eine normale Installation ist damit abgedeckt. Wer das 2Pack aber in einen *laufenden* Server einspielt (z.B. über *Import Package* im UI), muss danach einmal neu starten, sonst bekommen neue Einträge keine Belegnummer.
 
 ## Reports — Sprache umstellen
 

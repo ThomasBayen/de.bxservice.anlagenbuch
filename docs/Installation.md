@@ -167,7 +167,18 @@ See `docs/CHANGELOG.md` for the version history. Currently open:
 
 - **Reports (JRXML)** live in `reports/` and must be copied once to
   `$IDEMPIERE_HOME/reports/`; the 2Pack install does not copy them
-  along (see "Reports — switching language" below).
+  along (see "Reports — switching language" below). The jrxml are
+  compiled by iDempiere on first use with the **JasperReports 5.6.1**
+  engine shipped by `de.bxservice.report` — keep them 5.6.x-compatible
+  (no JR 6.x-only attributes such as `textAdjust`; use
+  `isStretchWithOverflow` instead). See `reports/README.md`.
+- **Type-driven document numbers (FEH-/TER-/STA-/WAU-)** are assigned by
+  AD_Rule TBN table-event validators, which the `MTableScriptValidator`
+  cache only picks up **after a server restart**. Import options A and B
+  already include a (re)start, so a normal install is fine. But if you
+  apply the 2Pack into a *running* server (e.g. via the UI's *Import
+  Package*), restart once afterwards — otherwise new entries get no
+  document number.
 
 ## Reports — switching language
 
