@@ -13,6 +13,9 @@ package:
   description: Anlagenbuch — Wartungs- und Fehlerberichts-System
   author: Jakob Bayen KG / BX Service
   author_email: tbayen@bayen.de
-  entity_type: U          # User-Records, beim Kunden änderbar
+  entity_type: BAY        # eigene Marke (feste UUID, von jedem eigenen Plugin
+                          # idempotent mitgeliefert). NICHT U: distribuierte
+                          # Plugins wuerden sich sonst mit echten
+                          # User-Customizations vermischen (siehe plugins/CLAUDE.md).
   table_prefix: BXS_
   default_access_level: 3 # Client+Org (alle Anlagenbuch-Tabellen)
