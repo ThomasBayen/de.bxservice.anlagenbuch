@@ -21,6 +21,9 @@ __pycache__/
 tools/logs/
 
 # Credentials und Pfade — niemals committen. Beispieldateien (.env.example)
-# bleiben getrackt, nur die echten config.env-Files sind lokal.
+# bleiben getrackt, nur die echten config.env-Files (inkl. Varianten wie
+# config.env.prod) sind lokal.
 **/config.env
+**/config.env.*
+!**/config.env.example
 tools/profiles.local.yaml

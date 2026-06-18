@@ -3,9 +3,11 @@
 #
 # Vendored from idempiere-ods-import (AGPL-3.0-or-later).
 # Upstream: https://github.com/tbayen/idempiere-ods-import
-# Sync state: 71cdac3 (2026-05-09).
+# Sync state: 71cdac3 + lokale uncommittete Upstream-Aenderungen
+#   (Spalten-Padding fuer SuperCsv, language-Param, staging_ssh fuer
+#   Remote-iDempiere-Server). Re-vendort 2026-06-17.
 # Upstream-Fixes: tools/import-ods.py mit der upstream-Version
-# überschreiben und Sync state oben aktualisieren.
+# ueberschreiben und Sync state oben aktualisieren.
 """ODS-Multi-Sheet-Importer für iDempiere.
 
 Liest eine ODS-Datei mit einem Konfig-Sheet und mehreren Datensheets und
@@ -20,6 +22,7 @@ import io
 import os
 import re
 import shlex
+import subprocess
 import sys
 import time
 import urllib3
@@ -459,6 +462,40 @@ def stage_csv(staging_dir: Path, basename: str, content: str) -> Path:
     return path
 
 
+def push_staged(local_path: Path, ssh_target: str, remote_dir: Path) -> str:
+    """Kopiert die lokal gestagete CSV per scp auf einen entfernten
+    iDempiere-Server. `server_staging_dir` liegt dort im Dateisystem des
+    Servers, das der ImportCSVProcess per `FileName` einliest — bei einem
+    Remote-Server (Importer läuft nicht auf demselben Host) ist das lokale
+    Staging-Verzeichnis für den Server unsichtbar. Gibt den Remote-Pfad
+    zurück, der dem Prozess als FileName übergeben wird.
+
+    Voraussetzung: `ssh`/`scp` ohne interaktiven Prompt nutzbar (Key-Auth);
+    der SSH-User muss in `server_staging_dir` schreiben dürfen und der
+    iDempiere-Server-User es lesen können (z.B. derselbe Account)."""
+    remote_path = remote_dir.as_posix().rstrip("/") + "/" + local_path.name
+    subprocess.run(
+        ["ssh", "-o", "BatchMode=yes", ssh_target, "mkdir", "-p", remote_dir.as_posix()],
+        check=True,
+    )
+    subprocess.run(
+        ["scp", "-q", "-o", "BatchMode=yes", str(local_path), f"{ssh_target}:{remote_path}"],
+        check=True,
+    )
+    return remote_path
+
+
+def remove_remote(ssh_target: str, remote_path: str) -> None:
+    """Entfernt die zuvor per push_staged hochgeladene Remote-CSV (best effort)."""
+    try:
+        subprocess.run(
+            ["ssh", "-o", "BatchMode=yes", ssh_target, "rm", "-f", remote_path],
+            check=False,
+        )
+    except OSError:
+        pass
+
+
 def filter_entries(
     entries: list[ConfigEntry],
     start_from: str | None,
@@ -563,6 +600,11 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     staging_dir = Path(profile.get("server_staging_dir", "/tmp/idempiere-csv-import"))
+    # Remote-iDempiere: liegt der Server nicht auf demselben Host wie dieser
+    # Importer, kann er das lokale Staging-Verzeichnis nicht lesen. Mit
+    # `staging_ssh: user@host` im Profil wird die gestagete CSV per scp ins
+    # server_staging_dir des Servers geschoben und der Remote-Pfad übergeben.
+    staging_ssh = profile.get("staging_ssh")
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     LOG_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -573,13 +615,19 @@ def main(argv: list[str] | None = None) -> int:
         csv_text = sheet_to_csv(sheets[e.sheet])
         basename = f"{timestamp}_{_safe(e.sheet)}.csv"
         staged = stage_csv(staging_dir, basename, csv_text)
+        if staging_ssh:
+            server_path = push_staged(staged, staging_ssh, staging_dir)
+        else:
+            server_path = str(staged)
         try:
-            result = client.run_import(tmpl_id, str(staged), e.import_mode)
+            result = client.run_import(tmpl_id, server_path, e.import_mode)
         finally:
             try:
                 staged.unlink()
             except OSError:
                 pass
+            if staging_ssh:
+                remove_remote(staging_ssh, server_path)
 
         rows, ok, err = parse_export_csv(result.get("exportFile", ""))
         log_path = LOG_DIR / f"{timestamp}_{_safe(e.sheet)}.csv"
